@@ -35,7 +35,7 @@ public:
 
     template<typename... T>
     std::tuple<T&...> retrieve()
-    { return std::tuple (get<T>...); }
+    { return std::tuple<T&...>(get<T>()...); }
 
     template<typename T, typename... TArgs>
     T& attach(TArgs&&... args)

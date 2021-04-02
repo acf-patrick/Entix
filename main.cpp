@@ -16,10 +16,12 @@ struct Position
 int main(int argc, char* argv[])
 {
     Entity entity;
-    entity.attach<TagComponent>("objet");
+    entity.attach<TagComponent>("entity");
     entity.attach<Position>(0, 0);
-    std::cout << "Tag : " << entity.get<TagComponent>().tag << std::endl;
     auto& p = entity.get<Position>();
-    std::cout << "Position : [" << p.x << ", " << p.y << ']' << std::endl;
+    auto [position] = entity.retrieve<Position>();
+    std::cout << "method : " << &entity.get<Position>() << std::endl;
+    std::cout << "get method : " << &p << std::endl;
+    std::cout << "retrieve method : " << &position << std::endl;
     return 0;
 }
