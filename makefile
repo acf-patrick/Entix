@@ -10,14 +10,15 @@ CORE = core/ecs/component/componentManager.cpp\
  
 CLIENT = test.cpp
 
-HEADER = core/
-LIB = libs/
+HEADER = core/ core/zlib/
+LIBDIR = libs/
+LIB = -ltmx -lxml2 -lz -lyaml-cpp
 
 SRC = $(CORE) $(CLIENT)
 
 all : obj
 	@echo "... Linkage ..."
-	$(CXX) obj/* -L $(LIB) -ltmx -lyaml-cpp -o bin
+	$(CXX) obj/* -L $(LIBDIR) $(LIB) -o bin
 
 obj: $(SRC)
 	@echo "... Compiling ..."
