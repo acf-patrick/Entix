@@ -3,16 +3,19 @@
 CXX = g++-8
 CFLAGS = -std=c++2a -W
 
-SRC = main.cpp component/componentManager.cpp entity/entity.cpp
+ECS = ecs/component/componentManager.cpp ecs/entity/entity.cpp
+CLIENT = main.cpp
+
+SRC = $(ECS) $(CLIENT)
 
 all : obj
 	@echo "... Linkage ..."
 	$(CXX) obj/* -o bin
 
-obj:
+obj: $(SRC)
 	@echo "... Compiling ..."
-	@mkdir obj
-	$(CXX) $(CFLAGS) -c $(SRC)
+	@mkdir -p obj
+	$(CXX) $(CFLAGS) -c $?
 	@mv *.o obj/
 
 clean:

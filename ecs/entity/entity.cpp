@@ -8,10 +8,10 @@ Entity::Entity() :
     _manager(ComponentManager::get())
 {
     if (availableID.empty())
-        for (int i=0; i<MAX_ENTITIES; ++i)
+        for (EntityID i=0; i<MAX_ENTITIES; ++i)
             availableID.push(i);
 
-    if (instance >= MAX_ENTITIES)
+    if ((EntityID)instance >= MAX_ENTITIES)
     {
         std::cerr << "Too many entities created!" << std::endl;
         exit(1);
