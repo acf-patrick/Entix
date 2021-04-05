@@ -3,13 +3,17 @@
 CXX = g++-8
 CFLAGS = -std=c++2a -W
 
-ECS = core/ecs/component/componentManager.cpp core/ecs/entity/entity.cpp
-CLIENT = main.cpp
+CORE = core/ecs/component/componentManager.cpp\
+ core/ecs/entity/entity.cpp\
+ core/application/application.cpp\
+ core/entry/entry.cpp
+ 
+CLIENT = test.cpp
 
 HEADER = core/
 LIB = libs/
 
-SRC = $(ECS) $(CLIENT)
+SRC = $(CORE) $(CLIENT)
 
 all : obj
 	@echo "... Linkage ..."
