@@ -1,4 +1,5 @@
 #include <iostream>
+#include <yaml-cpp/yaml.h>
 #include "ecs/ecs.h"
 
 struct TagComponent
@@ -16,6 +17,7 @@ struct Position
 int main(int argc, char* argv[])
 {
     Entity entity;
+    YAML::Emitter emitter;
     entity.attach<TagComponent>("entity");
     entity.attach<Position>(0, 0);
     auto& p = entity.get<Position>();

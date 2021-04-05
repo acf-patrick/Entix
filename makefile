@@ -6,6 +6,8 @@ CFLAGS = -std=c++2a -W
 ECS = ecs/component/componentManager.cpp ecs/entity/entity.cpp
 CLIENT = main.cpp
 
+INCLUDE = core/
+
 SRC = $(ECS) $(CLIENT)
 
 all : obj
@@ -15,7 +17,7 @@ all : obj
 obj: $(SRC)
 	@echo "... Compiling ..."
 	@mkdir -p obj
-	$(CXX) $(CFLAGS) -c $?
+	$(CXX) $(CFLAGS) -I $(INCLUDE) -c $?
 	@mv *.o obj/
 
 clean:
