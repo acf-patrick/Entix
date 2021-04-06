@@ -10,8 +10,13 @@ CORE = core/ecs/component/componentManager.cpp\
  
 CLIENT = test.cpp
 
+ifeq ($(OS), Windows_NT)
+	LIBDIR = libs/win/
+else
+	LIBDIR = libs/linux/
+endif
+
 HEADER = core/ core/zlib/
-LIBDIR = libs/
 LIB = -ltmx -lxml2 -lz -lyaml-cpp
 
 SRC = $(CORE) $(CLIENT)

@@ -3,9 +3,10 @@
         {
             "name": "Linux",
             "includePath": [
+                "/usr/include/c++/8",
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/core/",
-                "/usr/include/c++/8"
+                "${workspaceFolder}/core/zlib/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++-8",

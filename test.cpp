@@ -1,6 +1,7 @@
 #include <iostream>
 #include <ecs/ecs.h>
 #include <application/application.h>
+#include <zlib.h>
 
 struct TagComponent
 {
