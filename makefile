@@ -10,20 +10,24 @@ CORE = core/ecs/component/componentManager.cpp\
  
 CLIENT = test.cpp
 
-ifeq ($(OS), Windows_NT)
-	LIBDIR = libs/win/
-else
-	LIBDIR = libs/linux/
-endif
+HEADER = core/
+LIBS = libs/
 
-HEADER = core/ core/zlib/
-LIB = -ltmx -lxml2 -lz -lyaml-cpp
+LIB = -ltmx -lyaml-cpp
+DEP = -lxml2 -lz
 
 SRC = $(CORE) $(CLIENT)
 
+ifeq ($(OS), Windows_NT)
+	L = -L$(LIBS)win/ $(LIB) $(DEP)
+	HEADER = $(HEADER) core/zlib/
+else
+	L = -L$(LIBS)linux/ $(LIB) -L. $(DEP)
+endif
+
 all : obj
 	@echo "... Linkage ..."
-	$(CXX) obj/* -L $(LIBDIR) $(LIB) -o bin
+	$(CXX) obj/* $(L) -o bin
 
 obj: $(SRC)
 	@echo "... Compiling ..."

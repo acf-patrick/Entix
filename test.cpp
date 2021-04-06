@@ -1,7 +1,8 @@
 #include <iostream>
 #include <ecs/ecs.h>
 #include <application/application.h>
-#include <zlib.h>
+#include <yaml-cpp/yaml.h>
+#include <tmx/tmx.h>
 
 struct TagComponent
 {
@@ -28,6 +29,8 @@ public:
         std::cout << "method : " << &entity.get<Position>() << std::endl;
         std::cout << "get method : " << &p << std::endl;
         std::cout << "retrieve method : " << &position << std::endl;
+	tmx_map* m = tmx_load("bidule");
+	tmx_perror("");
     }
 };
 
