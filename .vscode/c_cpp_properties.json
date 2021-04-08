@@ -5,8 +5,7 @@
             "includePath": [
                 "/usr/include/c++/8",
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/core/",
-                "${workspaceFolder}/core/zlib/"
+                "${workspaceFolder}/core/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++-8",

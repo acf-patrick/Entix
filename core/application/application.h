@@ -1,5 +1,8 @@
 #pragma once
 
+#include <string>
+#include <SDL2/SDL.h>
+
 // interface
 class Application
 {
@@ -11,11 +14,12 @@ public:
 
 protected:
 
-    Application();
+    Application(const std::string&, int, int);
 
     virtual void update();
     virtual void draw();
 
     bool _running;
 
+    SDL_Window* _window;
 };

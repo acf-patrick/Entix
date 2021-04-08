@@ -1,37 +1,18 @@
 #include <iostream>
-#include <ecs/ecs.h>
 #include <application/application.h>
-#include <yaml-cpp/yaml.h>
-#include <tmx/tmx.h>
-
-struct TagComponent
-{
-    TagComponent(const std::string& s) : tag(s) {}
-    std::string tag;
-};
-
-struct Position
-{
-    Position(float _x, float _y) : x(_x), y(_y) {}
-    double x, y;
-};
+#include <SDL2/SDL.h>
 
 class App : public Application
 {
 public:
-    void run() override
+    App() : Application("test", 640, 480)
+    {}
+
+    void run()
     {
-        Entity entity;
-        entity.attach<TagComponent>("entity");
-        entity.attach<Position>(0, 0);
-        auto& p = entity.get<Position>();
-        auto [position] = entity.retrieve<Position>();
-        std::cout << "method : " << &entity.get<Position>() << std::endl;
-        std::cout << "get method : " << &p << std::endl;
-        std::cout << "retrieve method : " << &position << std::endl;
-	tmx_map* m = tmx_load("bidule");
-	tmx_perror("");
+    	SDL_Delay(3000);
     }
+
 };
 
 Application* createApp()
