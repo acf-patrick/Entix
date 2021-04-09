@@ -38,6 +38,10 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Linker>
+			<Add option="-L/usr/local/lib/ -lSDL2" />
+			<Add option="-lSDL2_image" />
+		</Linker>
 		<Unit filename="core/application/application.cpp" />
 		<Unit filename="core/application/application.h" />
 		<Unit filename="core/ecs/component/componentArray.h" />
