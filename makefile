@@ -1,6 +1,6 @@
 .SUFFIXE:
 
-CXX = g++-8
+CXX = g++
 CFLAGS = -std=c++2a -W
 
 CORE = core/ecs/component/componentManager.cpp\
@@ -13,7 +13,7 @@ CLIENT = test.cpp
 HEADER = core/
 LIBS = libs/
 
-LIB = -ltmx -lyaml-cpp -lSDL2 #-lSDL2_image -lSDL2_ttf -lSDL2_mixer
+LIB = -ltmx -lyaml-cpp -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 DEP = -lxml2 -lz
 
 SRC = $(CORE) $(CLIENT)
