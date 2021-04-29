@@ -2,6 +2,7 @@
 #include <application/application.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <ecs/ecs.h>
 
 class App : public Application
 {

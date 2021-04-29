@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <tuple>
+#include <unordered_map>
 #include "../defs.h"
 #include "../component/componentManager.h"
 
@@ -55,10 +56,9 @@ public:
         return ret;
     }
 
-    operator EntityID()
-    {
-        return _id;
-    }
+    operator EntityID();
+
+    static Entity& get(const EntityID&);
 
 private:
 
@@ -69,5 +69,6 @@ private:
 
     static int instance;
     static std::queue<EntityID> availableID;
+    static std::unordered_map<EntityID, Entity*> instances;
 
 };

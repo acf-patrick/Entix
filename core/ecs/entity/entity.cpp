@@ -3,6 +3,7 @@
 
 int Entity::instance = 0;
 std::queue<std::uint32_t> Entity::availableID;
+std::unordered_map<EntityID, Entity*> Entity::instances;
 
 Entity::Entity() : 
     _manager(ComponentManager::get())
@@ -19,6 +20,7 @@ Entity::Entity() :
 
     _id = availableID.front();
     availableID.pop();
+    instances[_id] = this;
 
     instance++;
 }
@@ -27,8 +29,19 @@ Entity::~Entity()
 {
     _signature.reset();
 
+    instances.erase(_id);
     availableID.push(_id);
     instance--;
 
     _manager.entityDestroyed(_id);
+}
+
+Entity& Entity::get(const EntityID& id)
+{
+    return *instances[id];
+}
+
+Entity::operator EntityID()
+{
+    return _id;
 }
