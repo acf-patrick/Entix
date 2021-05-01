@@ -12,6 +12,11 @@ public:
 
     void run()
     {
+ 		Entity entity;
+		entity.attach<TagComponent>("entité");
+
+		std::cout << entity.get<TagComponent>().content;
+ 
     	SDL_Point wSize, tSize;
     	SDL_Rect src, dest;
     	SDL_Texture* texture;

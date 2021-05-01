@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 #include "entity.h"
 
 int Entity::instance = 0;
@@ -19,6 +20,8 @@ Entity::Entity() :
     }
 
     _id = availableID.front();
+    attach<ID>(_id);
+
     availableID.pop();
     instances[_id] = this;
 
@@ -38,6 +41,8 @@ Entity::~Entity()
 
 Entity& Entity::get(const EntityID& id)
 {
+    assert(instances.find(id) != instances.end() && "There is no instance matching with the given ID");
+
     return *instances[id];
 }
 

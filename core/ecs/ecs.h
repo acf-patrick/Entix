@@ -3,7 +3,7 @@
 
 #include "component/componentArray.h"
 #include "component/componentManager.h"
-
+#include "components.h"
 #include "entity/entity.h"
 
 #endif

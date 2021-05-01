@@ -62,6 +62,8 @@ public:
 
 private:
 
+    struct ID { EntityID& content; };
+
     EntityID _id;
     Signature _signature;
 
