@@ -1,4 +1,5 @@
 #include "application.h"
+#include "ecs/entity/entity.h"
 #include <cassert>
 
 Application::Application(const std::string& title, int width, int height) :
@@ -16,8 +17,12 @@ Application::~Application()
 {
 	SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
+
     _window = nullptr;
     _renderer = nullptr;
+
+    Entity::clean();
+
     SDL_Quit();
 }
 

@@ -1,9 +1,9 @@
 #pragma once
 
+#include <list>
 #include <queue>
 #include <tuple>
 #include <memory>
-#include <vector>
 #include <functional>
 #include <unordered_map>
 #include "../defs.h"
@@ -15,7 +15,11 @@ class Entity
 {
 public:
 
-    static Entity& create();
+    Entity();
+    ~Entity();
+
+// make sure to free memory
+    static void clean();
 
     template<typename T>
     bool has() const
@@ -64,13 +68,10 @@ public:
 
     bool operator==(const Entity&) const;
 
-    operator EntityID();
-    EntityID id();
+    operator EntityID() const;
+    EntityID id() const;
 
 private:
-
-    Entity();
-    ~Entity();
 
     EntityID _id;
     Signature _signature;
@@ -86,15 +87,19 @@ private:
 friend class Group;
 };
 
+// Entity Container
 class Group
 {
 public:
 
-using process   = std::function<void(Entity&)>;
-using predicate = std::function<bool(const Entity&)>;
+using _process   = std::function<void(Entity&)>;
+using _predicate = std::function<bool(const Entity&)>;
 
-    void for_each(process);
-    void for_each(process, predicate);
+    // return a list of entities having required components
+    std::vector<Entity&> get(_predicate);
+
+    void for_each(_process);
+    void for_each(_process, _predicate);
 
     void emplace(const Entity&);
     void emplace(Entity&&);
@@ -103,5 +108,5 @@ using predicate = std::function<bool(const Entity&)>;
 
 private:
 
-    std::vector<EntityID> _ids;
+    std::list<EntityID> _ids;
 };

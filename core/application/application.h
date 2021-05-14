@@ -2,6 +2,7 @@
 
 #include <string>
 #include <SDL2/SDL.h>
+#include <scene/scene.h>
 
 // interface
 class Application
@@ -20,6 +21,8 @@ protected:
     virtual void draw();
 
     bool _running;
+
+    SceneManager& scene = SceneManager::get();
 
     SDL_Window* _window;
     SDL_Renderer* _renderer;

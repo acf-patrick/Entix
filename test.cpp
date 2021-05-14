@@ -4,6 +4,8 @@
 #include <SDL2/SDL_image.h>
 #include <ecs/ecs.h>
 
+// TODO : add default scene so the manager won't never be empty
+
 class App : public Application
 {
 public:
@@ -12,7 +14,7 @@ public:
 
     void run()
 	{
-		
+
     	SDL_Point wSize, tSize;
     	SDL_Rect src, dest;
     	SDL_Texture* texture;

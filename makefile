@@ -8,7 +8,7 @@ CORE 	= core/ecs/component/componentManager.cpp\
 		core/ecs/entity/container.cpp\
 		core/application/application.cpp\
 		core/entry/entry.cpp\
-		core/scene/scene.cpp
+		core/scene/manager.cpp
  
 CLIENT 	= test.cpp
 

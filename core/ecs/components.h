@@ -1,7 +1,8 @@
 #pragma once
 
-#include <util/vector.h>
 #include <string>
+#include "entity/entity.h"
+#include <util/vector.h>
 
 struct TagComponent
 {
@@ -13,4 +14,9 @@ struct TransformComponent
     Vector<double> position;
     VectorF scale;
     double rotation;
+};
+
+struct  GroupComponent
+{ 
+    Group* content; 
 };
