@@ -12,9 +12,7 @@ public:
 
     void run()
 	{
-
- 		Entity entity;
- 
+		
     	SDL_Point wSize, tSize;
     	SDL_Rect src, dest;
     	SDL_Texture* texture;

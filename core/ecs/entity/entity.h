@@ -3,9 +3,13 @@
 #include <queue>
 #include <tuple>
 #include <memory>
+#include <vector>
+#include <functional>
 #include <unordered_map>
 #include "../defs.h"
 #include "../component/componentManager.h"
+
+class Group;
 
 class Entity
 {
@@ -60,10 +64,10 @@ public:
         return ret;
     }
 
+    bool operator==(const Entity&) const;
+
     operator EntityID();
     EntityID id();
-
-    static Entity& get(const EntityID&);
 
 private:
 
@@ -76,4 +80,27 @@ private:
     static std::queue<EntityID> availableID;
     static std::unordered_map<EntityID, Entity*> instances;
 
+    static Entity& get(const EntityID&);
+
+friend class Group;
+};
+
+class Group
+{
+public:
+
+using process   = std::function<void(Entity&)>;
+using predicate = std::function<bool(const Entity&)>;
+
+    void for_each(process);
+    void for_each(process, predicate);
+
+    void emplace(const Entity&);
+    void emplace(Entity&&);
+
+    void remove(const Entity&);
+
+private:
+
+    std::vector<EntityID> _ids;
 };

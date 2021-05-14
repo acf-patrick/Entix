@@ -5,8 +5,10 @@ CFLAGS 	= -std=c++2a -W
 
 CORE 	= core/ecs/component/componentManager.cpp\
 		core/ecs/entity/entity.cpp\
+		core/ecs/entity/container.cpp\
 		core/application/application.cpp\
-		core/entry/entry.cpp
+		core/entry/entry.cpp\
+		core/scene/scene.cpp
  
 CLIENT 	= test.cpp
 

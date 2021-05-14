@@ -50,3 +50,6 @@ Entity::operator EntityID()
 
 EntityID Entity::id()
 { return _id; }
+
+bool Entity::operator==(const Entity& entity) const
+{ return _id == entity._id; }
