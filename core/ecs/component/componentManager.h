@@ -39,10 +39,8 @@ private:
     }
 
     template<typename T>
-    T& getComponent(EntityID e)
-    {
-        return getComponentArray<T>()->getData(e);
-    }
+    T* getComponent(EntityID e)
+    { return getComponentArray<T>()->getData(e); }
 
     void entityDestroyed(EntityID);
 

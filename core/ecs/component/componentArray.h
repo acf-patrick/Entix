@@ -23,7 +23,10 @@ public:
     ~ComponentArray()
     {
         for (auto& component : _componentArray)
+        {
             delete component;
+            component = nullptr;
+        }
     }
 
     void insertData(EntityID entity, T* component)
@@ -58,11 +61,11 @@ public:
         --_size;
     }
 
-    T& getData(EntityID entity)
+    T* getData(EntityID entity)
     {
         assert(_entity_index.find(entity) != std::end(_entity_index) && "Retrieving non-existent component");
 
-        return *_componentArray[_entity_index[entity]];
+        return _componentArray[_entity_index[entity]];
     }
 
     void entityDestroyed(EntityID entity)

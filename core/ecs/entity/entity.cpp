@@ -20,7 +20,6 @@ Entity::Entity() :
     }
 
     _id = availableID.front();
-    attach<ID>(_id);
 
     availableID.pop();
     instances[_id] = this;
@@ -47,6 +46,7 @@ Entity& Entity::get(const EntityID& id)
 }
 
 Entity::operator EntityID()
-{
-    return _id;
-}
+{ return _id; }
+
+EntityID Entity::id()
+{ return _id; }

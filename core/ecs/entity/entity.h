@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <tuple>
+#include <memory>
 #include <unordered_map>
 #include "../defs.h"
 #include "../component/componentManager.h"
@@ -32,7 +33,10 @@ public:
 
     template<typename T>
     T& get()
-    { return _manager.getComponent<T>(_id); }
+    { 
+        auto tmp = _manager.getComponent<T>(_id);
+        return *tmp;
+    }
 
     template<typename... T>
     std::tuple<T&...> retrieve()
@@ -57,12 +61,11 @@ public:
     }
 
     operator EntityID();
+    EntityID id();
 
     static Entity& get(const EntityID&);
 
 private:
-
-    struct ID { EntityID& content; };
 
     EntityID _id;
     Signature _signature;

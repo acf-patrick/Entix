@@ -1,22 +1,23 @@
 .SUFFIXE:
 
-CXX = g++
-CFLAGS = -std=c++2a -W
+CXX 	= g++
+CFLAGS 	= -std=c++2a -W
 
-CORE = core/ecs/component/componentManager.cpp\
- core/ecs/entity/entity.cpp\
- core/application/application.cpp\
- core/entry/entry.cpp
+CORE 	= core/ecs/component/componentManager.cpp\
+		core/ecs/entity/entity.cpp\
+		core/application/application.cpp\
+		core/entry/entry.cpp
  
-CLIENT = test.cpp
+CLIENT 	= test.cpp
 
-HEADER = core/
-LIBS = libs/
+HEADER 	= core/
+LIBS 	= libs/
 
-LIB = -ltmx -lyaml-cpp -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-DEP = -lxml2 -lz
+LIB 	= -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer\
+		-ltmx -lyaml-cpp
+DEP 	= -lxml2 -lz
 
-SRC = $(CORE) $(CLIENT)
+SRC 	= $(CORE) $(CLIENT)
 
 ifeq ($(OS), Windows_NT)
 	L = -L$(LIBS)win/ $(LIB) $(DEP)
