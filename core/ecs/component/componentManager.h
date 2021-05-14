@@ -12,9 +12,6 @@ class ComponentManager
 {
 private:
 
-	ComponentManager()
-	{ instance = this; }
-
     template<typename T>
     ComponentTypeID getComponentTypeID()
     {
@@ -73,6 +70,9 @@ private:
 
 private:
 
+	ComponentManager()
+	{ instance = this; }
+    
 	static ComponentManager* instance;
 
     std::unordered_map<const char*, ComponentTypeID> _componentTypeID;

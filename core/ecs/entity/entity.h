@@ -15,24 +15,22 @@ class Entity
 {
 public:
 
-    Entity();
-
-    ~Entity();
+    static Entity& create();
 
     template<typename T>
-    bool has()
+    bool has() const
     { return _signature[_manager.getComponentTypeID<T>()]; }
 
     template<typename... T>
-    bool all()
+    bool all_of() const
     { return (has<T>() &&...); }
 
     template<typename... T>
-    bool any()
+    bool any_of() const
     { return (has<T>() ||...); }
 
     template<typename... T>
-    bool none()
+    bool none_of() const
     { return (!has<T>() &&...); }
 
     template<typename T>
@@ -70,6 +68,9 @@ public:
     EntityID id();
 
 private:
+
+    Entity();
+    ~Entity();
 
     EntityID _id;
     Signature _signature;

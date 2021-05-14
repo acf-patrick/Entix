@@ -6,6 +6,12 @@ int Entity::instance = 0;
 std::queue<std::uint32_t> Entity::availableID;
 std::unordered_map<EntityID, Entity*> Entity::instances;
 
+Entity& Entity::create()
+{
+    Entity* ret = new Entity;
+    return *ret;
+}
+
 Entity::Entity() : 
     _manager(ComponentManager::get())
 {
