@@ -25,10 +25,6 @@ protected:
 
     bool active = false;
 
-private:
-
-    Scene* next = nullptr;
-
 friend class SceneManager;
 };
 
@@ -38,8 +34,10 @@ public:
 
     static SceneManager& get();
 
-// Scene methods
-    void update();
+    static void clean();
+
+// No more scene left if return false
+    bool update();
     void draw();
 
 // container methods
@@ -58,6 +56,7 @@ public:
 private:
 
     SceneManager() = default;
+    ~SceneManager();
 
     std::vector<Scene*> scenes;
 

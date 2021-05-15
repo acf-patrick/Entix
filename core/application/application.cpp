@@ -22,11 +22,26 @@ Application::~Application()
     _renderer = nullptr;
 
     Entity::clean();
+    SceneManager::clean();
 
     SDL_Quit();
 }
 
-void Application::update()
-{}
-void Application::draw()
-{}
+void Application::run()
+{
+    SDL_Event event;
+
+    while (_running)
+    {
+        while (SDL_PollEvent(&event))
+        {
+            if (event.type == SDL_QUIT or event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE)
+                _running = false;
+        }
+
+        if (!scene.update())
+            _running = false;
+            
+        scene.draw();
+    }
+}

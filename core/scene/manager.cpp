@@ -9,6 +9,21 @@ SceneManager& SceneManager::get()
         instance = new SceneManager;
     return *instance;
 }
+void SceneManager::clean()
+{
+    delete instance;
+    instance = nullptr;
+}
+
+SceneManager::~SceneManager()
+{
+    for (auto& scene : scenes)
+    {
+        delete scene;
+        scene = nullptr;
+    }
+    scenes.clear();
+}
 
 void SceneManager::swap(const std::string& tag1, const std::string& tag2)
 {
@@ -43,8 +58,10 @@ void SceneManager::switch_to(const std::string& tag)
     if (it == scenes.end())
         return;
 
+// remove and stack elements together
     auto* scene = *it;
     scenes.erase(it);
+// puts the element at the end of the queue
     scenes.push_back(scene);
 }
 
@@ -88,14 +105,16 @@ void SceneManager::draw()
     scenes[scenes.size()-1]->draw();
 }
 
-void SceneManager::update()
+bool SceneManager::update()
 {
     if (scenes.empty())
-        return;
+        return false;
 
     auto& scene = scenes[scenes.size()-1];
     if (!scene->update())
         remove(scene);
+    
+    return true;
 }
 
 Scene::Scene(const std::string& _tag) : tag(_tag)

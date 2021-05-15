@@ -11,14 +11,11 @@ public:
 
     virtual ~Application();
 
-    virtual void run() = 0;
+    virtual void run();
 
 protected:
 
     Application(const std::string&, int, int);
-
-    virtual void update();
-    virtual void draw();
 
     bool _running;
 
