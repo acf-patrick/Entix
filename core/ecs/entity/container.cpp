@@ -5,15 +5,13 @@
 void Group::emplace(const Entity& entity)
 { 
     _ids.push_back(entity);
-    auto& component = Entity::get(entity).attach<GroupComponent>();
-    component.content = this;
+    Entity::get(entity).attach<GroupComponent>().content = this;
 }
 
 void Group::emplace(Entity&& rhs)
 { 
     _ids.push_back(rhs);
-    auto& component = Entity::get(rhs).attach<GroupComponent>();
-    component.content = this;
+    Entity::get(rhs).attach<GroupComponent>().content = this;
 }
 
 void Group::remove(const Entity& entity)
@@ -35,9 +33,9 @@ void Group::for_each(_process process, _predicate predicate)
     }
 }
 
-std::vector<Entity&> Group::get(_predicate predicate)
+std::vector<Entity> Group::get(_predicate predicate)
 {
-    std::vector<Entity&> ret;
+    std::vector<Entity> ret;
     for_each([&](Entity& entity){ ret.push_back(entity); }, predicate);
     return ret;
 }

@@ -3,4 +3,4 @@ obj/
 bin
 test.cbp.save
 test.depend
-test.layout*
+test.layout

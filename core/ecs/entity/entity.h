@@ -96,7 +96,7 @@ using _process   = std::function<void(Entity&)>;
 using _predicate = std::function<bool(const Entity&)>;
 
     // return a list of entities having required components
-    std::vector<Entity&> get(_predicate);
+    std::vector<Entity> get(_predicate);
 
     void for_each(_process);
     void for_each(_process, _predicate);
