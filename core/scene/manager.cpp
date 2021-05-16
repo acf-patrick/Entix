@@ -112,7 +112,10 @@ bool SceneManager::update()
 
     auto& scene = scenes[scenes.size()-1];
     if (!scene->update())
-        remove(scene);
+    {
+        delete scene;
+        scenes.pop_back();
+    }
     
     return true;
 }

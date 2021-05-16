@@ -1,4 +1,4 @@
-/* #pragma once
+#pragma once
 
 #include <SDL2/SDL.h>
 #include <string>
@@ -15,11 +15,10 @@ public:
 
 private:
 
-
-    SDL_Renderer* renderer;
+    static SDL_Renderer* renderer;
     SDL_Rect viewport;
 
     static Renderer* instance;
 
 friend class Application;
-}; */
+};

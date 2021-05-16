@@ -11,7 +11,9 @@ class Main : public Scene
 public:
 
 	Main(SDL_Renderer* _renderer) : Scene("main scene"), renderer(_renderer)
-	{}
+	{
+    	texture = IMG_LoadTexture(renderer, "texture.jpg");
+	}
 	~Main()
 	{
 		SDL_DestroyTexture(texture);
@@ -28,9 +30,7 @@ private:
 	{
     	SDL_Point wSize = {800, 600}, tSize;
     	SDL_Rect src, dest;
-    	SDL_Texture* texture;
 
-    	texture = IMG_LoadTexture(renderer, "texture.jpg");
 		SDL_QueryTexture(texture, NULL, NULL, &tSize.x, &tSize.y);
 
 		dest = {
