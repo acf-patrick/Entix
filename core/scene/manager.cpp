@@ -75,11 +75,6 @@ void SceneManager::switch_to(std::size_t index)
     scenes.push_back(scene);
 }
 
-void SceneManager::remove(Scene* scene)
-{
-    scenes.erase(std::remove(scenes.begin(), scenes.end(), scene));
-}
-
 void SceneManager::remove(const std::string& tag)
 {
     scenes.erase(std::remove_if(scenes.begin(), scenes.end(), [&](Scene* scene) { return scene->tag == tag; })); 
@@ -89,12 +84,13 @@ void SceneManager::remove(std::size_t index)
 {
     if (index >= scenes.size())
         return;
-    remove(scenes[index]);
+    remove(index);
 }
 
-void SceneManager::add(Scene* scene)
+void SceneManager::push(Scene* scene)
 {
-    scenes.push_back(scene);
+    if (std::find(scenes.begin(), scenes.end(), scene) == scenes.end())
+        scenes.push_back(scene);
 }
 
 void SceneManager::draw()
@@ -102,7 +98,7 @@ void SceneManager::draw()
     if (scenes.empty())
         return;
 
-    scenes[scenes.size()-1]->draw();
+    scenes[0]->draw();
 }
 
 bool SceneManager::update()
@@ -110,11 +106,11 @@ bool SceneManager::update()
     if (scenes.empty())
         return false;
 
-    auto& scene = scenes[scenes.size()-1];
+    auto& scene = scenes[0];
     if (!scene->update())
     {
         delete scene;
-        scenes.pop_back();
+        remove(0);
     }
     
     return true;
@@ -125,5 +121,5 @@ Scene::Scene(const std::string& _tag) : tag(_tag)
 bool Scene::update()
 {
     // overload
-    return false;
+    return true;
 }

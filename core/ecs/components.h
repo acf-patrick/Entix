@@ -1,22 +1,23 @@
 #pragma once
 
 #include <string>
-#include "entity/entity.h"
 #include <util/vector.h>
+#include "entity/entity.h"
 
-struct TagComponent
-{
-    std::string content;
+namespace Component {
+    
+    struct tag
+    { std::string content; };
+
+    struct transform
+    {
+        Vector<double> position;
+        VectorF scale;
+        double rotation;
+    };
+
+    struct group
+    { Group* content; };
+
 };
 
-struct TransformComponent
-{
-    Vector<double> position;
-    VectorF scale;
-    double rotation;
-};
-
-struct  GroupComponent
-{ 
-    Group* content; 
-};

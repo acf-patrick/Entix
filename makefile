@@ -9,7 +9,8 @@ CORE 	= 	core/ecs/component/componentManager.cpp\
 			core/application/application.cpp\
 			core/entry/entry.cpp\
 			core/scene/manager.cpp\
-			core/renderer/renderer.cpp
+			core/renderer/renderer.cpp\
+			core/event/event.cpp
  
 CLIENT 	= 	test.cpp
 

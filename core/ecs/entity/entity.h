@@ -18,6 +18,9 @@ public:
     Entity();
     ~Entity();
 
+    Entity(const Entity&);
+    Entity(Entity&&);
+
 // make sure to free memory
     static void clean();
 
@@ -66,7 +69,10 @@ public:
         return ret;
     }
 
-    bool operator==(const Entity&) const;
+    bool operator==  (const Entity&) const;
+    
+    Entity& operator=(const Entity&);
+    Entity& operator=(Entity&&);
 
     operator EntityID() const;
     EntityID id() const;

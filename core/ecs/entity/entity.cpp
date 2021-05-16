@@ -28,14 +28,28 @@ Entity::Entity() :
     instance++;
 }
 
+Entity::Entity(const Entity& entity) : 
+    _manager(ComponentManager::get())
+{
+    _id = entity._id;
+    _signature = entity._signature;
+}
+
+Entity::Entity(Entity&& rhs) : 
+    _manager(ComponentManager::get())
+{
+    _id = rhs._id;
+    _signature = rhs._signature;
+}
+
 Entity::~Entity()
 {
     _signature.reset();
 
 // remove from its group
-    if (has<GroupComponent>())
+    if (has<Component::group>())
     {
-        auto* group = get<GroupComponent>().content;
+        auto* group = get<Component::group>().content;
         group->remove(*this);
     }
 
@@ -73,3 +87,17 @@ EntityID Entity::id() const
 
 bool Entity::operator==(const Entity& entity) const
 { return _id == entity._id; }
+
+Entity& Entity::operator=(const Entity& entity)
+{
+    _id = entity._id;
+    _signature = entity._signature;
+    return *this;
+}
+
+Entity& Entity::operator=(Entity&& rhs)
+{
+    _id = rhs._id;
+    _signature = rhs._signature;
+    return *this;
+}

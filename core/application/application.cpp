@@ -40,7 +40,7 @@ void Application::run()
         }
 
         if (!scene.update())
-            _running = false;
+            _running = false; // No more scene left
             
         scene.draw();
     }

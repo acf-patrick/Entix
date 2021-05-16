@@ -41,9 +41,8 @@ public:
     void draw();
 
 // container methods
-    void add(Scene*);
+    void push(Scene*);
     
-    void remove(Scene*);
     void remove(std::size_t);
     void remove(const std::string&);
 

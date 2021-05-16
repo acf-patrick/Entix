@@ -4,8 +4,6 @@
 #include <SDL2/SDL_image.h>
 #include <ecs/ecs.h>
 
-// TODO : add default scene so the manager won't never be empty
-
 class Main : public Scene
 {
 public:
@@ -53,7 +51,10 @@ class App : public Application
 {
 public:
     App() : Application("test", 800, 600)
-    { scene.add(new Main(_renderer)); }
+    { 
+		scene.push(new Main(_renderer));
+		scene.switch_to("main scene");
+	}
 
 };
 
