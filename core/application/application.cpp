@@ -21,23 +21,20 @@ Application::~Application()
     _window = nullptr;
     _renderer = nullptr;
 
-    Entity::clean();
-    SceneManager::clean();
+    Entity::        clean();
+    SceneManager::  clean();
+    EventManager::  clean();
 
     SDL_Quit();
 }
 
 void Application::run()
 {
-    SDL_Event event;
+    SDL_Event sdl_event;
 
     while (_running)
     {
-        while (SDL_PollEvent(&event))
-        {
-            if (event.type == SDL_QUIT or event.type == SDL_KEYDOWN and event.key.keysym.sym == SDLK_ESCAPE)
-                _running = false;
-        }
+        event.handle();
 
         if (!scene.update())
             _running = false; // No more scene left

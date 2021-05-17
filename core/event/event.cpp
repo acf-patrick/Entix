@@ -1,5 +1,9 @@
 #include "event.h"
+#include <SDL2/SDL.h>
 #include <cstdlib>
+#include <map>
+
+const std::string EventManager::quit = "SDL QUIT";
 
 EventManager* EventManager::instance = nullptr;
 
@@ -12,33 +16,83 @@ EventManager& EventManager::get()
 }
 void EventManager::clean()
 {
-    free(instance);
+    auto& self = *instance;
 
+// delete events
+    for (auto& event : self._cache)
+    {
+        delete event;
+        event = nullptr;
+    }
+    self._cache.clear();
+
+    free(instance);
     instance = nullptr;
 }
 
 void EventManager::handle()
 {
+    SDLEvents();
     while (!events.empty())
     {
+        using iter = std::list<Handler>::iterator;
+
         Event& event = events.front();
-        for (auto& handler : handlers[event])
-            handler(event);
+        auto tag = event.get<Component::tag>().content;
+
+// perform operations
+        {
+            std::vector<iter> to_remove;
+
+            for (iter i = handlers[tag].begin(); i != handlers[tag].end(); ++i)
+            {
+                auto& handler = *i;
+                handler.func(event);
+                if (!handler.persist)
+                    to_remove.push_back(i);
+            }
+
+            for (auto& r : to_remove)
+                handlers[tag].erase(r);
+        }
+
         events.pop();
     }
 }
 
-void EventManager::emit(Event entity)
-{ 
-    // Entity* entity = Entity::get(event);
+void EventManager::SDLEvents()
+{
+    SDL_Event event;
 
-    assert (entity.has<Component::tag>() && "Entity of type Event must have a tag component");
-
-    bind[entity.get<Component::tag>().content] = entity;
-    events.push(entity);
+    while (SDL_PollEvent(&event))
+    {
+        switch(event.type)
+        {
+        case SDL_QUIT:
+            emit(quit);
+            break;
+        default : ;
+        }
+    }
 }
 
-void EventManager::connect(const std::string& event_tag, Handler handler)
+Entity& EventManager::emit(const std::string& event_name)
 {
-    handlers[bind[event_tag]].push_back(handler);
+    if (bind.find(event_name) != bind.end())
+        return bind[event_name];
+
+    Event* event = new Event;
+    event->attach<Component::tag>(event_name);
+    _cache.push_back(event);
+
+    bind[event_name] = *event;
+    events.push(*event);
+
+    return *event;
+}
+
+void EventManager::connect(const std::string& event_tag, _handler handler, bool once)
+{
+    Handler h = { !once, handler };
+    handlers[event_tag].push_back(h);
 }

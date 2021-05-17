@@ -54,6 +54,7 @@ public:
     { 
 		scene.push(new Main(_renderer));
 		scene.switch_to("main scene");
+		event.connect(event.quit, [this](Entity& entity) { _running = false; });
 	}
 
 };
