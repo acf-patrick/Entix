@@ -70,7 +70,7 @@ private:
 
 private:
 
-	ComponentManager()
+	ComponentManager() : _nextComponentTypeID(0)
 	{ instance = this; }
     
 	static ComponentManager* instance;

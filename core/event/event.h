@@ -15,7 +15,7 @@ public:
     static const std::string quit;
 
 using _handler  = std::function<void(Entity&)>;
-using Event     = Entity;
+using Event     = Entity*;
 
     struct Handler
     {
@@ -38,6 +38,9 @@ public:
 
 private:
 
+    EventManager() = default;
+    ~EventManager();
+
     void SDLEvents();
 
     std::queue<Event> events;
@@ -45,7 +48,7 @@ private:
     std::unordered_map<std::string, std::list<Handler>> handlers;
 
 
-    std::vector<Event*> _cache;
+    std::vector<Event> _cache;
 
     static EventManager* instance;
 };

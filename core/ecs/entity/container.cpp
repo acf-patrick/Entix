@@ -33,9 +33,9 @@ void Group::for_each(_process process, _predicate predicate)
     }
 }
 
-std::vector<Entity> Group::get(_predicate predicate)
+std::vector<const Entity*> Group::get(_predicate predicate)
 {
-    std::vector<Entity> ret;
-    for_each([&](Entity& entity){ ret.push_back(entity); }, predicate);
+    std::vector<const Entity*> ret;
+    for_each([&](Entity& entity){ ret.push_back(&entity); }, predicate);
     return ret;
 }

@@ -2,6 +2,7 @@
 #include <cassert>
 #include "entity.h"
 #include "../components.h"
+#include <iostream>
 
 int Entity::instance = 0;
 std::queue<std::uint32_t> Entity::availableID;
@@ -65,7 +66,9 @@ Entity::~Entity()
 void Entity::clean()
 {
     for (auto& pair : instances)
+    {
         delete pair.second;
+    }
     instances.clear();
 
     delete ComponentManager::instance;
@@ -87,17 +90,3 @@ EntityID Entity::id() const
 
 bool Entity::operator==(const Entity& entity) const
 { return _id == entity._id; }
-
-Entity& Entity::operator=(const Entity& entity)
-{
-    _id = entity._id;
-    _signature = entity._signature;
-    return *this;
-}
-
-Entity& Entity::operator=(Entity&& rhs)
-{
-    _id = rhs._id;
-    _signature = rhs._signature;
-    return *this;
-}

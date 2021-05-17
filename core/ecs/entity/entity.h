@@ -70,9 +70,6 @@ public:
     }
 
     bool operator==  (const Entity&) const;
-    
-    Entity& operator=(const Entity&);
-    Entity& operator=(Entity&&);
 
     operator EntityID() const;
     EntityID id() const;
@@ -102,7 +99,7 @@ using _process   = std::function<void(Entity&)>;
 using _predicate = std::function<bool(const Entity&)>;
 
     // return a list of entities having required components
-    std::vector<Entity> get(_predicate);
+    std::vector<const Entity*> get(_predicate);
 
     void for_each(_process);
     void for_each(_process, _predicate);
