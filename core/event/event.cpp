@@ -1,9 +1,10 @@
 #include "event.h"
-#include <SDL2/SDL.h>
 #include <cstdlib>
 #include <map>
 
-const std::string EventManager::quit = "SDL QUIT";
+const std::string EventManager::quit = "SDL quit";
+const std::string EventManager::keyup = "SDL key up";
+const std::string EventManager::keydown = "SDL key down";
 
 EventManager* EventManager::instance = nullptr;
 
@@ -27,7 +28,7 @@ void EventManager::handle()
     {
         using iter = std::list<Handler>::iterator;
 
-        Event event = events.front();
+        Event& event = events.front();
         auto tag = event->get<Component::tag>().content;
 
 // perform operations
@@ -38,7 +39,11 @@ void EventManager::handle()
             {
                 auto& handler = *i;
                 handler.func(*event);
-                if (!handler.persist)
+
+                if (handler.count > 0)
+                    handler.count--;
+
+                if (!handler.count)
                     to_remove.push_back(i);
             }
 
@@ -46,7 +51,9 @@ void EventManager::handle()
                 handlers[tag].erase(r);
         }
 
+        delete event;
         events.pop();
+        bind.erase(tag);
     }
 }
 
@@ -55,15 +62,22 @@ void EventManager::SDLEvents()
     SDL_Event event;
 
     while (SDL_PollEvent(&event))
-    {
-        switch(event.type)
+        switch (event.type)
         {
         case SDL_QUIT:
             emit(quit);
             break;
+        case SDL_KEYDOWN:
+            emit(keydown);
+            keys[event.key.keysym.scancode] = true;
+            break;
+        case SDL_KEYUP:
+            emit(keyup);
+            keys[event.key.keysym.scancode] = false;
+            break;
         default : ;
         }
-    }
+    
 }
 
 Entity& EventManager::emit(const std::string& event_name)
@@ -73,7 +87,6 @@ Entity& EventManager::emit(const std::string& event_name)
         
     Event event = new Entity;
     event->attach<Component::tag>(event_name);
-    _cache.push_back(event);
 
     bind[event_name] = event;
     events.push(event);
@@ -81,20 +94,13 @@ Entity& EventManager::emit(const std::string& event_name)
     return *event;
 }
 
-void EventManager::connect(const std::string& event_tag, _handler handler, bool once)
+void EventManager::connect(const std::string& event_tag, _handler handler, int count)
 {
-    Handler h = { !once, handler };
+    Handler h = { count, handler };
     handlers[event_tag].push_back(h);
 }
 
 EventManager::~EventManager()
 {
     handlers.clear();
-
-    for (auto& event : _cache)
-    {
-        delete event;
-        event = nullptr;
-    }
-    _cache.clear();
 }

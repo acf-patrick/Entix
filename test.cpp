@@ -49,12 +49,22 @@ private:
 
 class App : public Application
 {
+	bool hit = false;
 public:
     App() : Application("test", 800, 600)
     { 
 		scene.push(new Main(_renderer));
 		scene.switch_to("main scene");
-		event.connect(event.quit, [this](Entity& entity) { _running = false; });
+		event.connect(event.quit, [this](Entity& entity) { 
+			_running = false; 
+		});
+		event.connect(event.keydown, [this](Entity& entity) {
+			std::cout << "here\n";
+			if (event.keys[SDL_SCANCODE_SPACE])
+				hit = true;
+			if (event.keys[SDL_SCANCODE_ESCAPE] and hit)
+				_running = false;
+		});
 	}
 
 };
