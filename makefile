@@ -17,17 +17,16 @@ CLIENT 	= 	test.cpp
 HEADER 	= 	core/
 LIBS 	= 	libs/
 
-LIB 	= 	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer\
-			-ltmx -lyaml-cpp
-DEP 	= 	-lxml2 -lz
+SDL 	= 	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+# YAML 	= 	-lyaml-cpp
+# TMX 	= 	-lxml2 -lz -ltmx
 
 SRC 	= 	$(CORE) $(CLIENT)
 
 ifeq ($(OS), Windows_NT)
-	L = -L$(LIBS)win/ $(LIB) $(DEP)
-	HEADER = $(HEADER) core/tmx/ core/tmx/zlib/
+	# fill
 else
-	L = -L$(LIBS)linux/ $(LIB) -L. $(DEP)
+	L = $(SDL) -L$(LIBS)linux/ $(TMX) $(YAML)
 endif
 
 all : obj

@@ -28,19 +28,17 @@ SceneManager::~SceneManager()
 void SceneManager::swap(const std::string& tag1, const std::string& tag2)
 {
     int index[2] = { -1 };
-    for (int i=0; i < (int)scenes.size(); ++i)
+    for (int i=0; (index[0] < 0 or index[1] < 0) and i < (int)scenes.size(); ++i)
     {
-        auto* s = scenes[i];
+        auto s = scenes[i];
         if (s->tag == tag1)
             index[0] = i;
         else if (s->tag == tag2)
             index[1] = i;
     }
 
-    if (index[0] < 0 or index[1] < 0)
-        return;
-
-    swap(index[0], index[1]);
+    if (index[0] >= 0 and index[1] >= 0)
+        swap(index[0], index[1]);
 }
 
 void SceneManager::swap(std::size_t index1, std::size_t index2)
@@ -55,14 +53,17 @@ void SceneManager::swap(std::size_t index1, std::size_t index2)
 void SceneManager::switch_to(const std::string& tag)
 {
     auto it = std::find_if(scenes.begin(), scenes.end(), [&](Scene* s){ return s->tag == tag; });
+
+// there is no scene with such tag
     if (it == scenes.end())
         return;
 
 // remove and stack elements together
     auto* scene = *it;
     scenes.erase(it);
+
 // puts the element at the end of the queue
-    scenes.push_back(scene);
+    scenes.push_front(scene);
 }
 
 void SceneManager::switch_to(std::size_t index)
@@ -70,35 +71,30 @@ void SceneManager::switch_to(std::size_t index)
     if (index >= scenes.size())
         return;
 
-    auto* scene = scenes[index];
+    auto scene = scenes[index];
     scenes.erase(scenes.begin() + index);
-    scenes.push_back(scene);
+
+    scenes.push_front(scene);
 }
 
 void SceneManager::remove(const std::string& tag)
 {
-    scenes.erase(std::remove_if(scenes.begin(), scenes.end(), [&](Scene* scene) { return scene->tag == tag; })); 
+    auto it = std::find_if(scenes.begin(), scenes.end(), [&](Scene* scene) { return scene->tag == tag; });
+    delete *it;
+    scenes.erase(it);
 }
 
 void SceneManager::remove(std::size_t index)
 {
     if (index >= scenes.size())
         return;
-    remove(index);
+    remove(scenes[index]->tag);
 }
 
 void SceneManager::push(Scene* scene)
 {
     if (std::find(scenes.begin(), scenes.end(), scene) == scenes.end())
         scenes.push_back(scene);
-}
-
-void SceneManager::draw()
-{
-    if (scenes.empty())
-        return;
-
-    scenes[0]->draw();
 }
 
 bool SceneManager::update()
@@ -108,10 +104,7 @@ bool SceneManager::update()
 
     auto& scene = scenes[0];
     if (!scene->update())
-    {
-        delete scene;
         remove(0);
-    }
     
     return true;
 }

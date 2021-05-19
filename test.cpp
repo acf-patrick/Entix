@@ -6,65 +6,64 @@
 
 class Main : public Scene
 {
+private: 
+	bool active = true;
+
 public:
 
-	Main(SDL_Renderer* _renderer) : Scene("main scene"), renderer(_renderer)
+	Main() : Scene("main scene")
 	{
-    	texture = IMG_LoadTexture(renderer, "texture.jpg");
+		auto& event		= EventManager::get();
+    	texture = IMG_LoadTexture(Renderer::get().renderer, "texture.jpg");
+
+		event.connect(event.quit, [&](Entity& entity) { 
+			Application::get().quit();
+		});
+		event.connect(event.keydown, [&](Entity& entity) {
+			if (event.keys[SDL_SCANCODE_ESCAPE])
+				active = false;
+		});
 	}
-	~Main()
+	~Main() override
 	{
 		SDL_DestroyTexture(texture);
 	}
 
 private:
 
-	bool update()
+	bool update() override
 	{
-		return true;
+		Renderer::get().submit([&](SDL_Renderer* renderer)
+		{
+			SDL_Point wSize = {800, 600}, tSize;
+			SDL_Rect src, dest;
+
+			SDL_QueryTexture(texture, NULL, NULL, &tSize.x, &tSize.y);
+
+			dest = {
+				int(0.25*(wSize.x)), int(0.25*(wSize.y)),
+				int(0.5*wSize.x), int(0.5*wSize.y)
+			};
+
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+			SDL_RenderClear(renderer);
+			SDL_RenderCopyEx(renderer, texture, NULL, &dest, 45, NULL, SDL_FLIP_NONE);
+
+			SDL_RenderPresent(renderer);
+		});
+
+		return active;
 	}
 
-	void draw()
-	{
-    	SDL_Point wSize = {800, 600}, tSize;
-    	SDL_Rect src, dest;
-
-		SDL_QueryTexture(texture, NULL, NULL, &tSize.x, &tSize.y);
-
-		dest = {
-			int(0.25*(wSize.x)), int(0.25*(wSize.y)),
-			int(0.5*wSize.x), int(0.5*wSize.y)
-		};
-
-    	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    	SDL_RenderClear(renderer);
-    	SDL_RenderCopyEx(renderer, texture, NULL, &dest, 45, NULL, SDL_FLIP_NONE);
-
-    	SDL_RenderPresent(renderer);
-	}
-
-	SDL_Renderer* renderer;
 	SDL_Texture*  texture;
 };
 
 class App : public Application
 {
-	bool hit = false;
 public:
     App() : Application("test", 800, 600)
     { 
-		scene.push(new Main(_renderer));
-		scene.switch_to("main scene");
-		event.connect(event.quit, [this](Entity& entity) { 
-			_running = false; 
-		});
-		event.connect(event.keydown, [this](Entity& entity) {
-			std::cout << "here\n";
-			if (event.keys[SDL_SCANCODE_SPACE])
-				hit = true;
-			if (event.keys[SDL_SCANCODE_ESCAPE] and hit)
-				_running = false;
-		});
+		scene.push(new Main);
 	}
 
 };

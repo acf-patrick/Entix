@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ecs/ecs.h"
-#include <vector>
 #include <string>
+#include <deque>
 
 class SceneManager;
 
@@ -16,14 +16,10 @@ protected:
 // pop the scene from manager if this method return false
     virtual bool update();
 
-    virtual void draw() = 0;
-
     Scene(const std::string&);
 
     std::string tag = "Scene";
     Group entities;
-
-    bool active = false;
 
 friend class SceneManager;
 };
@@ -38,7 +34,6 @@ public:
 
 // No more scene left if return false
     bool update();
-    void draw();
 
 // container methods
     void push(Scene*);
@@ -57,7 +52,7 @@ private:
     SceneManager() = default;
     ~SceneManager();
 
-    std::vector<Scene*> scenes;
+    std::deque<Scene*> scenes;
 
     static SceneManager* instance;
 };

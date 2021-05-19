@@ -100,6 +100,12 @@ void EventManager::connect(const std::string& event_tag, _handler handler, int c
     handlers[event_tag].push_back(h);
 }
 
+void EventManager::connect(const std::vector<std::string>& tags, _handler handler, int count)
+{
+    for (auto& tag : tags)
+        connect(tag, handler, count);
+}
+
 EventManager::~EventManager()
 {
     handlers.clear();

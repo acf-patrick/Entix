@@ -2,28 +2,38 @@
 #include "ecs/entity/entity.h"
 #include <cassert>
 
+Application* Application::instance = nullptr;
+Application& Application::get()
+{
+    assert(instance && "Create Application first!");
+
+    return *instance;
+}
+
 Application::Application(const std::string& title, int width, int height) :
     _running(true)
 {
+    assert(!instance && "Application class instanciated more than once!");
+
+    instance = this;
+
     assert(SDL_Init(SDL_INIT_EVERYTHING) >= 0 && "SDL Error : initialisation of subsystems failed!");
 
-    SDL_CreateWindowAndRenderer(width, height, 0, &_window, &_renderer);
+    SDL_CreateWindowAndRenderer(width, height, 0, &_window, &renderer.renderer);
 
 	assert(_window && "SDL Error : unable to create window!" );
-	assert(_renderer && "SDL Error : unable to create a render context!");
+	assert(renderer.renderer && "SDL Error : unable to create a render context!");
 }
 
 Application::~Application()
 {
-	SDL_DestroyRenderer(_renderer);
-    SDL_DestroyWindow(_window);
-
-    _window = nullptr;
-    _renderer = nullptr;
-
     Entity::        clean();
+    Renderer::      clean();
     SceneManager::  clean();
     EventManager::  clean();
+
+    SDL_DestroyWindow(_window);
+    _window = nullptr;
 
     SDL_Quit();
 }
@@ -37,8 +47,13 @@ void Application::run()
         event.handle();
 
         if (!scene.update())
-            _running = false; // No more scene left
+            quit(); // No more scene left
             
-        scene.draw();
+        renderer.draw();
     }
+}
+
+void Application::quit()
+{
+    _running = false;
 }

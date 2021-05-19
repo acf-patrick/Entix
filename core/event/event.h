@@ -39,6 +39,7 @@ public:
     Entity& emit(const std::string&);
 
     void connect(const std::string&, _handler, int count = -1);
+    void connect(const std::vector<std::string>&, _handler, int count = -1);
 
 private:
 
