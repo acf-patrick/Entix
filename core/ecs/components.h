@@ -2,13 +2,16 @@
 
 #include <string>
 #include <util/vector.h>
-#include "entity/entity.h"
+
+class Group;
 
 namespace Component {
     
+    // ID
     struct tag
     { std::string content; };
 
+    // Space specs
     struct transform
     {
         Vector<double> position;
@@ -16,8 +19,20 @@ namespace Component {
         double rotation;
     };
 
+    // Entity Container
     struct group
     { Group* content; };
+
+    // Script Component
+    // Interface for all scripts
+    class script
+    {
+    public:
+
+        virtual void onDestroy() {};
+        virtual void Update() {};
+        virtual void Render() {};
+    };
 
 };
 

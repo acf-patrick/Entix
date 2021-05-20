@@ -6,7 +6,9 @@
 #include <memory>
 #include <functional>
 #include <unordered_map>
+
 #include "../defs.h"
+#include "../components.h"
 #include "../component/componentManager.h"
 
 class Group;
@@ -14,12 +16,6 @@ class Group;
 class Entity
 {
 public:
-
-    Entity();
-    ~Entity();
-
-    Entity(const Entity&);
-    Entity(Entity&&);
 
 // make sure to free memory
     static void clean();
@@ -51,12 +47,31 @@ public:
     std::tuple<T&...> retrieve()
     { return std::tuple<T&...>(get<T>()...); }
 
+    template<typename T>
+    bool isScript(T* p)
+    {
+        auto& script = std::static_pointer_cast<Component::script*>(p);
+        return script != nullptr;
+    }
+
     template<typename T, typename... TArgs>
     T& attach(TArgs&&... args)
     {
+        using Script = Component::script;
+
         T* ret = new T(std::forward<TArgs>(args)...);
-        _manager.addComponent(_id, ret);
-        _signature.set(_manager.getComponentTypeID<T>());
+
+/*         if (std::is_base_of<Script, T>::value)
+        {
+            _manager.addComponent<Script>(_id, ret);
+            _signature.set(_manager.getComponentTypeID<Script>());
+        }
+ */        
+        {
+            _manager.addComponent(_id, ret);
+            _signature.set(_manager.getComponentTypeID<T>());
+        }
+
         return *ret;
     }
     
@@ -75,6 +90,9 @@ public:
     EntityID id() const;
 
 private:
+
+    Entity();
+    ~Entity();
 
     EntityID _id;
     Signature _signature;
@@ -104,8 +122,7 @@ using _predicate = std::function<bool(const Entity&)>;
     void for_each(_process);
     void for_each(_process, _predicate);
 
-    void emplace(const Entity&);
-    void emplace(Entity&&);
+    Entity& create();
 
     void remove(const Entity&);
 

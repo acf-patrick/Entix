@@ -88,7 +88,10 @@ void SceneManager::remove(std::size_t index)
 {
     if (index >= scenes.size())
         return;
-    remove(scenes[index]->tag);
+
+    auto it = scenes.begin() + index;
+    delete *it;
+    scenes.erase(it);
 }
 
 void SceneManager::push(Scene* scene)
@@ -109,10 +112,22 @@ bool SceneManager::update()
     return true;
 }
 
+void SceneManager::next()
+{
+    auto& scene = scenes[0];
+    scenes.pop_front();
+    delete scene;
+}
+
 Scene::Scene(const std::string& _tag) : tag(_tag)
 {}
+
 bool Scene::update()
 {
-    // overload
+    entities.for_each([](Entity& entity)
+    {
+        if (entity.has<Component::script>())
+            entity.get<Component::script>().Update();
+    });
     return true;
 }

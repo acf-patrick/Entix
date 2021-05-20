@@ -2,16 +2,11 @@
 #include "../components.h"
 #include <algorithm>
 
-void Group::emplace(const Entity& entity)
-{ 
-    _ids.push_back(entity);
-    Entity::get(entity).attach<Component::group>().content = this;
-}
-
-void Group::emplace(Entity&& rhs)
-{ 
-    _ids.push_back(rhs);
-    Entity::get(rhs).attach<Component::group>().content = this;
+Entity& Group::create()
+{
+    auto ret = new Entity;
+    _ids.push_back(*ret);
+    return *ret;
 }
 
 void Group::remove(const Entity& entity)

@@ -32,6 +32,9 @@ public:
 
     static void clean();
 
+// switch to next scene
+    void next();
+
 // No more scene left if return false
     bool update();
 

@@ -2,7 +2,6 @@
 #include <cassert>
 #include "entity.h"
 #include "../components.h"
-#include <iostream>
 
 int Entity::instance = 0;
 std::queue<std::uint32_t> Entity::availableID;
@@ -29,22 +28,11 @@ Entity::Entity() :
     instance++;
 }
 
-Entity::Entity(const Entity& entity) : 
-    _manager(ComponentManager::get())
-{
-    _id = entity._id;
-    _signature = entity._signature;
-}
-
-Entity::Entity(Entity&& rhs) : 
-    _manager(ComponentManager::get())
-{
-    _id = rhs._id;
-    _signature = rhs._signature;
-}
-
 Entity::~Entity()
 {
+    if (has<Component::script>())
+        get<Component::script>().onDestroy();
+
     _signature.reset();
 
 // remove from its group
