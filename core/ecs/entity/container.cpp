@@ -1,16 +1,20 @@
 #include "entity.h"
-#include "../components.h"
 #include <algorithm>
 
 Entity& Group::create()
 {
     auto ret = new Entity;
     _ids.push_back(*ret);
+
     return *ret;
 }
 
-void Group::remove(const Entity& entity)
-{ _ids.erase(std::remove(_ids.begin(), _ids.end(), entity._id)); }
+void Group::remove(EntityID id)
+{ 
+    _ids.erase(std::remove(_ids.begin(), _ids.end(), id)); 
+    auto& tmp = Entity::get(id);
+    delete &tmp;
+}
 
 void Group::for_each(_process process)
 {

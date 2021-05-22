@@ -4,39 +4,40 @@
 #include <SDL2/SDL_image.h>
 #include <ecs/ecs.h>
 
-
-
-class Main : public Scene
+class DrawTexture : public Component::script
 {
-private: 
-	bool active = true;
-
 public:
 
-	Main() : Scene("main scene")
+	bool draw = false;
+	DrawTexture()
 	{
-		auto& event		= EventManager::get();
-    	texture = IMG_LoadTexture(Renderer::get().renderer, "texture.jpg");
-
-		event.connect(event.quit, [&](Entity& entity) { 
-			Application::get().quit();
-		});
-		event.connect(event.keydown, [&](Entity& entity) {
-			if (event.keys[SDL_SCANCODE_ESCAPE])
-				active = false;
+		auto& Event = EventManager::get();
+		Event.connect(Event.keydown, [&](Entity& entity) {
+			if (Event.keys[SDL_SCANCODE_SPACE])
+				draw = !draw;
 		});
 	}
-	~Main() override
+
+	void onAttach() override
 	{
-		SDL_DestroyTexture(texture);
+		auto& self = *entity;
+		self.attach<SDL_Texture*>(IMG_LoadTexture(Renderer::get().renderer, "texture.jpg"));
 	}
 
-private:
-
-	bool update() override
+	void onDestroy() override
 	{
-		Renderer::get().submit([&](SDL_Renderer* renderer)
+		SDL_DestroyTexture(entity->get<SDL_Texture*>());
+	}
+
+	void Render() override
+	{
+		auto& r = Renderer::get();
+		r.clear();
+
+		if (draw) r.submit([&](SDL_Renderer* renderer) 
 		{
+			auto texture = entity->get<SDL_Texture*>();
+
 			SDL_Point wSize = {800, 600}, tSize;
 			SDL_Rect src, dest;
 
@@ -47,17 +48,34 @@ private:
 				int(0.5*wSize.x), int(0.5*wSize.y)
 			};
 
-			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-			SDL_RenderClear(renderer);
 			SDL_RenderCopyEx(renderer, texture, NULL, &dest, 45, NULL, SDL_FLIP_NONE);
-
-			SDL_RenderPresent(renderer);
 		});
+	}
+};
 
-		return active;
+class Main : public Scene
+{
+private: 
+	bool active = true;
+
+public:
+
+	Main() : Scene("main scene")
+	{
+		auto& Event = EventManager::get();
+		Event.connect(Event.quit, [&](Entity& entity) { 
+			active = false;
+		});
+		entities.create().attachScript<DrawTexture>();
 	}
 
-	SDL_Texture*  texture;
+private:
+
+	bool update() override
+	{
+		Scene::update();
+		return active;
+	}
 };
 
 class App : public Application

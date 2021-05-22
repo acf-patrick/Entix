@@ -50,6 +50,7 @@ void Application::run()
             quit(); // No more scene left
             
         renderer.draw();
+        renderer.update();
     }
 }
 

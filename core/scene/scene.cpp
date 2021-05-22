@@ -129,5 +129,10 @@ bool Scene::update()
         if (entity.has<Component::script>())
             entity.get<Component::script>().Update();
     });
+    entities.for_each([](Entity& entity)
+    {
+        if (entity.has<Component::script>())
+            entity.get<Component::script>().Render();
+    });
     return true;
 }

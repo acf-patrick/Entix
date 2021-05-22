@@ -3,12 +3,12 @@
 CXX 	= 	g++
 CFLAGS 	= 	-std=c++2a -W
 
-CORE 	= 	core/ecs/component/componentManager.cpp\
+CORE 	= 	core/ecs/component/manager.cpp\
 			core/ecs/entity/entity.cpp\
 			core/ecs/entity/container.cpp\
 			core/application/application.cpp\
 			core/entry/entry.cpp\
-			core/scene/manager.cpp\
+			core/scene/scene.cpp\
 			core/renderer/renderer.cpp\
 			core/event/event.cpp
  

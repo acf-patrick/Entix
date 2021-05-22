@@ -3,7 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <memory>
-#include "componentArray.h"
+#include "array.h"
 #include "../defs.h"
 
 class Entity;

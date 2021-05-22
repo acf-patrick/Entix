@@ -65,3 +65,8 @@ void Renderer::empty()
     layers.clear();
     layers.emplace_back();
 }
+
+void Renderer::update()
+{
+    SDL_RenderPresent(renderer);
+}

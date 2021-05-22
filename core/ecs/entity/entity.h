@@ -9,9 +9,10 @@
 
 #include "../defs.h"
 #include "../components.h"
-#include "../component/componentManager.h"
+#include "../component/manager.h"
 
 class Group;
+class EventManager;
 
 class Entity
 {
@@ -19,6 +20,9 @@ public:
 
 // make sure to free memory
     static void clean();
+
+// get entity with the given ID
+    static Entity& get(EntityID);
 
     template<typename T>
     bool has() const
@@ -47,30 +51,31 @@ public:
     std::tuple<T&...> retrieve()
     { return std::tuple<T&...>(get<T>()...); }
 
-    template<typename T>
-    bool isScript(T* p)
-    {
-        auto& script = std::static_pointer_cast<Component::script*>(p);
-        return script != nullptr;
-    }
-
     template<typename T, typename... TArgs>
     T& attach(TArgs&&... args)
     {
+        T* ret = new T(std::forward<TArgs>(args)...);
+        
+        _manager.addComponent<T>(_id, ret);
+        _signature.set(_manager.getComponentTypeID<T>());
+
+        return *ret;
+    }
+
+    template<typename T, typename... TArgs>
+    T& attachScript(TArgs&&... args)
+    {
         using Script = Component::script;
+        std::string message (typeid(T).name());
+        message += " is not a script!\n";
+        assert((std::is_base_of<Script, T>::value) && message.c_str());
 
         T* ret = new T(std::forward<TArgs>(args)...);
+        ret->entity = this;
+        ret->onAttach();
 
-/*         if (std::is_base_of<Script, T>::value)
-        {
-            _manager.addComponent<Script>(_id, ret);
-            _signature.set(_manager.getComponentTypeID<Script>());
-        }
- */        
-        {
-            _manager.addComponent(_id, ret);
-            _signature.set(_manager.getComponentTypeID<T>());
-        }
+        _manager.addComponent<Script>(_id, ret);
+        _signature.set(_manager.getComponentTypeID<Script>());
 
         return *ret;
     }
@@ -103,9 +108,9 @@ private:
     static std::queue<EntityID> availableID;
     static std::unordered_map<EntityID, Entity*> instances;
 
-    static Entity& get(const EntityID&);
-
 friend class Group;
+friend class EventManager;
+friend class Component::script;
 };
 
 // Entity Container
@@ -124,7 +129,8 @@ using _predicate = std::function<bool(const Entity&)>;
 
     Entity& create();
 
-    void remove(const Entity&);
+// The entity gets immediatly destroyed after calling this function
+    void remove(EntityID);
 
 private:
 

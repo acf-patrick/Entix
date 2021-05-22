@@ -10,6 +10,7 @@ std::unordered_map<EntityID, Entity*> Entity::instances;
 Entity::Entity() : 
     _manager(ComponentManager::get())
 {
+
     if (availableID.empty())
         for (EntityID i=0; i < MAX_ENTITIES; ++i)
             availableID.push(i);
@@ -30,6 +31,7 @@ Entity::Entity() :
 
 Entity::~Entity()
 {
+// what to do before the entity gets destroyed
     if (has<Component::script>())
         get<Component::script>().onDestroy();
 
@@ -40,6 +42,7 @@ Entity::~Entity()
     {
         auto* group = get<Component::group>().content;
         group->remove(*this);
+        detach<Component::group>();
     }
 
 // remove from instances list
@@ -63,7 +66,7 @@ void Entity::clean()
     ComponentManager::instance = nullptr;
 }
 
-Entity& Entity::get(const EntityID& id)
+Entity& Entity::get(EntityID id)
 {
     assert(instances.find(id) != instances.end() && "There is no instance matching with the given ID");
 
