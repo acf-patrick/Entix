@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tuple>
 #include <string>
 #include <util/vector.h>
 
@@ -26,25 +27,44 @@ namespace Component {
 
     // Script Component
     // Interface for all scripts
-    class script
-    {
-    protected:
-        
-    public:
-        Entity* entity;
+    struct script
+    {    
+        Entity* entity  = nullptr;
 
-        virtual void onAttach() {}
-        virtual void onDetach() {}
+        void Enable()
+        {
+            onEnable();
+            enabled = true;
+        }
 
-    // call when destroying the entity
-        virtual void onDestroy() {}
-        
+        void Disable()
+        {
+            onDisable();
+            enabled = false;
+        }
+
+        bool isEnabled()
+        { return enabled; }
+
     // what to do with the entity each frame
-        virtual void Update() {}
+        virtual void Update()       {}
 
     // how to draw the entity
-        virtual void Render() {}
+        virtual void Render()       {}
 
+    //protected:
+        virtual void onEnable()     {}
+
+        virtual void onDisable()    {}
+
+        virtual void onAttach()     {}
+
+    // call when destroying the entity
+        virtual void onDestroy()    {}
+
+    private:
+        bool enabled = true;
+    
     friend class Entity;
     };
 

@@ -2,11 +2,15 @@
 #include <cstdlib>
 #include <map>
 
-const std::string EventManager::quit = "SDL quit";
-const std::string EventManager::keyup = "SDL key up";
-const std::string EventManager::keydown = "SDL key down";
-
 EventManager* EventManager::instance = nullptr;
+EventManager::EventManager() :
+    QUIT                ("SDL quit"),
+    KEY_UP              ("SDL key up"),
+    KEY_DOWN            ("SDL key down"),
+    MOUSE_MOTION        ("SDL mouse motion"),
+    MOUSE_BUTTON_UP     ("SDL mouse button up"),
+    MOUSE_BUTTON_DOWN   ("SDL mouse button down")
+{}
 
 EventManager& EventManager::get()
 {
@@ -32,24 +36,8 @@ void EventManager::handle()
         auto tag = event->get<Component::tag>().content;
 
 // perform operations
-        {
-            std::vector<iter> to_remove;
-
-            for (iter i = handlers[tag].begin(); i != handlers[tag].end(); ++i)
-            {
-                auto& handler = *i;
-                handler.func(*event);
-
-                if (handler.count > 0)
-                    handler.count--;
-
-                if (!handler.count)
-                    to_remove.push_back(i);
-            }
-
-            for (auto& r : to_remove)
-                handlers[tag].erase(r);
-        }
+        for (auto& [id, handler] : handlers[tag])
+            handler(*event);
 
         delete event;
         events.pop();
@@ -65,15 +53,29 @@ void EventManager::SDLEvents()
         switch (event.type)
         {
         case SDL_QUIT:
-            emit(quit);
+            emit(QUIT);
             break;
         case SDL_KEYDOWN:
-            emit(keydown);
+            emit(KEY_DOWN);
             keys[event.key.keysym.scancode] = true;
             break;
         case SDL_KEYUP:
-            emit(keyup);
+            emit(KEY_UP);
             keys[event.key.keysym.scancode] = false;
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+            emit(MOUSE_BUTTON_DOWN);
+            mouse.pressed = true;
+            SDL_GetMouseState(&mouse.x, &mouse.y);
+            break;
+        case SDL_MOUSEBUTTONUP:
+            emit(MOUSE_BUTTON_UP);
+            mouse.pressed = true;
+            SDL_GetMouseState(&mouse.x, &mouse.y);
+            break;
+        case SDL_MOUSEMOTION:
+            emit(MOUSE_MOTION);
+            SDL_GetMouseState(&mouse.x, &mouse.y);
             break;
         default : ;
         }
@@ -94,16 +96,33 @@ Entity& EventManager::emit(const std::string& event_name)
     return *event;
 }
 
-void EventManager::connect(const std::string& event_tag, _handler handler, int count)
+void EventManager::connect(const std::string& event_tag, const Handler& handler)
 {
-    Handler h = { count, handler };
-    handlers[event_tag].push_back(h);
+    handlers[event_tag].push_back(handler);
+}
+void EventManager::disconnect(const std::string& event_tag, const std::string& handler_id)
+{
+    using iter = std::list<Handler>::iterator;
+    auto& h = handlers[event_tag];
+    
+    std::vector<iter> toRemove;
+    for (iter i = h.begin(); i != h.end(); ++i)
+        if (i->id == handler_id)
+            toRemove.push_back(i);
+    
+    for (auto& it : toRemove)
+        h.erase(it);
 }
 
-void EventManager::connect(const std::vector<std::string>& tags, _handler handler, int count)
+void EventManager::connect(const std::vector<std::string>& tags, const Handler& handler)
 {
     for (auto& tag : tags)
-        connect(tag, handler, count);
+        connect(tag, handler);
+}
+void EventManager::disconnect(const std::vector<std::string>& tags, const std::string& handler_id)
+{
+    for (auto& tag : tags)
+        disconnect(tag, handler_id);
 }
 
 EventManager::~EventManager()

@@ -11,9 +11,6 @@ ComponentManager& ComponentManager::get()
 
 void ComponentManager::entityDestroyed(EntityID e)
 {
-	for (auto const& pair : _componentArrays)
-	{
-		auto& componentArray = pair.second;
-		componentArray->entityDestroyed(e);
-	}
+	for (auto& [_, array] : _componentArrays)
+		array->entityDestroyed(e);
 }

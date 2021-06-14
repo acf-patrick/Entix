@@ -124,15 +124,7 @@ Scene::Scene(const std::string& _tag) : tag(_tag)
 
 bool Scene::update()
 {
-    entities.for_each([](Entity& entity)
-    {
-        if (entity.has<Component::script>())
-            entity.get<Component::script>().Update();
-    });
-    entities.for_each([](Entity& entity)
-    {
-        if (entity.has<Component::script>())
-            entity.get<Component::script>().Render();
-    });
+    entities.for_each([](Entity& entity) { entity.Update(); });
+    entities.for_each([](Entity& entity) { entity.Render(); });
     return true;
 }

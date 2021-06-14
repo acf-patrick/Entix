@@ -13,23 +13,23 @@
 class EventManager
 {
 public:
-
-    static const std::string quit;
-    static const std::string keyup;
-    static const std::string keydown;
+    const std::string QUIT;
+    const std::string KEY_UP;
+    const std::string KEY_DOWN;
+    const std::string MOUSE_MOTION;
+    const std::string MOUSE_BUTTON_UP;
+    const std::string MOUSE_BUTTON_DOWN;
 
     using Event     = Entity*;
     using _handler  = std::function<void(Entity&)>;
 
     struct Handler
     {
-        // execute this instruction count times
-        int count;
+        std::string id; // allow us to disconnect event-function later
         _handler func;
     };
 
 public:
-
     static EventManager& get();
     static void clean();
 
@@ -38,12 +38,14 @@ public:
 // Entity must have a tag component attached to it
     Entity& emit(const std::string&);
 
-    void connect(const std::string&, _handler, int count = -1);
-    void connect(const std::vector<std::string>&, _handler, int count = -1);
+    void connect(const std::string&, const Handler&);
+    void connect(const std::vector<std::string>&, const Handler&);
+
+    void disconnect(const std::string&, const std::string&);
+    void disconnect(const std::vector<std::string>&, const std::string&);
 
 private:
-
-    EventManager() = default;
+    EventManager();
     ~EventManager();
 
     void SDLEvents();
@@ -52,19 +54,24 @@ private:
     std::unordered_map<std::string, Event> bind;
     std::unordered_map<std::string, std::list<Handler>> handlers;
 
-
-    // std::vector<Event> _cache;
-
     static EventManager* instance;
 
 public:
 
+    struct Mouse
+    {
+        bool pressed;
+        int x, y;
+    };
+    Mouse mouse;
+
     std::map<SDL_Scancode, bool> keys;
 };
-
+/*
 namespace Component {
     struct keyboard
     {
         std::map<SDL_Scancode, bool> &content;
     };
 }
+*/

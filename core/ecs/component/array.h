@@ -2,13 +2,13 @@
 
 #include <array>
 #include <cassert>
+#include <functional>
 #include <unordered_map>
 #include "../defs.h"
 
 class IComponentArray
 {
 public:
-
     virtual ~IComponentArray() = default;
     virtual void entityDestroyed(EntityID) = 0;
 };
@@ -79,5 +79,5 @@ private:
     size_t _size = 0;
     std::array<T*, MAX_ENTITIES> _componentArray;
     std::unordered_map<EntityID, size_t> _entity_index;
-    std::unordered_map<EntityID, size_t> _index_entity;
+    std::unordered_map<size_t, EntityID> _index_entity;
 };

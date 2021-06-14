@@ -12,12 +12,14 @@ class ComponentManager
 {
 private:
 
+    static ComponentManager& get();
+    
     template<typename T>
     ComponentTypeID getComponentTypeID()
     {
         const char* typeName = typeid(T).name();
 
-        if(_componentTypeID.find(typeName) == std::end(_componentTypeID))
+        if(_componentTypeID.find(typeName) == _componentTypeID.end())
             registerComponent<T>();
 
         return _componentTypeID[typeName];
@@ -40,8 +42,6 @@ private:
     { return getComponentArray<T>()->getData(e); }
 
     void entityDestroyed(EntityID);
-
-    static ComponentManager& get();
 
     template<typename T>
     void registerComponent()

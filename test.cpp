@@ -6,22 +6,14 @@
 
 class DrawTexture : public Component::script
 {
+	int var;
 public:
 
-	bool draw = false;
-	DrawTexture()
-	{
-		auto& Event = EventManager::get();
-		Event.connect(Event.keydown, [&](Entity& entity) {
-			if (Event.keys[SDL_SCANCODE_SPACE])
-				draw = !draw;
-		});
-	}
+	bool draw = true;
 
 	void onAttach() override
 	{
-		auto& self = *entity;
-		self.attach<SDL_Texture*>(IMG_LoadTexture(Renderer::get().renderer, "texture.jpg"));
+		entity->attach<SDL_Texture*>(IMG_LoadTexture(Renderer::get().renderer, "texture.jpg"));
 	}
 
 	void onDestroy() override
@@ -31,10 +23,10 @@ public:
 
 	void Render() override
 	{
-		auto& r = Renderer::get();
-		r.clear();
+		auto& renderer = Renderer::get();
+		renderer.clear();
 
-		if (draw) r.submit([&](SDL_Renderer* renderer) 
+		if (draw) renderer.submit([&](SDL_Renderer* renderer) 
 		{
 			auto texture = entity->get<SDL_Texture*>();
 
@@ -53,6 +45,33 @@ public:
 	}
 };
 
+class Button : public Component::script
+{
+public:
+	SDL_Color boxColor = { 255, 255, 0, 255 };
+
+	Button()
+	{
+		auto& Event = EventManager::get();
+		Event.connect(Event.MOUSE_BUTTON_UP, {"button mouse up", [&](Entity& event)
+		{
+			Disable();
+		}});
+	}
+
+	void Render() override
+	{
+		auto& r = Renderer::get();
+		r.submit([&](SDL_Renderer* renderer)
+		{
+			SDL_Rect field = { 0, 0, 64, 32 };
+			SDL_SetRenderDrawColor(renderer, boxColor.r, boxColor.g, boxColor.b, 255);
+			SDL_RenderFillRect(renderer, &field);
+		});
+	}
+
+};
+
 class Main : public Scene
 {
 private: 
@@ -63,10 +82,9 @@ public:
 	Main() : Scene("main scene")
 	{
 		auto& Event = EventManager::get();
-		Event.connect(Event.quit, [&](Entity& entity) { 
-			active = false;
-		});
-		entities.create().attachScript<DrawTexture>();
+		Event.connect(Event.QUIT, {"scene quit", [&](Entity& entity) { active = false; }});
+		entities.create().attach<DrawTexture>();
+		entities.create().attach<Button>();
 	}
 
 private:

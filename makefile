@@ -40,4 +40,4 @@ obj: $(SRC)
 	@mv *.o obj/
 
 clean:
-	@rm -f bin -r obj/
+	@rm -f bin *.o -r obj/

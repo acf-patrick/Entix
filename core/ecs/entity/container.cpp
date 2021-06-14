@@ -38,3 +38,15 @@ std::vector<const Entity*> Group::get(_predicate predicate)
     for_each([&](Entity& entity){ ret.push_back(&entity); }, predicate);
     return ret;
 }
+
+Entity* Group::operator[](const std::string& tag)
+{
+    for (auto& id : _ids)
+    {
+        auto& entity = Entity::get(id);
+        if (entity.has<Component::tag>())
+            if (entity.get<Component::tag>().content == tag)
+                return &entity;
+    }
+    return nullptr;
+}

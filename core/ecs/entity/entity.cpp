@@ -32,16 +32,15 @@ Entity::Entity() :
 Entity::~Entity()
 {
 // what to do before the entity gets destroyed
-    if (has<Component::script>())
-        get<Component::script>().onDestroy();
+    onDestroy();
 
     _signature.reset();
 
 // remove from its group
     if (has<Component::group>())
     {
-        auto* group = get<Component::group>().content;
-        group->remove(*this);
+        auto& group = *get<Component::group>().content;
+        group.remove(*this);
         detach<Component::group>();
     }
 

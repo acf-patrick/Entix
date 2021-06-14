@@ -17,6 +17,7 @@ class EventManager;
 class Entity
 {
 public:
+using Script = Component::script;
 
 // make sure to free memory
     static void clean();
@@ -59,34 +60,40 @@ public:
         _manager.addComponent<T>(_id, ret);
         _signature.set(_manager.getComponentTypeID<T>());
 
-        return *ret;
-    }
-
-    template<typename T, typename... TArgs>
-    T& attachScript(TArgs&&... args)
-    {
-        using Script = Component::script;
-        std::string message (typeid(T).name());
-        message += " is not a script!\n";
-        assert((std::is_base_of<Script, T>::value) && message.c_str());
-
-        T* ret = new T(std::forward<TArgs>(args)...);
-        ret->entity = this;
-        ret->onAttach();
-
-        _manager.addComponent<Script>(_id, ret);
-        _signature.set(_manager.getComponentTypeID<Script>());
+        if (std::is_base_of<Script, T>::value)
+        {
+            Script* s = (Script*)ret;
+            if (s)
+            {
+                s->entity = this;
+                s->onAttach();
+                _scripts.push_back(ret);
+            }
+        }
 
         return *ret;
     }
     
     template<typename T>
-    T& detach()
+    void detach()
     {
-        T& ret = get<T>();
+        if (!has<T>())
+            return;
+
+        if (std::is_base_of<Script, T>::value)
+        {
+            auto& s = get<T>();
+            int i = 0, len = _scripts.size();
+            while (_scripts[i] != &s)
+                ++i;
+            if (i < len)
+            {
+                std::swap(_scripts[i], _scripts[len-1]);
+                _scripts.pop_back();
+            }
+        }
         _manager.removeComponent<T>(_id);
         _signature.set(_manager.getComponentTypeID<T>(), false);
-        return ret;
     }
 
     bool operator==  (const Entity&) const;
@@ -94,8 +101,37 @@ public:
     operator EntityID() const;
     EntityID id() const;
 
-private:
+public:
+    void Update()
+    {
+        for (auto& s : _scripts)
+        {
+            auto& script = *static_cast<Script*>(s);
+            if (script.isEnabled())
+                script.Update();
+        }
+    }
 
+    void Render()
+    {
+        for (auto& s : _scripts)
+        {
+            auto& script = *static_cast<Script*>(s);
+            if (script.isEnabled())
+                script.Render();
+        }
+    }
+
+    void onDestroy()
+    {
+        for (auto& s : _scripts)
+        {
+            auto& script = *static_cast<Script*>(s);
+            script.onDestroy();
+        }
+    }
+
+private:
     Entity();
     ~Entity();
 
@@ -104,13 +140,16 @@ private:
 
     ComponentManager& _manager;
 
+    std::vector<void*> _scripts;
+
+private:
+
     static int instance;
     static std::queue<EntityID> availableID;
     static std::unordered_map<EntityID, Entity*> instances;
 
 friend class Group;
 friend class EventManager;
-friend class Component::script;
 };
 
 // Entity Container
@@ -123,13 +162,15 @@ using _predicate = std::function<bool(const Entity&)>;
 
     // return a list of entities having required components
     std::vector<const Entity*> get(_predicate);
+    // retrieve by tag
+    Entity* operator[](const std::string&);
 
     void for_each(_process);
     void for_each(_process, _predicate);
 
     Entity& create();
 
-// The entity gets immediatly destroyed after calling this function
+// The entity is immediatly destroyed after calling this function
     void remove(EntityID);
 
 private:

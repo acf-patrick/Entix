@@ -27,15 +27,17 @@ Application::Application(const std::string& title, int width, int height) :
 
 Application::~Application()
 {
-    Entity::        clean();
     Renderer::      clean();
-    SceneManager::  clean();
     EventManager::  clean();
+    Entity::        clean();
+    SceneManager::  clean();
 
     SDL_DestroyWindow(_window);
     _window = nullptr;
 
     SDL_Quit();
+
+    std::cout << "Application exited\n";
 }
 
 void Application::run()
