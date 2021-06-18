@@ -10,6 +10,7 @@ class Entity;
 namespace Component {
     
     // ID
+    // mostly used to identify Events
     struct tag
     { std::string content; };
 
@@ -22,6 +23,7 @@ namespace Component {
     };
 
     // Entity Container
+    // when we create Entity through a group, this components contening the group is attached to the entity
     struct group
     { Group* content; };
 
@@ -49,18 +51,22 @@ namespace Component {
     // what to do with the entity each frame
         virtual void Update()       {}
 
-    // how to draw the entity
+    // draw the entity
         virtual void Render()       {}
 
-    //protected:
+// supposed to be protected but for some reason (that I don't still get), even if Entity is a friend class of its, Entity can't apparently access to these methods
+    
+    // what to do before the script is enabled ?
         virtual void onEnable()     {}
 
+    // what to do before the script is disabled ?
         virtual void onDisable()    {}
 
+    // what to do before the script is attached to an entity
         virtual void onAttach()     {}
 
-    // call when destroying the entity
-        virtual void onDestroy()    {}
+    // inverse of onAttach
+        virtual void onDetach()     {}
 
     private:
         bool enabled = true;

@@ -31,7 +31,6 @@ Entity::Entity() :
 
 Entity::~Entity()
 {
-// what to do before the entity gets destroyed
     onDestroy();
 
     _signature.reset();
@@ -40,8 +39,7 @@ Entity::~Entity()
     if (has<Component::group>())
     {
         auto& group = *get<Component::group>().content;
-        group.remove(*this);
-        detach<Component::group>();
+        group.erase(_id);
     }
 
 // remove from instances list
@@ -55,10 +53,8 @@ Entity::~Entity()
 
 void Entity::clean()
 {
-    for (auto& pair : instances)
-    {
-        delete pair.second;
-    }
+    for (auto& [_, entity] : instances)
+        delete entity;
     instances.clear();
 
     delete ComponentManager::instance;

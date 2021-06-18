@@ -27,10 +27,10 @@ Application::Application(const std::string& title, int width, int height) :
 
 Application::~Application()
 {
-    Renderer::      clean();
     EventManager::  clean();
-    Entity::        clean();
     SceneManager::  clean();
+    Entity      ::  clean();
+    Renderer    ::  clean();
 
     SDL_DestroyWindow(_window);
     _window = nullptr;
@@ -42,8 +42,6 @@ Application::~Application()
 
 void Application::run()
 {
-    SDL_Event sdl_event;
-
     while (_running)
     {
         event.handle();

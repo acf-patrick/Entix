@@ -1,6 +1,7 @@
 #include "event.h"
 #include <cstdlib>
 #include <map>
+#include <application/application.h>
 
 EventManager* EventManager::instance = nullptr;
 EventManager::EventManager() :
@@ -53,6 +54,7 @@ void EventManager::SDLEvents()
         switch (event.type)
         {
         case SDL_QUIT:
+            Application::get().quit();
             emit(QUIT);
             break;
         case SDL_KEYDOWN:

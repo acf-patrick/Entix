@@ -16,7 +16,7 @@ public:
 		entity->attach<SDL_Texture*>(IMG_LoadTexture(Renderer::get().renderer, "texture.jpg"));
 	}
 
-	void onDestroy() override
+	void onDetach() override
 	{
 		SDL_DestroyTexture(entity->get<SDL_Texture*>());
 	}
@@ -82,9 +82,8 @@ public:
 	Main() : Scene("main scene")
 	{
 		auto& Event = EventManager::get();
-		Event.connect(Event.QUIT, {"scene quit", [&](Entity& entity) { active = false; }});
+		// Event.connect(Event.QUIT, {"scene quit", [&](Entity& entity) { active = false; }});
 		entities.create().attach<DrawTexture>();
-		entities.create().attach<Button>();
 	}
 
 private:

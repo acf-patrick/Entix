@@ -122,12 +122,13 @@ public:
         }
     }
 
+    // all we're doing here is detach all of the scripts from this entity
     void onDestroy()
     {
         for (auto& s : _scripts)
         {
             auto& script = *static_cast<Script*>(s);
-            script.onDestroy();
+            script.onDetach();
         }
     }
 
@@ -170,8 +171,10 @@ using _predicate = std::function<bool(const Entity&)>;
 
     Entity& create();
 
-// The entity is immediatly destroyed after calling this function
-    void remove(EntityID);
+// Just remove the Entity from this group without destroy
+    void erase(EntityID);
+
+    ~Group();
 
 private:
 

@@ -1,6 +1,16 @@
 #include "entity.h"
 #include <algorithm>
 
+Group::~Group()
+{
+    for_each([&](Entity& entity)
+    { 
+        auto addr = &entity;
+        delete addr;
+    });
+    _ids.clear();
+}
+
 Entity& Group::create()
 {
     auto ret = new Entity;
@@ -9,11 +19,9 @@ Entity& Group::create()
     return *ret;
 }
 
-void Group::remove(EntityID id)
-{ 
-    _ids.erase(std::remove(_ids.begin(), _ids.end(), id)); 
-    auto& tmp = Entity::get(id);
-    delete &tmp;
+void Group::erase(EntityID id)
+{
+    _ids.erase(std::remove(_ids.begin(), _ids.end(), id));
 }
 
 void Group::for_each(_process process)
