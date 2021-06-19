@@ -1,6 +1,6 @@
 #include "event.h"
-#include <cstdlib>
 #include <map>
+#include <cstdlib>
 #include <application/application.h>
 
 EventManager* EventManager::instance = nullptr;
@@ -31,14 +31,15 @@ void EventManager::handle()
     SDLEvents();
     while (!events.empty())
     {
-        using iter = std::list<Handler>::iterator;
-
         Event& event = events.front();
         auto tag = event->get<Component::tag>().content;
 
-// perform operations
-        for (auto& [id, handler] : handlers[tag])
-            handler(*event);
+        for (auto l : listners)
+        {
+            auto& c = l->callbacks;
+            if (c.find(tag) != c.end())
+                c[tag](*event);
+        }
 
         delete event;
         events.pop();
@@ -54,7 +55,6 @@ void EventManager::SDLEvents()
         switch (event.type)
         {
         case SDL_QUIT:
-            Application::get().quit();
             emit(QUIT);
             break;
         case SDL_KEYDOWN:
@@ -96,38 +96,4 @@ Entity& EventManager::emit(const std::string& event_name)
     events.push(event);
 
     return *event;
-}
-
-void EventManager::connect(const std::string& event_tag, const Handler& handler)
-{
-    handlers[event_tag].push_back(handler);
-}
-void EventManager::disconnect(const std::string& event_tag, const std::string& handler_id)
-{
-    using iter = std::list<Handler>::iterator;
-    auto& h = handlers[event_tag];
-    
-    std::vector<iter> toRemove;
-    for (iter i = h.begin(); i != h.end(); ++i)
-        if (i->id == handler_id)
-            toRemove.push_back(i);
-    
-    for (auto& it : toRemove)
-        h.erase(it);
-}
-
-void EventManager::connect(const std::vector<std::string>& tags, const Handler& handler)
-{
-    for (auto& tag : tags)
-        connect(tag, handler);
-}
-void EventManager::disconnect(const std::vector<std::string>& tags, const std::string& handler_id)
-{
-    for (auto& tag : tags)
-        disconnect(tag, handler_id);
-}
-
-EventManager::~EventManager()
-{
-    handlers.clear();
 }

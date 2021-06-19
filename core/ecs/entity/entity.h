@@ -82,9 +82,12 @@ using Script = Component::script;
 
         if (std::is_base_of<Script, T>::value)
         {
-            auto& s = get<T>();
+            auto& tmp = get<T>();
+            void* script = &tmp;
+            ((Script*)script)->onDetach();
+
             int i = 0, len = _scripts.size();
-            while (_scripts[i] != &s)
+            while (_scripts[i] != script)
                 ++i;
             if (i < len)
             {
@@ -130,6 +133,7 @@ public:
             auto& script = *static_cast<Script*>(s);
             script.onDetach();
         }
+        _scripts.clear();
     }
 
 private:

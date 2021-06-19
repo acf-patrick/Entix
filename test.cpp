@@ -47,16 +47,15 @@ public:
 
 class Button : public Component::script
 {
+	EventListner event;
+
 public:
 	SDL_Color boxColor = { 255, 255, 0, 255 };
 
 	Button()
 	{
 		auto& Event = EventManager::get();
-		Event.connect(Event.MOUSE_BUTTON_UP, {"button mouse up", [&](Entity& event)
-		{
-			Disable();
-		}});
+		event.listen(Event.MOUSE_BUTTON_UP, [&](Entity& event){ Disable(); });
 	}
 
 	void Render() override
@@ -74,7 +73,6 @@ public:
 
 class Main : public Scene
 {
-private: 
 	bool active = true;
 
 public:
@@ -82,7 +80,7 @@ public:
 	Main() : Scene("main scene")
 	{
 		auto& Event = EventManager::get();
-		// Event.connect(Event.QUIT, {"scene quit", [&](Entity& entity) { active = false; }});
+		event.listen(Event.QUIT, [&](Entity& entity) { active = false; });
 		entities.create().attach<DrawTexture>();
 	}
 

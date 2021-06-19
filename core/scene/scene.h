@@ -4,6 +4,8 @@
 #include <string>
 #include <deque>
 
+#include "event/event.h"
+
 class SceneManager;
 
 // Scene Interface
@@ -20,6 +22,9 @@ protected:
 
     std::string tag = "Scene";
     Group entities;
+
+// used to manage events
+    EventListner event;
 
 friend class SceneManager;
 };

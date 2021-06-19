@@ -23,6 +23,7 @@ Application::Application(const std::string& title, int width, int height) :
 
 	assert(_window && "SDL Error : unable to create window!" );
 	assert(renderer.renderer && "SDL Error : unable to create a render context!");
+
 }
 
 Application::~Application()

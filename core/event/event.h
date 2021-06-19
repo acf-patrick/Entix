@@ -10,9 +10,12 @@
 #include <list>
 #include <map>
 
+class EventListner;
 class EventManager
 {
 public:
+using Event = Entity*;
+
     const std::string QUIT;
     const std::string KEY_UP;
     const std::string KEY_DOWN;
@@ -20,16 +23,6 @@ public:
     const std::string MOUSE_BUTTON_UP;
     const std::string MOUSE_BUTTON_DOWN;
 
-    using Event     = Entity*;
-    using _handler  = std::function<void(Entity&)>;
-
-    struct Handler
-    {
-        std::string id; // allow us to disconnect event-function later
-        _handler func;
-    };
-
-public:
     static EventManager& get();
     static void clean();
 
@@ -38,21 +31,14 @@ public:
 // Entity must have a tag component attached to it
     Entity& emit(const std::string&);
 
-    void connect(const std::string&, const Handler&);
-    void connect(const std::vector<std::string>&, const Handler&);
-
-    void disconnect(const std::string&, const std::string&);
-    void disconnect(const std::vector<std::string>&, const std::string&);
-
 private:
-    EventManager();
-    ~EventManager();
 
+    EventManager();
     void SDLEvents();
 
     std::queue<Event> events;
+    std::vector<EventListner*> listners;
     std::unordered_map<std::string, Event> bind;
-    std::unordered_map<std::string, std::list<Handler>> handlers;
 
     static EventManager* instance;
 
@@ -66,6 +52,8 @@ public:
     Mouse mouse;
 
     std::map<SDL_Scancode, bool> keys;
+
+friend class EventListner;
 };
 /*
 namespace Component {
@@ -75,3 +63,23 @@ namespace Component {
     };
 }
 */
+
+// Use this class to handle specific event by providing its tag
+// and provide a callback function
+class EventListner
+{
+public:
+using Callback = std::function<void(Entity&)>;
+
+    EventListner();
+    ~EventListner();
+
+    void listen         (const std::string&, const Callback&);
+    void stopListening  (const std::string&);
+
+private:
+    EventManager& manager;
+    std::map<std::string, Callback> callbacks;
+
+friend class EventManager;
+};

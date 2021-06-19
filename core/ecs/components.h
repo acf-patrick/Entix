@@ -68,7 +68,11 @@ namespace Component {
     // inverse of onAttach
         virtual void onDetach()     {}
 
-    private:
+    protected:
+
+    // used to manage events
+        // EventListner event;
+
         bool enabled = true;
     
     friend class Entity;
