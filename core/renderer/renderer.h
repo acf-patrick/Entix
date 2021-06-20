@@ -29,8 +29,6 @@ using Drawer = std::function<void(SDL_Renderer*)>;
     void submit(const Drawer&);
     void submit(const Drawer&, std::size_t);
 
-    void update();
-
     SDL_Renderer* renderer;
 
 private:

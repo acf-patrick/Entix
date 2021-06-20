@@ -1,6 +1,7 @@
 #include "application.h"
 #include "ecs/entity/entity.h"
 #include <cassert>
+#include <SDL2/SDL_ttf.h>
 
 Application* Application::instance = nullptr;
 Application& Application::get()
@@ -14,31 +15,53 @@ Application::Application(const std::string& title, int width, int height) :
     _running(true)
 {
     assert(!instance && "Application class instanciated more than once!");
-
+    if (instance)
+        log("Application class instanciated more than once!");
     instance = this;
 
-    assert(SDL_Init(SDL_INIT_EVERYTHING) >= 0 && "SDL Error : initialisation of subsystems failed!");
-
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+    {
+        log("SDL Error : initialisation of subsystems failed!");
+        exit(EXIT_FAILURE);
+    }
+    
     SDL_CreateWindowAndRenderer(width, height, 0, &_window, &renderer.renderer);
 
-	assert(_window && "SDL Error : unable to create window!" );
-	assert(renderer.renderer && "SDL Error : unable to create a render context!");
+    if (!_window)
+    {
+        log("SDL Error : unable to create window");
+        exit(EXIT_FAILURE);
+    }
+    if (!renderer.renderer)
+    {
+        log("SDL Error : unable to create a render context");
+        exit(EXIT_FAILURE);
+    }
 
+    if (TTF_Init() < 0)
+    {
+        log("SDL Error : unable to initialize TTF library");
+        exit(EXIT_FAILURE);
+    }
 }
 
 Application::~Application()
 {
-    EventManager::  clean();
-    SceneManager::  clean();
-    Entity      ::  clean();
-    Renderer    ::  clean();
+    EventManager::clean();
+    SceneManager::clean();
+    Entity      ::clean();
+    Renderer    ::clean();
 
     SDL_DestroyWindow(_window);
     _window = nullptr;
 
+    TTF_Quit();
     SDL_Quit();
+}
 
-    std::cout << "Application exited\n";
+void Application::log(const std::string& message) const
+{
+    std::cerr << message << std::endl << SDL_GetError() << std::endl;
 }
 
 void Application::run()
@@ -51,7 +74,6 @@ void Application::run()
             quit(); // No more scene left
             
         renderer.draw();
-        renderer.update();
     }
 }
 

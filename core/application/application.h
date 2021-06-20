@@ -18,6 +18,7 @@ public:
     virtual void run();
 
     void quit();
+    void log(const std::string&) const;
 
 private:
 

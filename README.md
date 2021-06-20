@@ -1,3 +1,6 @@
+Program core using an entity-component system and SDL2 for rendering.
+
+<!--
 ## Dependencies
 ```
 sudo apt-get install libxml2-dev zlib1g-dev
@@ -10,3 +13,4 @@ make
 ./bin
 ```
 otherwise, open in code::blocks the premade project file and just rebuild it.
+-->

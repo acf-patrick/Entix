@@ -105,36 +105,10 @@ using Script = Component::script;
     EntityID id() const;
 
 public:
-    void Update()
-    {
-        for (auto& s : _scripts)
-        {
-            auto& script = *static_cast<Script*>(s);
-            if (script.isEnabled())
-                script.Update();
-        }
-    }
-
-    void Render()
-    {
-        for (auto& s : _scripts)
-        {
-            auto& script = *static_cast<Script*>(s);
-            if (script.isEnabled())
-                script.Render();
-        }
-    }
-
-    // all we're doing here is detach all of the scripts from this entity
-    void onDestroy()
-    {
-        for (auto& s : _scripts)
-        {
-            auto& script = *static_cast<Script*>(s);
-            script.onDetach();
-        }
-        _scripts.clear();
-    }
+    void Update();
+    void Render();
+// all we're doing here is detach all of the scripts from this entity
+    void onDestroy();
 
 private:
     Entity();

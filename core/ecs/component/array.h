@@ -63,14 +63,14 @@ public:
 
     T* getData(EntityID entity)
     {
-        assert(_entity_index.find(entity) != std::end(_entity_index) && "Retrieving non-existent component");
+        assert(_entity_index.find(entity) != _entity_index.end() && "Retrieving non-existent component");
 
         return _componentArray[_entity_index[entity]];
     }
 
     void entityDestroyed(EntityID entity)
     {
-        if (_entity_index.find(entity) != std::end(_entity_index))
+        if (_entity_index.find(entity) != _entity_index.end())
             removeData(entity);
     }
 

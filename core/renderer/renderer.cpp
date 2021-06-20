@@ -56,6 +56,7 @@ void Renderer::draw()
             layer.front()(renderer);
             layer.pop();
         }
+    SDL_RenderPresent(renderer);
 
     empty();
 }
@@ -64,9 +65,4 @@ void Renderer::empty()
 {
     layers.clear();
     layers.emplace_back();
-}
-
-void Renderer::update()
-{
-    SDL_RenderPresent(renderer);
 }

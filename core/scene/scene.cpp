@@ -102,18 +102,30 @@ void SceneManager::push(Scene* scene)
 
 bool SceneManager::update()
 {
+    static Scene* toRemove = nullptr;
+    if (toRemove)
+    {
+        delete toRemove;
+        toRemove = nullptr;
+    }
     if (scenes.empty())
         return false;
 
     auto& scene = scenes[0];
     if (!scene->update())
-        remove(0);
+    {
+        scenes.pop_front();
+        toRemove = scene;
+    }
     
     return true;
 }
 
 void SceneManager::next()
 {
+    if (scenes.empty())
+        return;
+
     auto& scene = scenes[0];
     scenes.pop_front();
     delete scene;

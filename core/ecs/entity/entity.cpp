@@ -76,3 +76,33 @@ EntityID Entity::id() const
 
 bool Entity::operator==(const Entity& entity) const
 { return _id == entity._id; }
+
+void Entity::Update()
+{
+    for (auto& s : _scripts)
+    {
+        auto& script = *static_cast<Script*>(s);
+        if (script.isEnabled())
+            script.Update();
+    }
+}
+
+void Entity::Render()
+{
+    for (auto& s : _scripts)
+    {
+        auto& script = *static_cast<Script*>(s);
+        if (script.isEnabled())
+            script.Render();
+    }
+}
+
+void Entity::onDestroy()
+{
+    for (auto& s : _scripts)
+    {
+        auto& script = *static_cast<Script*>(s);
+        script.onDetach();
+    }
+    _scripts.clear();
+}
