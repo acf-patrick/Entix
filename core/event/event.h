@@ -42,6 +42,8 @@ private:
 
     static EventManager* instance;
 
+    void listnerDestroyed(EventListner*);
+
 public:
 
     struct Mouse

@@ -73,12 +73,14 @@ public:
 		event.listen(Event.MOUSE_BUTTON_DOWN, [&](Entity& e)
 		{
 			SDL_Point mouse = { Event.mouse.x, Event.mouse.y };
+			state = "idle";
 			if (SDL_PointInRect(&mouse, &rect))
 				state = "pressed";
 		});
 		event.listen(Event.MOUSE_BUTTON_UP, [&](Entity& e)
-		{
-			if (state == "pressed")
+		{			
+			SDL_Point mouse = { Event.mouse.x, Event.mouse.y };
+			if (SDL_PointInRect(&mouse, &rect))
 				Application::get().quit();
 		});
 		event.listen(Event.MOUSE_MOTION, [&](Entity& e)

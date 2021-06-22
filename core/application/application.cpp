@@ -47,9 +47,9 @@ Application::Application(const std::string& title, int width, int height) :
 
 Application::~Application()
 {
-    EventManager::clean();
     SceneManager::clean();
     Entity      ::clean();
+    EventManager::clean();
     Renderer    ::clean();
 
     SDL_DestroyWindow(_window);

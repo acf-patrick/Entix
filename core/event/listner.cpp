@@ -7,10 +7,7 @@ EventListner::EventListner() : manager(EventManager::get())
 
 EventListner::~EventListner()
 {
-    auto it = manager.listners.begin();
-    while (*it != this)
-        ++it;
-    manager.listners.erase(it);
+    manager.listnerDestroyed(this);
 }
 
 void EventListner::listen(const std::string& event, const Callback& callback)

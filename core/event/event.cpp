@@ -97,3 +97,8 @@ Entity& EventManager::emit(const std::string& event_name)
 
     return *event;
 }
+
+void EventManager::listnerDestroyed(EventListner* listner)
+{
+    listners.erase(std::find(listners.begin(), listners.end(), listner));
+}
