@@ -1,9 +1,8 @@
 #include <iostream>
-#include <application/application.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
-#include <ecs/ecs.h>
+#include <core.h>
 
 class DrawTexture : public Component::script
 {
