@@ -1,6 +1,7 @@
 #include "event.h"
 #include <map>
 #include <cstdlib>
+#include <ecs/ecs.h>
 #include <application/application.h>
 
 EventManager* EventManager::instance = nullptr;

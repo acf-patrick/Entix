@@ -13,12 +13,12 @@ public:
 
 	void onAttach() override
 	{
-		entity->attach<SDL_Texture*>(IMG_LoadTexture(Renderer::get().renderer, "texture.jpg"));
+		attach<SDL_Texture*>(IMG_LoadTexture(Renderer::get().renderer, "texture.jpg"));
 	}
 
 	void onDetach() override
 	{
-		SDL_DestroyTexture(entity->get<SDL_Texture*>());
+		SDL_DestroyTexture(get<SDL_Texture*>());
 	}
 
 	void Render() override
@@ -28,7 +28,7 @@ public:
 
 		if (draw) renderer.submit([&](SDL_Renderer* renderer)
 		{
-			auto texture = entity->get<SDL_Texture*>();
+			auto texture = get<SDL_Texture*>();
 
 			SDL_Point wSize = {800, 600}, tSize;
 			SDL_Rect src, dest;
@@ -47,7 +47,6 @@ public:
 
 class Button : public Component::script
 {
-	EventListner event;
 	SDL_Texture* texture;
 	std::string state = "idle";
 	SDL_Rect rect = { 10, 10, 0, 0 };
@@ -77,7 +76,7 @@ public:
 				state = "pressed";
 		});
 		event.listen(Event.MOUSE_BUTTON_UP, [&](Entity& e)
-		{			
+		{
 			SDL_Point mouse = { Event.mouse.x, Event.mouse.y };
 			if (SDL_PointInRect(&mouse, &rect))
 				Application::get().quit();

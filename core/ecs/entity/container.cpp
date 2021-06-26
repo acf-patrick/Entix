@@ -1,4 +1,6 @@
 #include "entity.h"
+#include "../components.h"
+
 #include <algorithm>
 
 Group::~Group()

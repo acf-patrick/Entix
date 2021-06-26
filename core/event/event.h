@@ -3,14 +3,15 @@
 #include <unordered_map>
 #include <functional>
 #include <SDL2/SDL.h>
-#include <ecs/ecs.h>
 #include <vector>
 #include <string>
 #include <queue>
 #include <list>
 #include <map>
 
+class Entity;
 class EventListner;
+
 class EventManager
 {
 public:

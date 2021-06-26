@@ -8,7 +8,7 @@
 #include <unordered_map>
 
 #include "../defs.h"
-#include "../components.h"
+#include "../baseScript.h"
 #include "../component/manager.h"
 
 class Group;
@@ -17,7 +17,7 @@ class EventManager;
 class Entity
 {
 public:
-using Script = Component::script;
+using Script = BaseScript;
 
 // make sure to free memory
     static void clean();
