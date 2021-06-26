@@ -21,6 +21,13 @@ Entity& Group::create()
     return *ret;
 }
 
+Entity& Group::create(const std::string& tag)
+{
+    auto& e = create();
+    e.attach<Component::tag>(tag);
+    return e;
+}
+
 void Group::erase(EntityID id)
 {
     _ids.erase(std::remove(_ids.begin(), _ids.end(), id));

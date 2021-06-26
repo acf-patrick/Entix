@@ -6,13 +6,13 @@
 #include <queue>
 #include <deque>
 
-class Applicaiton;
+#include <ecs/components.h>
 
 // Renderer System
 class Renderer
 {
 public:
-
+using Camera = Component::camera;
 using Drawer = std::function<void(SDL_Renderer*)>;
 
     static Renderer& get();
@@ -29,6 +29,7 @@ using Drawer = std::function<void(SDL_Renderer*)>;
     void submit(const Drawer&);
     void submit(const Drawer&, std::size_t);
 
+    void setRenderer(SDL_Renderer*);
     SDL_Renderer* renderer;
 
 private:
@@ -38,8 +39,12 @@ private:
 
     void empty();
 
+    SDL_Texture* view;
+
     // There is always one layer remaining
     std::deque<std::queue<Drawer>> layers;
+
+    std::vector<Camera*> cameras;
 
     static Renderer* instance;
 

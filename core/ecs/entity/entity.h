@@ -9,6 +9,7 @@
 
 #include "../defs.h"
 #include "../baseScript.h"
+#include "../baseCamera.h"
 #include "../component/manager.h"
 
 class Group;
@@ -18,6 +19,7 @@ class Entity
 {
 public:
 using Script = BaseScript;
+using Camera = ICamera;
 
 // make sure to free memory
     static void clean();
@@ -69,6 +71,12 @@ using Script = BaseScript;
                 s->onAttach();
                 _scripts.push_back(ret);
             }
+        }
+        else if (std::is_base_of<Camera, T>::value)
+        {
+            Camera* camera = (Camera*)ret;
+            if (camera)
+                camera->entity = this;
         }
 
         return *ret;
@@ -148,6 +156,9 @@ using _predicate = std::function<bool(const Entity&)>;
     void for_each(_process, _predicate);
 
     Entity& create();
+
+// create an entity and attach a tag component to it
+    Entity& create(const std::string&);
 
 // Just remove the Entity from this group without destroy
     void erase(EntityID);

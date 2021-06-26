@@ -6,6 +6,7 @@ CFLAGS 	= 	-std=c++2a -W
 CORE 	= 	core/ecs/component/manager.cpp\
 			core/ecs/entity/entity.cpp\
 			core/ecs/entity/container.cpp\
+			core/ecs/components.cpp\
 			core/application/application.cpp\
 			core/entry/entry.cpp\
 			core/scene/scene.cpp\
