@@ -70,8 +70,9 @@ void Renderer::draw()
         auto rotation   = c->rotation;
         auto flip       = SDL_RendererFlip((c->flip.y<<1)|c->flip.x);
 
-        int w, h;
-        SDL_GetRendererOutputSize(renderer, &w, &h);
+        auto rs = getSize();
+        int w = rs.x, h = rs.y;
+
         SDL_Rect rect = {
             int(position.x), int(position.y),
             int(size.x*w), int(size.y*h)
@@ -81,15 +82,35 @@ void Renderer::draw()
             scale.x*rect.w, scale.y*rect.h
         };
 
-        if (c->clear)
+        // draw background
         {
-            SDL_Rect d = { int(dest.x), int(dest.y), int(dest.w), int(dest.h) };
-            auto& bg = c->background;
-            SDL_SetRenderDrawColor(renderer, bg.r, bg.g, bg.b, bg.a);
-            SDL_RenderFillRect(renderer, &d);
+            auto all = c->clear == c->TEXTURE_AND_SOLID_COLOR;
+            if (all)
+                c->clear = c->SOLID_COLOR;
+
+            if (c->clear == c->SOLID_COLOR)
+            {
+                if (!c->_colorTexture)
+                {
+                    auto& t = c->_colorTexture;
+                    t = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+                    SDL_SetRenderTarget(renderer, t);
+                    clear(c->background);
+                    SDL_SetRenderTarget(renderer, NULL);
+                }
+                SDL_RenderCopyExF(renderer, c->_colorTexture, &rect, &dest, rotation, NULL, flip);
+                
+                if (all)
+                    c->clear = c->TEXTURE;
+            }
+            if (c->clear == c->TEXTURE)
+            {
+                SDL_RenderCopyExF(renderer, c->backgroundImage, &rect, &dest, rotation, NULL, flip);
+                
+                if (all)
+                    c->clear = c->TEXTURE_AND_SOLID_COLOR;
+            }
         }
-        if (c->backgroundImage)
-            SDL_RenderCopyExF(renderer, c->backgroundImage, &rect, &dest, rotation, NULL, flip);
 
         SDL_RenderCopyExF(renderer, view, &rect, &dest, rotation, NULL, flip);
     }
@@ -113,5 +134,31 @@ void Renderer::setRenderer(SDL_Renderer* r)
     int w, h;
     SDL_GetRendererOutputSize(renderer, &w, &h);
     view = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+    SDL_SetTextureBlendMode(view, SDL_BlendMode::SDL_BLENDMODE_BLEND);
     assert(view && "unable to create texture target for rendering");
+}
+
+Vector<int> Renderer::globalCoordinates(float x, float y) const
+{
+    auto size = getSize();
+    return Vector<int>(int(size.x*x), int(size.y*y));
+}
+
+Vector<int> Renderer::globalCoordinates(const Vector<float>& v) const
+{ return globalCoordinates(v.x, v.y); }
+
+Vector<float> Renderer::viewportCoordinates(float x, float y) const
+{
+    auto size = getSize();
+    return Vector<float>(x/size.x, y/size.y);
+}
+
+Vector<float> Renderer::viewportCoordinates(const Vector<float>& v) const
+{ return viewportCoordinates(v.x, v.y); }
+
+Vector<int> Renderer::getSize() const
+{
+    int w, h;
+    SDL_GetRendererOutputSize(renderer, &w, &h);
+    return Vector<int>(w, h);
 }

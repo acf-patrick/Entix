@@ -61,13 +61,22 @@ namespace Component {
         // color applied before any rendering
         // default : black
         SDL_Color background = { 0, 0, 0, 255 };
+        SDL_Texture* _colorTexture = nullptr;
 
         // stores used for background
+        // don't forget to update the 'clear' property after setting this variable
         SDL_Texture* backgroundImage = nullptr;
 
+        enum ClearMode { 
+            NONE,                       // Don't clear the background
+            TEXTURE,                    // Clear the background with texture set in backgroundImage property
+            SOLID_COLOR,                // Clear the background with color set in background property
+            TEXTURE_AND_SOLID_COLOR     // Useless if the texture doesn't support transparency
+        };
+
         // clear the background?
-        // default : false
-        bool clear = false;
+        // default : SOLID_COLOR
+        ClearMode clear = NONE;
 
         // flip rendered view
         Vector<bool> flip = { false, false };
@@ -87,10 +96,13 @@ namespace Component {
         {
             instancies.erase(std::remove(instancies.begin(), instancies.end(), this));
             SDL_DestroyTexture(backgroundImage);
+            SDL_DestroyTexture(_colorTexture);
+            _colorTexture = backgroundImage = nullptr;
         }
 
         bool isMain()
         { return instancies[0] == this; }
+
     };
 
     // Script Component

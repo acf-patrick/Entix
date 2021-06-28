@@ -110,6 +110,20 @@ class FollowBehavior : public Component::script
 public:
 	void Update() override
 	{
+		const int speed = 1;
+		auto& em = EventManager::get();
+		auto& position = get<Component::camera>().position;
+		if (em.keys[SDL_SCANCODE_UP])
+			position.y -= speed;
+		if (em.keys[SDL_SCANCODE_DOWN])
+			position.y += speed;
+		if (em.keys[SDL_SCANCODE_LEFT])
+			position.x -= speed;
+		if (em.keys[SDL_SCANCODE_RIGHT])
+			position.x += speed;
+	}
+/*
+	{
 		auto& r = Renderer::get();
 		auto& mouse = EventManager::get().mouse;
 		auto& camera = get<Component::camera>();
@@ -124,6 +138,7 @@ public:
 		dest.y = pos.y;
 		dest = r.viewportCoordinates(dest);
 	}
+*/
 };
 
 class Main : public Scene
@@ -142,8 +157,11 @@ public:
 		auto& camera = *entities["main camera"];
 		auto& c = camera.get<Component::camera>();
 		c.size = { 0.25, 0.25 };
-		c.clear = true;
+		c.clear = c.SOLID_COLOR;
+		c.background = { 255, 255, 255, 255 };
 		camera.attach<FollowBehavior>();
+
+		// auto& c1 = entities.create().attach<Component::camera>();
 	}
 
 private:

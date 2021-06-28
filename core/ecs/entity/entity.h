@@ -149,6 +149,7 @@ using _predicate = std::function<bool(const Entity&)>;
 
     // return a list of entities having required components
     std::vector<const Entity*> get(_predicate);
+
     // retrieve by tag
     Entity* operator[](const std::string&);
 
