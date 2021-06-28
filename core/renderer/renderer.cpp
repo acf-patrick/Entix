@@ -63,21 +63,12 @@ void Renderer::draw()
 
     for (auto c : Camera::instancies)
     {
-        auto& viewport  = c->destination;
-        auto& size      = c->size;
-        auto flip = SDL_RendererFlip((c->flip.y<<1)|c->flip.x);
-
-        Vector<double> position(0, 0);
-        Vector<float> scale(1, 1);
-        double rotation = 0;
-        auto obj = c->entity;
-        if (obj)
-        {
-            auto& t = obj->get<Component::transform>();
-            scale    = t.scale;
-            position = t.position;
-            rotation = t.rotation;
-        }       
+        auto viewport   = c->destination;
+        auto size       = c->size;
+        auto position   = c->position;
+        auto scale      = c->scale;
+        auto rotation   = c->rotation;
+        auto flip       = SDL_RendererFlip((c->flip.y<<1)|c->flip.x);
 
         int w, h;
         SDL_GetRendererOutputSize(renderer, &w, &h);
@@ -103,7 +94,8 @@ void Renderer::draw()
         SDL_RenderCopyExF(renderer, view, &rect, &dest, rotation, NULL, flip);
     }
 
-    SDL_RenderCopy(renderer, view, NULL, NULL);
+    // camera draws
+    // SDL_RenderCopy(renderer, view, NULL, NULL);
     SDL_RenderPresent(renderer);
 
     empty();

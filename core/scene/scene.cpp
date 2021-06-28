@@ -133,7 +133,7 @@ void SceneManager::next()
 
 Scene::Scene(const std::string& _tag) : tag(_tag)
 {
-    // entities.create("main camera").attach<Component::camera>();
+    entities.create("main camera").attach<Component::camera>();
 }
 
 bool Scene::update()

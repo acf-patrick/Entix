@@ -25,13 +25,14 @@ Application::Application(const std::string& title, int width, int height) :
         exit(EXIT_FAILURE);
     }
     
-    SDL_CreateWindowAndRenderer(width, height, 0, &_window, &renderer.renderer);
-
+    _window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
     if (!_window)
     {
         log("SDL Error : unable to create window");
         exit(EXIT_FAILURE);
     }
+
+    renderer.setRenderer(SDL_CreateRenderer(_window, -1, SDL_RENDERER_TARGETTEXTURE));
     if (!renderer.renderer)
     {
         log("SDL Error : unable to create a render context");

@@ -24,9 +24,9 @@ namespace Component {
     // Space specs
     struct transform
     {
-        Vector<double> position;
-        VectorF scale;
-        double rotation;
+        Vector<double> position = { 0, 0 };
+        VectorF scale = { 1, 1 };
+        double rotation = 0;
     };
 
     // Entity Container
@@ -37,6 +37,27 @@ namespace Component {
     class camera : public ICamera
     {
     public:
+        // position of the camera
+        // default : (0, 0)
+        Vector<double> position = { 0, 0 };
+
+        // scale factor used on final rendering
+        // default : (1, 1)
+        Vector<float> scale = { 1, 1 };
+
+        // rotation around z-axis
+        // default : 0
+        double rotation = 0;
+
+        // size of view
+        // (1, 1) the whole screen
+        Vector<float> size = { 1, 1 };
+
+        // indicates where on the screen this camera view will be drawn.
+        // (0, 0) top-left and (1, 1) bottom-right
+        // default : (0, 0)
+        Vector<float> destination = { 0, 0 };
+
         // color applied before any rendering
         // default : black
         SDL_Color background = { 0, 0, 0, 255 };
@@ -50,14 +71,6 @@ namespace Component {
 
         // flip rendered view
         Vector<bool> flip = { false, false };
-
-        // size of view
-        // (1, 1) the whole screen
-        Vector<float> size = { 1, 1 };
-
-        // indicates where on the screen this camera view will be drawn.
-        // (0, 0) top-left and (1, 1) bottom-right
-        VectorF destination = { 1, 1 };
 
         // camera position in draw orders
         // cameras with larger value will be drawn on top of cameras with a smaller value.

@@ -29,6 +29,26 @@ using Drawer = std::function<void(SDL_Renderer*)>;
     void submit(const Drawer&);
     void submit(const Drawer&, std::size_t);
 
+    Vector<int> globalCoordinates(float x, float y)
+    {
+        int w, h;
+        SDL_GetRendererOutputSize(renderer, &w, &h);
+        return Vector<int>(int(w*x), int(h*y));
+    }
+
+    Vector<int> globalCoordinates(const Vector<float>& v)
+    { return globalCoordinates(v.x, v.y); }
+
+    Vector<float> viewportCoordinates(float x, float y)
+    {
+        int w, h;
+        SDL_GetRendererOutputSize(renderer, &w, &h);
+        return Vector<float>(x/w, y/h);
+    }
+
+    Vector<float> viewportCoordinates(const Vector<float>& v)
+    { return viewportCoordinates(v.x, v.y); }
+
     void setRenderer(SDL_Renderer*);
     SDL_Renderer* renderer;
 

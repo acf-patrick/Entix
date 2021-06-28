@@ -105,6 +105,27 @@ public:
 
 };
 
+class FollowBehavior : public Component::script
+{
+public:
+	void Update() override
+	{
+		auto& r = Renderer::get();
+		auto& mouse = EventManager::get().mouse;
+		auto& camera = get<Component::camera>();
+		auto& pos = camera.position;
+		auto& dest	= camera.destination;
+		auto  size 	= r.globalCoordinates(camera.size);
+
+		pos.x = mouse.x - 0.5*size.x;
+		pos.y = mouse.y - 0.5*size.y;
+
+		dest.x = pos.x;
+		dest.y = pos.y;
+		dest = r.viewportCoordinates(dest);
+	}
+};
+
 class Main : public Scene
 {
 	bool active = true;
@@ -117,6 +138,12 @@ public:
 		event.listen(Event.QUIT, [&](Entity& entity) { active = false; });
 		entities.create().attach<DrawTexture>();
 		entities.create().attach<Button>();
+		
+		auto& camera = *entities["main camera"];
+		auto& c = camera.get<Component::camera>();
+		c.size = { 0.25, 0.25 };
+		c.clear = true;
+		camera.attach<FollowBehavior>();
 	}
 
 private:
