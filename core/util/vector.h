@@ -89,6 +89,15 @@ struct Vector
         return self *= (1/double(scalar));
     }
 
+    operator Vector<int> () const
+    { return Vector<int>(x, y); }
+    
+    operator Vector<float> () const
+    { return Vector<float>(x, y); }
+
+    operator Vector<double> () const
+    { return Vector<double>(x, y); }
+
     T x = 0;
     T y = 0;
 };

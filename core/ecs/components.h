@@ -1,8 +1,7 @@
 #pragma once
 
-#include <tuple>
 #include <string>
-#include <algorithm>
+#include <vector>
 #include <SDL2/SDL.h>
 
 #include <util/vector.h>
@@ -75,7 +74,7 @@ namespace Component {
         };
 
         // clear the background?
-        // default : SOLID_COLOR
+        // default : NONE
         ClearMode clear = NONE;
 
         // flip rendered view
@@ -84,24 +83,12 @@ namespace Component {
         // camera position in draw orders
         // cameras with larger value will be drawn on top of cameras with a smaller value.
         int depth = 0;
+        int getDepth() const;
 
-        static std::vector<camera*> instancies;
+        static std::vector<camera*> instances;
 
-        camera()
-        {
-            instancies.push_back(this);
-        }
-
-        ~camera()
-        {
-            instancies.erase(std::remove(instancies.begin(), instancies.end(), this));
-            SDL_DestroyTexture(backgroundImage);
-            SDL_DestroyTexture(_colorTexture);
-            _colorTexture = backgroundImage = nullptr;
-        }
-
-        bool isMain()
-        { return instancies[0] == this; }
+        camera();
+        ~camera();
 
     };
 

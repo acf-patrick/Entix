@@ -156,12 +156,14 @@ public:
 		
 		auto& camera = *entities["main camera"];
 		auto& c = camera.get<Component::camera>();
-		c.size = { 0.25, 0.25 };
-		c.clear = c.SOLID_COLOR;
-		c.background = { 255, 255, 255, 255 };
+		c.size = { 0.6, 0.6 };
 		camera.attach<FollowBehavior>();
 
-		// auto& c1 = entities.create().attach<Component::camera>();
+		auto& c1 = entities.create().attach<Component::camera>();
+		c1.scale.x = c1.scale.y = 0.25;
+		c1.destination.x = 0.5;
+		c1.clear = c1.SOLID_COLOR;
+		c1.background = { 255, 255, 255, 255 };
 	}
 
 private:

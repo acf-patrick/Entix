@@ -115,6 +115,7 @@ using Camera = ICamera;
 public:
     void Update();
     void Render();
+    
 // all we're doing here is detach all of the scripts from this entity
     void onDestroy();
 

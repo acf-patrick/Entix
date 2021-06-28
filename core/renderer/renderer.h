@@ -35,9 +35,9 @@ using Drawer = std::function<void(SDL_Renderer*)>;
 
     Vector<int> globalCoordinates(const Vector<float>&) const; 
 
-    Vector<float> viewportCoordinates(float, float) const;
+    Vector<float> viewportCoordinates(int, int) const;
 
-    Vector<float> viewportCoordinates(const Vector<float>&) const;
+    Vector<float> viewportCoordinates(const Vector<int>&) const;
 
     void setRenderer(SDL_Renderer*);
     SDL_Renderer* renderer;

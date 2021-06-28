@@ -61,7 +61,7 @@ void Renderer::draw()
         }
     SDL_SetRenderTarget(renderer, NULL);
 
-    for (auto c : Camera::instancies)
+    for (auto c : Camera::instances)
     {
         auto viewport   = c->destination;
         auto size       = c->size;
@@ -147,13 +147,13 @@ Vector<int> Renderer::globalCoordinates(float x, float y) const
 Vector<int> Renderer::globalCoordinates(const Vector<float>& v) const
 { return globalCoordinates(v.x, v.y); }
 
-Vector<float> Renderer::viewportCoordinates(float x, float y) const
+Vector<float> Renderer::viewportCoordinates(int x, int y) const
 {
     auto size = getSize();
-    return Vector<float>(x/size.x, y/size.y);
+    return Vector<int>(x/float(size.x), y/float(size.y));
 }
 
-Vector<float> Renderer::viewportCoordinates(const Vector<float>& v) const
+Vector<float> Renderer::viewportCoordinates(const Vector<int>& v) const
 { return viewportCoordinates(v.x, v.y); }
 
 Vector<int> Renderer::getSize() const
