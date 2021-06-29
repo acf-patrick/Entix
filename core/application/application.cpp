@@ -24,6 +24,7 @@ Application::Application(const std::string& title, int width, int height) :
         log("SDL Error : initialisation of subsystems failed!");
         exit(EXIT_FAILURE);
     }
+    std::cout << "Application created" << std::endl;
     
     _window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
     if (!_window)
@@ -32,7 +33,7 @@ Application::Application(const std::string& title, int width, int height) :
         exit(EXIT_FAILURE);
     }
 
-    renderer.setRenderer(SDL_CreateRenderer(_window, -1, SDL_RENDERER_TARGETTEXTURE));
+    renderer.renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_TARGETTEXTURE);
     if (!renderer.renderer)
     {
         log("SDL Error : unable to create a render context");

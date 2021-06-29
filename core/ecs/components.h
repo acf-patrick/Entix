@@ -83,7 +83,10 @@ namespace Component {
         // camera position in draw orders
         // cameras with larger value will be drawn on top of cameras with a smaller value.
         int depth = 0;
-        int getDepth() const;
+
+        // layer indexs the camera will draw
+        // contains first index by default, i.e 0
+        std::vector<int> layers = { 0 };
 
         static std::vector<camera*> instances;
 

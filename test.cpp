@@ -100,7 +100,7 @@ public:
 			SDL_SetRenderDrawColor(renderer, palette[state].r, palette[state].g, palette[state].b ,255);
 			SDL_RenderFillRect(renderer, &rect);
 			SDL_RenderCopy(renderer, texture, NULL, &rect);
-		});
+		}, 1);
 	}
 
 };
@@ -153,7 +153,7 @@ public:
 		event.listen(Event.QUIT, [&](Entity& entity) { active = false; });
 		entities.create().attach<DrawTexture>();
 		entities.create().attach<Button>();
-		
+
 		auto& camera = *entities["main camera"];
 		auto& c = camera.get<Component::camera>();
 		c.size = { 0.6, 0.6 };
@@ -164,6 +164,7 @@ public:
 		c1.destination.x = 0.5;
 		c1.clear = c1.SOLID_COLOR;
 		c1.background = { 255, 255, 255, 255 };
+		c1.layers = { 1 };
 	}
 
 private:

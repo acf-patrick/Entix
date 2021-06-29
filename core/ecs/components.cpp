@@ -20,6 +20,3 @@ Camera::~camera()
     SDL_DestroyTexture(_colorTexture);
     _colorTexture = backgroundImage = nullptr;
 }
-
-int Camera::getDepth() const
-{ return depth; }

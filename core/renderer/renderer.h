@@ -2,9 +2,10 @@
 
 #include <functional>
 #include <SDL2/SDL.h>
+#include <algorithm>
 #include <string>
 #include <queue>
-#include <deque>
+#include <map>
 
 #include <ecs/components.h>
 
@@ -13,7 +14,46 @@ class Renderer
 {
 public:
 using Camera = Component::camera;
-using Drawer = std::function<void(SDL_Renderer*)>;
+using Process = std::function<void(SDL_Renderer*)>;
+
+    struct Drawer
+    {
+        std::queue<Process> process;
+        SDL_Texture* target = nullptr;
+
+        Drawer()
+        {
+            auto& r = Renderer::get();
+            auto  s = r.getSize();
+            target = SDL_CreateTexture(r.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, s.x, s.y);
+            assert(target && "Unable to create texture target for layer\n");
+            SDL_SetTextureBlendMode(target, SDL_BLENDMODE_BLEND);
+        }
+        ~Drawer()
+        {
+            SDL_DestroyTexture(target);
+        }
+        void add(const Process& p)
+        {
+            process.push(p);
+        }
+        void clear()
+        {
+            std::queue<Process> empty;
+            std::swap(empty, process);
+        }
+        void prepare()
+        {
+            SDL_SetRenderTarget(Renderer::get().renderer, target);
+        }
+        void operator()()
+        {
+            if (process.empty())
+                return;
+            process.front()(Renderer::get().renderer);
+            process.pop();
+        }
+    };
 
     static Renderer& get();
     static void clean();
@@ -25,9 +65,9 @@ using Drawer = std::function<void(SDL_Renderer*)>;
     // perform drawing
     void draw();
 
-    // insert drawing function
-    void submit(const Drawer&);
-    void submit(const Drawer&, std::size_t);
+    // use n-th layer to perform drawing
+    // default : first layer (index 0)
+    void submit(const Process&, std::size_t index = 0);
 
     Vector<int> getSize() const;
 
@@ -39,7 +79,6 @@ using Drawer = std::function<void(SDL_Renderer*)>;
 
     Vector<float> viewportCoordinates(const Vector<int>&) const;
 
-    void setRenderer(SDL_Renderer*);
     SDL_Renderer* renderer;
 
 private:
@@ -47,12 +86,10 @@ private:
     Renderer();
     ~Renderer();
 
-    void empty();
-
-    SDL_Texture* view;
+    // SDL_Texture* view;
 
     // There is always one layer remaining
-    std::deque<std::queue<Drawer>> layers;
+    std::map<int, Drawer> layers;
 
     std::vector<Camera*> cameras;
 

@@ -16,26 +16,15 @@ void Renderer::clean()
 }
 
 Renderer::Renderer()
-{
-    empty();
-}
+{}
 Renderer::~Renderer()
 {
-    SDL_DestroyTexture(view);
     SDL_DestroyRenderer(renderer);
 }
 
-void Renderer::submit(const Drawer& drawer, std::size_t layer_n)
+void Renderer::submit(const Process& drawer, std::size_t layer_n)
 {
-    if (layer_n >= layers.size())
-        submit(drawer);
-    else
-        layers[layer_n].push(drawer);
-}
-
-void Renderer::submit(const Drawer& drawer)
-{
-    layers.back().push(drawer);
+    layers[layer_n].add(drawer);
 }
 
 void Renderer::clear(const SDL_Rect& rect, const SDL_Color& color)
@@ -52,13 +41,11 @@ void Renderer::clear(const SDL_Color& color)
 
 void Renderer::draw()
 {
-    SDL_SetRenderTarget(renderer, view);
-    for (auto& layer : layers)
-        while (!layer.empty())
-        {
-            layer.front()(renderer);
-            layer.pop();
-        }
+    for (auto& [_, layer] : layers)
+    {
+        layer.prepare();
+        layer();
+    }
     SDL_SetRenderTarget(renderer, NULL);
 
     for (auto c : Camera::instances)
@@ -82,12 +69,12 @@ void Renderer::draw()
             scale.x*rect.w, scale.y*rect.h
         };
 
-        // draw background
-        {
-            auto all = c->clear == c->TEXTURE_AND_SOLID_COLOR;
-            if (all)
-                c->clear = c->SOLID_COLOR;
+        auto all = c->clear == c->TEXTURE_AND_SOLID_COLOR;
+        if (all)
+            c->clear = c->SOLID_COLOR;
 
+        auto draw = [&](SDL_Texture* target)
+        {
             if (c->clear == c->SOLID_COLOR)
             {
                 if (!c->_colorTexture)
@@ -110,32 +97,19 @@ void Renderer::draw()
                 if (all)
                     c->clear = c->TEXTURE_AND_SOLID_COLOR;
             }
-        }
 
-        SDL_RenderCopyExF(renderer, view, &rect, &dest, rotation, NULL, flip);
+            SDL_RenderCopyExF(renderer, target, &rect, &dest, rotation, NULL, flip);
+        };
+
+        for (auto index : c->layers)
+            draw(layers[index].target);
     }
+
 
     // camera draws
     // SDL_RenderCopy(renderer, view, NULL, NULL);
     SDL_RenderPresent(renderer);
 
-    empty();
-}
-
-void Renderer::empty()
-{
-    layers.clear();
-    layers.emplace_back();
-}
-
-void Renderer::setRenderer(SDL_Renderer* r)
-{
-    renderer = r;
-    int w, h;
-    SDL_GetRendererOutputSize(renderer, &w, &h);
-    view = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
-    SDL_SetTextureBlendMode(view, SDL_BlendMode::SDL_BLENDMODE_BLEND);
-    assert(view && "unable to create texture target for rendering");
 }
 
 Vector<int> Renderer::globalCoordinates(float x, float y) const
