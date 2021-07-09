@@ -18,7 +18,13 @@ namespace Component {
     // ID
     // mostly used to identify Events
     struct tag
-    { std::string content; };
+    { 
+        std::string content = ""; 
+        void set(const std::string& c)
+        { content = c; }
+        operator std::string() const
+        { return content; }
+    };
 
     // Space specs
     struct transform
@@ -63,7 +69,7 @@ namespace Component {
         SDL_Texture* _colorTexture = nullptr;
 
         // stores used for background
-        // don't forget to update the 'clear' property after setting this variable
+        // update the 'clear' property after setting this variable
         SDL_Texture* backgroundImage = nullptr;
 
         enum ClearMode { 
@@ -74,18 +80,20 @@ namespace Component {
         };
 
         // clear the background?
-        // default : NONE
+        // default : NONE (don't clear)
         ClearMode clear = NONE;
 
         // flip rendered view
+        // default : false, false (no flip)
         Vector<bool> flip = { false, false };
 
         // camera position in draw orders
         // cameras with larger value will be drawn on top of cameras with a smaller value.
+        // default : 0
         int depth = 0;
 
         // layer indexs the camera will draw
-        // contains first index by default, i.e 0
+        // default : contains first index, i.e 0
         std::vector<int> layers = { 0 };
 
         static std::vector<camera*> instances;

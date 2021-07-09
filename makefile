@@ -12,7 +12,8 @@ CORE 	= 	core/ecs/component/manager.cpp\
 			core/scene/scene.cpp\
 			core/renderer/renderer.cpp\
 			core/event/event.cpp\
-			core/event/listner.cpp
+			core/event/listner.cpp\
+			core/util/blur.cpp
  
 CLIENT 	= 	test.cpp
 

@@ -131,7 +131,6 @@ private:
     std::vector<void*> _scripts;
 
 private:
-
     static int instance;
     static std::queue<EntityID> availableID;
     static std::unordered_map<EntityID, Entity*> instances;
@@ -148,15 +147,23 @@ public:
 using _process   = std::function<void(Entity&)>;
 using _predicate = std::function<bool(const Entity&)>;
 
-    // return a list of entities having required components
+// return a list of entities having required components
     std::vector<const Entity*> get(_predicate);
 
-    // retrieve by tag
+// retrieve by tag
+// return null pointer if not found
     Entity* operator[](const std::string&);
 
+// apply a callback to entities in this group
     void for_each(_process);
+    
+// apply a callback to entities of this group, respecting 
+// condition defined by the predicate function
     void for_each(_process, _predicate);
 
+// Since Entity constructor is private method
+// the only way to create an entity is this method.
+// Thus, each entity must belong to a group.
     Entity& create();
 
 // create an entity and attach a tag component to it
@@ -168,6 +175,5 @@ using _predicate = std::function<bool(const Entity&)>;
     ~Group();
 
 private:
-
     std::list<EntityID> _ids;
 };

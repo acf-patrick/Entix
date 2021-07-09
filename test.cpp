@@ -7,18 +7,19 @@
 class DrawTexture : public Component::script
 {
 	int var;
+	SDL_Texture* texture;
 public:
 
 	bool draw = true;
 
-	void onAttach() override
+	DrawTexture() 
 	{
-		attach<SDL_Texture*>(IMG_LoadTexture(Renderer::get().renderer, "texture.jpg"));
+		texture = IMG_LoadTexture(Renderer::get().renderer, "texture.jpg");
 	}
 
-	void onDetach() override
+	~DrawTexture()
 	{
-		SDL_DestroyTexture(get<SDL_Texture*>());
+		SDL_DestroyTexture(texture);
 	}
 
 	void Render() override
@@ -28,8 +29,6 @@ public:
 
 		if (draw) renderer.submit([&](SDL_Renderer* renderer)
 		{
-			auto texture = get<SDL_Texture*>();
-
 			SDL_Point wSize = {800, 600}, tSize;
 			SDL_Rect src, dest;
 
@@ -67,23 +66,22 @@ public:
 		SDL_FreeSurface(s);
 		TTF_CloseFont(font);
 
-		auto& Event = EventManager::get();
-		event.listen(Event.MOUSE_BUTTON_DOWN, [&](Entity& e)
+		event.listen(Input.MOUSE_BUTTON_DOWN, [&](Entity& e)
 		{
-			SDL_Point mouse = { Event.mouse.x, Event.mouse.y };
+			SDL_Point mouse = { Input.mouse.x, Input.mouse.y };
 			state = "idle";
 			if (SDL_PointInRect(&mouse, &rect))
 				state = "pressed";
 		});
-		event.listen(Event.MOUSE_BUTTON_UP, [&](Entity& e)
+		event.listen(Input.MOUSE_BUTTON_UP, [&](Entity& e)
 		{
-			SDL_Point mouse = { Event.mouse.x, Event.mouse.y };
+			SDL_Point mouse = { Input.mouse.x, Input.mouse.y };
 			if (SDL_PointInRect(&mouse, &rect))
 				Application::get().quit();
 		});
-		event.listen(Event.MOUSE_MOTION, [&](Entity& e)
+		event.listen(Input.MOUSE_MOTION, [&](Entity& e)
 		{
-			SDL_Point mouse = { Event.mouse.x, Event.mouse.y };
+			SDL_Point mouse = { Input.mouse.x, Input.mouse.y };
 			state = SDL_PointInRect(&mouse, &rect)?"hover":"idle";
 		});
 	}
@@ -111,15 +109,14 @@ public:
 	void Update() override
 	{
 		const int speed = 1;
-		auto& em = EventManager::get();
 		auto& position = get<Component::camera>().position;
-		if (em.keys[SDL_SCANCODE_UP])
+		if (Input.keys[SDL_SCANCODE_UP])
 			position.y -= speed;
-		if (em.keys[SDL_SCANCODE_DOWN])
+		if (Input.keys[SDL_SCANCODE_DOWN])
 			position.y += speed;
-		if (em.keys[SDL_SCANCODE_LEFT])
+		if (Input.keys[SDL_SCANCODE_LEFT])
 			position.x -= speed;
-		if (em.keys[SDL_SCANCODE_RIGHT])
+		if (Input.keys[SDL_SCANCODE_RIGHT])
 			position.x += speed;
 	}
 /*
@@ -150,7 +147,7 @@ public:
 	Main() : Scene("main scene")
 	{
 		auto& Event = EventManager::get();
-		event.listen(Event.QUIT, [&](Entity& entity) { active = false; });
+		event.listen(Input.QUIT, [&](Entity& entity) { active = false; });
 		entities.create().attach<DrawTexture>();
 		entities.create().attach<Button>();
 

@@ -1,7 +1,10 @@
 #include "application.h"
+#include "event/input.h"
 #include "ecs/entity/entity.h"
 #include <cassert>
 #include <SDL2/SDL_ttf.h>
+
+InputType Input;
 
 Application* Application::instance = nullptr;
 Application& Application::get()

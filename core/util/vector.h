@@ -7,7 +7,8 @@
 template <typename T>
 struct Vector
 {
-    Vector() = default;
+    Vector() : x(0), y(0)
+    {}
 
     Vector(T _x, T _y) : x(_x), y(_y)
     {}
@@ -89,6 +90,7 @@ struct Vector
         return self *= (1/double(scalar));
     }
 
+// useful cast
     operator Vector<int> () const
     { return Vector<int>(x, y); }
     

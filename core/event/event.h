@@ -17,13 +17,6 @@ class EventManager
 public:
 using Event = Entity*;
 
-    const std::string QUIT;
-    const std::string KEY_UP;
-    const std::string KEY_DOWN;
-    const std::string MOUSE_MOTION;
-    const std::string MOUSE_BUTTON_UP;
-    const std::string MOUSE_BUTTON_DOWN;
-
     static EventManager& get();
     static void clean();
 
@@ -33,8 +26,8 @@ using Event = Entity*;
     Entity& emit(const std::string&);
 
 private:
-
-    EventManager();
+    EventManager() = default;
+    
     void SDLEvents();
 
     std::queue<Event> events;
@@ -44,17 +37,6 @@ private:
     static EventManager* instance;
 
     void listnerDestroyed(EventListner*);
-
-public:
-
-    struct Mouse
-    {
-        bool pressed;
-        int x, y;
-    };
-    Mouse mouse;
-
-    std::map<SDL_Scancode, bool> keys;
 
 friend class EventListner;
 };
@@ -67,8 +49,7 @@ namespace Component {
 }
 */
 
-// Use this class to handle specific event by providing its tag
-// and provide a callback function
+// Use this class to handle specific event.
 class EventListner
 {
 public:
@@ -77,8 +58,14 @@ using Callback = std::function<void(Entity&)>;
     EventListner();
     ~EventListner();
 
+// provide event's tag and function callback
     void listen         (const std::string&, const Callback&);
+
+// stop listening to the event with the given tag
     void stopListening  (const std::string&);
+
+// ignore events
+    void removeCallbacks();
 
 private:
     EventManager& manager;

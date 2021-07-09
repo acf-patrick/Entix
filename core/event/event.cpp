@@ -1,18 +1,11 @@
 #include "event.h"
+#include "input.h"
 #include <map>
 #include <cstdlib>
 #include <ecs/ecs.h>
 #include <application/application.h>
 
 EventManager* EventManager::instance = nullptr;
-EventManager::EventManager() :
-    QUIT                ("SDL quit"),
-    KEY_UP              ("SDL key up"),
-    KEY_DOWN            ("SDL key down"),
-    MOUSE_MOTION        ("SDL mouse motion"),
-    MOUSE_BUTTON_UP     ("SDL mouse button up"),
-    MOUSE_BUTTON_DOWN   ("SDL mouse button down")
-{}
 
 EventManager& EventManager::get()
 {
@@ -56,29 +49,29 @@ void EventManager::SDLEvents()
         switch (event.type)
         {
         case SDL_QUIT:
-            emit(QUIT);
+            emit(Input.QUIT);
             break;
         case SDL_KEYDOWN:
-            emit(KEY_DOWN);
-            keys[event.key.keysym.scancode] = true;
+            emit(Input.KEY_DOWN);
+            Input.keys[event.key.keysym.scancode] = true;
             break;
         case SDL_KEYUP:
-            emit(KEY_UP);
-            keys[event.key.keysym.scancode] = false;
+            emit(Input.KEY_UP);
+            Input.keys[event.key.keysym.scancode] = false;
             break;
         case SDL_MOUSEBUTTONDOWN:
-            emit(MOUSE_BUTTON_DOWN);
-            mouse.pressed = true;
-            SDL_GetMouseState(&mouse.x, &mouse.y);
+            emit(Input.MOUSE_BUTTON_DOWN);
+            Input.mouse.pressed = true;
+            SDL_GetMouseState(&Input.mouse.x, &Input.mouse.y);
             break;
         case SDL_MOUSEBUTTONUP:
-            emit(MOUSE_BUTTON_UP);
-            mouse.pressed = true;
-            SDL_GetMouseState(&mouse.x, &mouse.y);
+            emit(Input.MOUSE_BUTTON_UP);
+            Input.mouse.pressed = true;
+            SDL_GetMouseState(&Input.mouse.x, &Input.mouse.y);
             break;
         case SDL_MOUSEMOTION:
-            emit(MOUSE_MOTION);
-            SDL_GetMouseState(&mouse.x, &mouse.y);
+            emit(Input.MOUSE_MOTION);
+            SDL_GetMouseState(&Input.mouse.x, &Input.mouse.y);
             break;
         default : ;
         }

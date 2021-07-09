@@ -19,3 +19,8 @@ void EventListner::stopListening(const std::string& event)
 {
     callbacks.erase(event);
 }
+
+void EventListner::removeCallbacks()
+{
+    callbacks.clear();
+}
