@@ -41,7 +41,7 @@ void Group::for_each(_process process)
 
 void Group::for_each(_process process, _predicate predicate)
 {
-    for (auto& id : _ids)
+    for (auto id : _ids)
     {
         auto& entity = Entity::get(id);
         if (predicate(entity))
@@ -58,7 +58,7 @@ std::vector<const Entity*> Group::get(_predicate predicate)
 
 Entity* Group::operator[](const std::string& tag)
 {
-    for (auto& id : _ids)
+    for (auto id : _ids)
     {
         auto& entity = Entity::get(id);
         if (entity.has<Component::tag>())
@@ -66,4 +66,16 @@ Entity* Group::operator[](const std::string& tag)
                 return &entity;
     }
     return nullptr;
+}
+
+void Group::reorder()
+{
+    struct compare
+    {
+        bool operator()(const EntityID& id1, const EntityID& id2) const
+        {
+            return Entity::get(id1).index < Entity::get(id2).index;
+        }
+    };
+    _ids.sort(compare());
 }

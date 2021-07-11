@@ -106,3 +106,15 @@ void Entity::onDestroy()
     }
     _scripts.clear();
 }
+
+int Entity::getIndex() const
+{
+    return index;
+}
+
+void Entity::setIndex(unsigned int i)
+{
+    index = i;
+    if (has<Component::group>())
+        get<Component::group>().content->reorder();
+}

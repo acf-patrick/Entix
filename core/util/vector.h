@@ -113,3 +113,8 @@ std::ostream& operator<<(std::ostream& flux, const Vector<T>& vector)
     flux << '(' << vector.x << ", " << vector.y << ')';
     return flux;
 }
+
+// dot product
+template <typename T1, typename T2>
+double operator*(const Vector<T1>& v1, const Vector<T2>& v2)
+{ return v1.x*v2.x + v1.y*v2.y; }

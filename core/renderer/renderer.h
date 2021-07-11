@@ -69,15 +69,15 @@ using Process = std::function<void(SDL_Renderer*)>;
     // default : first layer (index 0)
     void submit(const Process&, std::size_t index = 0);
 
-    Vector<int> getSize() const;
+    VectorI getSize() const;
 
-    Vector<int> globalCoordinates(float, float) const;
+    VectorI globalCoordinates(float, float) const;
 
-    Vector<int> globalCoordinates(const Vector<float>&) const; 
+    VectorI globalCoordinates(const VectorF&) const; 
 
-    Vector<float> viewportCoordinates(int, int) const;
+    VectorF viewportCoordinates(int, int) const;
 
-    Vector<float> viewportCoordinates(const Vector<int>&) const;
+    VectorF viewportCoordinates(const VectorI&) const;
 
     SDL_Renderer* renderer;
 

@@ -21,11 +21,17 @@ public:
 using Script = BaseScript;
 using Camera = ICamera;
 
-// make sure to free memory
+    // make sure to free memory
     static void clean();
 
-// get entity with the given ID
+    // get entity with the given ID
     static Entity& get(EntityID);
+
+    // getter for index property
+    int  getIndex() const;
+
+    // setter for index property
+    void setIndex(unsigned int);
 
     template<typename T>
     bool has() const
@@ -130,6 +136,9 @@ private:
 
     std::vector<void*> _scripts;
 
+    // z-index used when rendering entity
+    unsigned int index = 0;
+
 private:
     static int instance;
     static std::queue<EntityID> availableID;
@@ -147,30 +156,33 @@ public:
 using _process   = std::function<void(Entity&)>;
 using _predicate = std::function<bool(const Entity&)>;
 
-// return a list of entities having required components
+    // return a list of entities having required components
     std::vector<const Entity*> get(_predicate);
 
-// retrieve by tag
-// return null pointer if not found
+    // retrieve by tag
+    // return null pointer if not found
     Entity* operator[](const std::string&);
 
-// apply a callback to entities in this group
+    // apply a callback to entities in this group
     void for_each(_process);
     
-// apply a callback to entities of this group, respecting 
-// condition defined by the predicate function
+    // apply a callback to entities of this group, respecting 
+    // condition defined by the predicate function
     void for_each(_process, _predicate);
 
-// Since Entity constructor is private method
-// the only way to create an entity is this method.
-// Thus, each entity must belong to a group.
+    // Since Entity constructor is private method
+    // the only way to create an entity is this method.
+    // Thus, each entity must belong to a group.
     Entity& create();
 
-// create an entity and attach a tag component to it
+    // create an entity and attach a tag component to it
     Entity& create(const std::string&);
 
-// Just remove the Entity from this group without destroy
+    // Just remove the Entity from this group without destroy
     void erase(EntityID);
+
+    // reorder entities according to entity z-index
+    void reorder();
 
     ~Group();
 

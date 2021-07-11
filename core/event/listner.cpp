@@ -24,3 +24,13 @@ void EventListner::removeCallbacks()
 {
     callbacks.clear();
 }
+
+void EventListner::enable()
+{ 
+    enabled = true;    
+}
+
+void EventListner::disable()
+{
+    enabled = false;
+}

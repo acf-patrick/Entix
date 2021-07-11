@@ -59,17 +59,24 @@ using Callback = std::function<void(Entity&)>;
     ~EventListner();
 
 // provide event's tag and function callback
-    void listen         (const std::string&, const Callback&);
+    void listen(const std::string&, const Callback&);
 
 // stop listening to the event with the given tag
-    void stopListening  (const std::string&);
+    void stopListening(const std::string&);
 
 // ignore events
     void removeCallbacks();
 
+// continue listening
+    void enable();
+
+// stop listening temporarily
+    void disable();
+
 private:
     EventManager& manager;
     std::map<std::string, Callback> callbacks;
+    bool enabled = true;
 
 friend class EventManager;
 };

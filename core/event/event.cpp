@@ -29,11 +29,12 @@ void EventManager::handle()
         auto tag = event->get<Component::tag>().content;
 
         for (auto l : listners)
-        {
-            auto& c = l->callbacks;
-            if (c.find(tag) != c.end())
-                c[tag](*event);
-        }
+            if (l->enabled)
+            {
+                auto& c = l->callbacks;
+                if (c.find(tag) != c.end())
+                    c[tag](*event);
+            }
 
         delete event;
         events.pop();

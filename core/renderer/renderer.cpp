@@ -50,11 +50,12 @@ void Renderer::draw()
 
     for (auto c : Camera::instances)
     {
+        auto t = c->entity->get<Component::transform>();
+        auto position   = t.position;
+        auto scale      = t.scale;
+        auto rotation   = t.rotation;
         auto viewport   = c->destination;
         auto size       = c->size;
-        auto position   = c->position;
-        auto scale      = c->scale;
-        auto rotation   = c->rotation;
         auto flip       = SDL_RendererFlip((c->flip.y<<1)|c->flip.x);
 
         auto rs = getSize();
@@ -112,27 +113,27 @@ void Renderer::draw()
 
 }
 
-Vector<int> Renderer::globalCoordinates(float x, float y) const
+VectorI Renderer::globalCoordinates(float x, float y) const
 {
     auto size = getSize();
-    return Vector<int>(int(size.x*x), int(size.y*y));
+    return VectorI(int(size.x*x), int(size.y*y));
 }
 
-Vector<int> Renderer::globalCoordinates(const Vector<float>& v) const
+VectorI Renderer::globalCoordinates(const VectorF& v) const
 { return globalCoordinates(v.x, v.y); }
 
-Vector<float> Renderer::viewportCoordinates(int x, int y) const
+VectorF Renderer::viewportCoordinates(int x, int y) const
 {
     auto size = getSize();
-    return Vector<int>(x/float(size.x), y/float(size.y));
+    return VectorI(x/float(size.x), y/float(size.y));
 }
 
-Vector<float> Renderer::viewportCoordinates(const Vector<int>& v) const
+VectorF Renderer::viewportCoordinates(const VectorI& v) const
 { return viewportCoordinates(v.x, v.y); }
 
-Vector<int> Renderer::getSize() const
+VectorI Renderer::getSize() const
 {
     int w, h;
     SDL_GetRendererOutputSize(renderer, &w, &h);
-    return Vector<int>(w, h);
+    return VectorI(w, h);
 }

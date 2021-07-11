@@ -98,7 +98,7 @@ public:
 			SDL_SetRenderDrawColor(renderer, palette[state].r, palette[state].g, palette[state].b ,255);
 			SDL_RenderFillRect(renderer, &rect);
 			SDL_RenderCopy(renderer, texture, NULL, &rect);
-		}, 1);
+		});
 	}
 
 };
@@ -109,7 +109,7 @@ public:
 	void Update() override
 	{
 		const int speed = 1;
-		auto& position = get<Component::camera>().position;
+		auto& position = get<Component::transform>().position;
 		if (Input.keys[SDL_SCANCODE_UP])
 			position.y -= speed;
 		if (Input.keys[SDL_SCANCODE_DOWN])
@@ -149,9 +149,17 @@ public:
 		auto& Event = EventManager::get();
 		event.listen(Input.QUIT, [&](Entity& entity) { active = false; });
 		entities.create().attach<DrawTexture>();
-		entities.create().attach<Button>();
+		// entities.create().attach<Button>();
 
-		auto& camera = *entities["main camera"];
+		auto& sprite = entities.create();
+		auto& t = sprite.attach<Component::transform>();
+		t.scale = { 0.25, 0.25 };
+		auto& s = sprite.attach<Component::sprite>();
+		auto& sr = sprite.get<Component::spriteRenderer>();
+		s.texture = IMG_LoadTexture(Renderer::get().renderer, "texture.jpg");
+		s.regionEnabled = true;
+/*
+		auto& camera = entities["main camera"]->get<Component::camera>();
 		auto& c = camera.get<Component::camera>();
 		c.size = { 0.6, 0.6 };
 		camera.attach<FollowBehavior>();
@@ -162,6 +170,7 @@ public:
 		c1.clear = c1.SOLID_COLOR;
 		c1.background = { 255, 255, 255, 255 };
 		c1.layers = { 1 };
+*/
 	}
 
 private:

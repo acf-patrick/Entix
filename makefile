@@ -1,12 +1,13 @@
 .SUFFIXE:
 
-CXX 	= 	g++
+CXX 	= 	g++-10
 CFLAGS 	= 	-std=c++2a -W
 
 CORE 	= 	core/ecs/component/manager.cpp\
+			core/ecs/component/camera.cpp\
+			core/ecs/component/sprites.cpp\
 			core/ecs/entity/entity.cpp\
 			core/ecs/entity/container.cpp\
-			core/ecs/components.cpp\
 			core/application/application.cpp\
 			core/entry/entry.cpp\
 			core/scene/scene.cpp\
