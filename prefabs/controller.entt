@@ -1,7 +1,0 @@
-SpriteComponent:
-  Texture: texture.png
-  Centered: true
-  FramesNumber: [11, 1]
-TransformComponent:
-SpriteRendererComponent:
-Controller:

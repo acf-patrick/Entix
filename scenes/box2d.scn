@@ -1,7 +1,6 @@
 Name: test
 Entities:
-  - Template: prefabs/controller.entt
-    CreatorBehavior:
+  - Controller:
   - TagComponent:
       Tag: main camera
     CameraComponent:

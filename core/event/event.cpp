@@ -41,7 +41,6 @@ void EventManagerType::handle()
 void EventManagerType::SDLEvents()
 {
     SDL_Event event;
-    Entity& e = *static_cast<Entity*>(nullptr);
     while (SDL_PollEvent(&event))
         switch (event.type)
         {
@@ -93,5 +92,5 @@ void EventManagerType::newListner(EventListner* listner)
 
 void EventManagerType::listnerDestroyed(EventListner* listner)
 {
-    listners.erase(std::find(listners.begin(), listners.end(), listner));
+    listners.erase(std::remove(listners.begin(), listners.end(), listner));
 }

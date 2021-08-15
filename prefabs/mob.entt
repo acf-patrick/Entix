@@ -1,0 +1,7 @@
+Mob:
+TransformComponent:
+SpriteRendererComponent:
+SpriteComponent:
+  Texture: texture.png
+  Centered: true
+  FramesNumber: [11, 1]

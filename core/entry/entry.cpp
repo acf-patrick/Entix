@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     std::string title = "Untitled";
     if (node["Title"])
         title = node["Title"].as<std::string>();
-    auto wSize = VectorI();
+    VectorI wSize(600, 400);
     if (node["WindowSize"])
         wSize = node["WindowSize"].as<VectorI>();
 

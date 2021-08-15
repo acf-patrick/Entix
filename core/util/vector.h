@@ -36,8 +36,10 @@ struct Vector
     }
 
     template <typename _T>
-    Vector<double> operator+ (const Vector<_T>& other) const
-    { return { x+other.x, y+other.y }; }
+    Vector<T> operator+ (const Vector<_T>& rhs) const
+    {
+        return { x+rhs.x, y+rhs.y };
+    }
 
     template <typename _T>
     Vector<T>& operator+= (const Vector<_T>& other)
@@ -48,7 +50,7 @@ struct Vector
     }
 
     template <typename _T>
-    Vector<double> operator- (const Vector<_T>& other) const
+    Vector<T> operator- (const Vector<_T>& other) const
     { return *this + (-other); }
 
     Vector<T>& operator-= (const Vector<T>& other)
@@ -57,41 +59,34 @@ struct Vector
         return *this;
     }
 
-    /* Dot product */
-    template <typename _T>
-    double operator* (const Vector<_T>& other) const
-    { return x*other.x + y*other.y; }
-
 // Scalar and vectors operations
 
-    template <typename TScalar>
-    Vector<double> operator* (TScalar scalar) const
+    template <typename _T>
+    Vector<_T> operator* (_T scalar) const
     { return { scalar * x, scalar * y }; }
 
-    template <typename TScalar>
-    Vector<T>& operator*= (TScalar scalar)
+    template <typename _T>
+    Vector<T>& operator*= (_T scalar)
     {
         x *= scalar;
         y *= scalar;
         return *this;
     }
 
-    template <typename TScalar>
-    Vector<double> operator/ (TScalar scalar) const
+    template <typename _T>
+    Vector<_T> operator/ (_T scalar) const
     {
         assert(scalar != 0 && "Arithmetic Error : Division by zero!");
-
-        auto& self = *this;
-        return self*(1/double(scalar));
+        return { x/scalar, y/scalar };
     }
 
-    template <typename TScalar>
-    Vector<T>& operator/= (TScalar scalar)
+    template <typename _T>
+    Vector<T>& operator/= (_T scalar)
     {
         assert(scalar != 0 && "Arithmetic Error : Division by zero!");
-
-        auto& self = *this;
-        return self *= (1/double(scalar));
+        x /= scalar;
+        y /= scalar;
+        return *this;
     }
 
     operator bool() const

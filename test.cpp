@@ -6,57 +6,65 @@
 using Script = Component::script;
 
 const float MtoPX = 80.0f;
+const float timeStep = 1/60.0f;
+b2World* World = new b2World({0.0f, 10.0f});
 
-class Controller : public Script
+class Mob : public Script
 {
 public:
-	const float timeStep = 1/60.0f;
-	static b2World world;
-	static VectorF gravity;
 	b2Body* body;
 	Uint32 lastTick;
 
-	Controller() 
+	Mob() 
 	{
-		world.SetGravity({gravity.x, gravity.y});
 		// Dynamic body
 		b2BodyDef def;
 		def.type = b2_dynamicBody;
 		def.position.Set(400/MtoPX, 100/MtoPX);
 		def.angle = b2_pi/6;
-		body = world.CreateBody(&def);
+		body = World->CreateBody(&def);
 		if (!body)
-			std::cerr << "Failed to create box2D body" << std::endl;
+			std::cerr << "Failed to create physic body" << std::endl;
 
 		b2FixtureDef fdef;
 		fdef.density = 1.0f;
-		fdef.friction = 0.3f;
+		fdef.friction = 0.5f;
 		fdef.restitution = 0.4f;
 		b2PolygonShape shape;
-		shape.SetAsBox(32/MtoPX, 32/MtoPX);
+		shape.SetAsBox(16/MtoPX, 16/MtoPX);
 		fdef.shape = &shape;
 		body->CreateFixture(&fdef);
-
-		// Ground
-		b2BodyDef groundBodyDef;
-		groundBodyDef.position.Set(400/MtoPX, 400/MtoPX);
-		groundBodyDef.type = b2_staticBody;
-		auto ground = world.CreateBody(&groundBodyDef);
-		
-		b2PolygonShape groundShape;
-		groundShape.SetAsBox(300/MtoPX, 10/MtoPX);
-		ground->CreateFixture(&groundShape, 0.0f);
 	}
 
-	void Update() override
+ 	void Update() override
 	{
-		world.Step(timeStep, 8, 3);
-
 		auto pos = body->GetPosition();
 		auto& t = get<Component::transform>();
 		t.position.x = pos.x*MtoPX;
 		t.position.y = pos.y*MtoPX;
 		t.rotation = body->GetAngle()*180/b2_pi;
+	}
+ };
+
+class Controller : public Script
+{
+public:
+	Controller()
+	{
+		// create ground
+		b2BodyDef groundBodyDef;
+		groundBodyDef.position.Set(400/MtoPX, 400/MtoPX);
+		groundBodyDef.type = b2_staticBody;
+		auto ground = World->CreateBody(&groundBodyDef);
+		
+		b2PolygonShape groundShape;
+		groundShape.SetAsBox(300/MtoPX, 10/MtoPX);
+		ground->CreateFixture(&groundShape, 0.0f);
+	}
+	
+	~Controller()
+	{
+		delete World;
 	}
 
 	void Render() override
@@ -68,13 +76,12 @@ public:
 			SDL_RenderDrawRect(renderer, &rect);
 		});
 	}
-};
-VectorF Controller::gravity;
-b2World Controller::world({0.0f, 0.0f});
 
-class CreatorBehavior : public Script
-{
-public: 
+	void Update() override
+	{
+		World->Step(timeStep, 6, 2);
+	}
+
 	void onAttach() override
 	{
 		event.listen(Input.QUIT, [](Entity& entity)
@@ -84,15 +91,17 @@ public:
 		event.listen(Input.MOUSE_BUTTON_UP, [&](Entity& entity)
 		{
 			auto& e = get<Component::group>().content->create();
-			auto& serializer = *Application::serializer;
-			YAML::Node n;
-			n["Template"] = "prefabs/controller.entt";
-			serializer.deserializeEntity(n, e);
-			auto& body = *e.get<Controller>().body;
-			auto mousePos = Input.mouse.getPosition();
-			body.SetTransform({mousePos.x/MtoPX, mousePos.y/MtoPX}, 0.0f);
 			std::cout << "created" << std::endl;
-		});
+ 			auto& serializer = *Application::serializer;
+			YAML::Node n;
+			n["Template"] = "prefabs/mob.entt";
+			serializer.deserializeEntity(n, e);
+			std::cout << "entity deserialized" << std::endl;
+ 			auto& body = *e.get<Mob>().body;
+			auto mousePos = Input.mouse.getPosition()/MtoPX;
+			body.SetTransform({mousePos.x, mousePos.y}, 0.0f);
+			std::cout << "entity position set" << std::endl;
+  		});
 	}
 };
 
@@ -127,21 +136,15 @@ public:
 	void deserializeEntity(YAML::Node& node, Entity& entity) override
 	{
 		Serializer::deserializeEntity(node, entity);
-		auto c = node["Controller"];
+		auto c = node["Mob"];
 		if (c)
-		{
-			Controller::gravity.y = 10.0f;
-			float timeStep = 1/60.0f;
-			if (c["Gravity"])
-				Controller::gravity = c["Gravity"].as<VectorF>();
+			entity.attach<Mob>();
+		c = node["Controller"];
+		if (c)
 			entity.attach<Controller>();
-		}
 		c = node["FollowMouseBehavior"];
 		if (c)
 			entity.attach<FollowMouseBehavior>();
-		c = node["CreatorBehavior"];
-		if (c)
-			entity.attach<CreatorBehavior>();
 	}
 };
 Serializer* Application::serializer = new MySerializer;
