@@ -139,8 +139,6 @@ Scene::Scene(const std::string& _tag) : tag(_tag)
 bool Scene::update()
 {
     entities.for_each([](Entity& entity) { entity.Update(); });
-    entities.reorder(); // maybe z-indexes have changed. We rearrange the container.
-
     entities.for_each([](Entity& entity) { entity.Render(); });
     return true;
 }

@@ -21,6 +21,8 @@ protected:
     Scene(const std::string&);
 
     std::string tag = "Scene";
+
+// used to manage entities
     Group entities;
 
 // used to manage events
@@ -43,7 +45,6 @@ public:
 // No more scene left if return false
     bool update();
 
-// container methods
     void push(Scene*);
     
     void remove(std::size_t);

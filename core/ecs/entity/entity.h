@@ -82,7 +82,10 @@ using Camera = ICamera;
         {
             Camera* camera = (Camera*)ret;
             if (camera)
+            {
                 camera->entity = this;
+                camera->_attachTransform();
+            }
         }
 
         return *ret;

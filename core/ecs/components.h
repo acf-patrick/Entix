@@ -98,6 +98,7 @@ namespace Component {
 
     class camera : public ICamera
     {
+        void _attachTransform() override;
     public:
 
         // size of view
@@ -146,7 +147,6 @@ namespace Component {
 
         camera();
         ~camera();
-
     };
 
     // Script Component
@@ -191,11 +191,7 @@ namespace Component {
 
     class spriteRenderer : public script
     {
-    public: 
-        sprite& spriteComponent;
-
-        spriteRenderer();
-        void Render() override;
+    public: void Render() override;
     };
 
 };

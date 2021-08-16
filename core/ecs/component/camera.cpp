@@ -12,9 +12,6 @@ namespace Component {
     {
         instances.push_back(this);
         std::sort(instances.begin(), instances.end(), compare);
-        
-        if (!entity->has<transform>())
-            entity->attach<transform>();
     }
 
     camera::~camera()
@@ -24,5 +21,10 @@ namespace Component {
         SDL_DestroyTexture(_colorTexture);
         _colorTexture = backgroundImage = nullptr;
     }
-    
+
+    void camera::_attachTransform()
+    {
+        if (!entity->has<Component::transform>())
+            entity->attach<Component::transform>();
+    }
 }

@@ -5,12 +5,20 @@ namespace Component {
 
     void spriteRenderer::Render()
     {
-        // no texture to draw
-        if (!spriteComponent.texture)
+        if (!has<sprite>())
+        {
+            std::cerr << "SpriteRenderer-error : Entity must have a sprite component to render!" << std::endl;
             return;
+        }
+        
+        auto& spriteComponent = get<sprite>();
+        if (!spriteComponent.texture)
+            return;         // no texture to draw
 
     Renderer::get().submit([&](SDL_Renderer* renderer)
     {
+        if (!has<transform>())
+            attach<transform>();    // default position, rotation and scale factor
         auto& t = get<transform>();
         auto pos = t.position;
         auto scale = t.scale;
@@ -65,16 +73,6 @@ namespace Component {
         // rotate around center for now
         SDL_RenderCopyEx(renderer, spriteComponent.texture, &src, &dst, rotation, NULL, SDL_RendererFlip((spriteComponent.flip.y<<1)|spriteComponent.flip.x));
     });
-    }
-
-    spriteRenderer::spriteRenderer() : spriteComponent(get<sprite>())
-    {
-        // renderer
-        if (!has<spriteRenderer>())
-            attach<spriteRenderer>();
-        // space information
-        if (!has<transform>())
-            attach<transform>();
     }
 
     sprite::~sprite()

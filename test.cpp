@@ -4,46 +4,6 @@
 #include <SDL2/SDL_ttf.h>
 #include <core.h>
 
-class DrawTexture : public Component::script
-{
-	int var;
-	SDL_Texture* texture;
-public:
-
-	bool draw = true;
-
-	DrawTexture() 
-	{
-		texture = IMG_LoadTexture(Renderer::get().renderer, "texture.jpg");
-	}
-
-	~DrawTexture()
-	{
-		SDL_DestroyTexture(texture);
-	}
-
-	void Render() override
-	{
-		auto& renderer = Renderer::get();
-		renderer.clear();
-
-		if (draw) renderer.submit([&](SDL_Renderer* renderer)
-		{
-			SDL_Point wSize = {800, 600}, tSize;
-			SDL_Rect src, dest;
-
-			SDL_QueryTexture(texture, NULL, NULL, &tSize.x, &tSize.y);
-
-			dest = {
-				int(0.25*(wSize.x)), int(0.25*(wSize.y)),
-				int(0.5*wSize.x), int(0.5*wSize.y)
-			};
-
-			SDL_RenderCopyEx(renderer, texture, NULL, &dest, 0, NULL, SDL_FLIP_NONE);
-		});
-	}
-};
-
 class Button : public Component::script
 {
 	SDL_Texture* texture;
@@ -146,18 +106,13 @@ public:
 
 	Main() : Scene("main scene")
 	{
-		auto& Event = EventManager::get();
+	
 		event.listen(Input.QUIT, [&](Entity& entity) { active = false; });
-		entities.create().attach<DrawTexture>();
-		// entities.create().attach<Button>();
 
 		auto& sprite = entities.create();
-		auto& t = sprite.attach<Component::transform>();
-		t.scale = { 0.25, 0.25 };
-		auto& s = sprite.attach<Component::sprite>();
-		auto& sr = sprite.get<Component::spriteRenderer>();
-		s.texture = IMG_LoadTexture(Renderer::get().renderer, "texture.jpg");
-		s.regionEnabled = true;
+		sprite.attach<Component::transform>().scale = { 0.25, 0.25 };
+		sprite.attach<Component::sprite>().texture = IMG_LoadTexture(Renderer::get().renderer, "texture.jpg");
+		sprite.attach<Component::spriteRenderer>();
 /*
 		auto& camera = entities["main camera"]->get<Component::camera>();
 		auto& c = camera.get<Component::camera>();
