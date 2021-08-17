@@ -160,7 +160,21 @@ using _process   = std::function<void(Entity&)>;
 using _predicate = std::function<bool(const Entity&)>;
 
     // return a list of entities having required components
-    std::vector<const Entity*> get(_predicate);
+    std::vector<Entity*> get(_predicate);
+
+    // return a list of entites having required components
+    template<typename... TComponents>
+    std::vector<Entity*> view()
+    {
+        std::vector<Entity*> ret;
+        for (auto id : _ids)
+        {
+            auto& e = Entity::get(id);
+            if (e.all_of<TComponents...>())
+                ret.push_back(&e);
+        }
+        return ret;
+    }
 
     // retrieve by tag
     // return null pointer if not found

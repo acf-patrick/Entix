@@ -60,6 +60,8 @@ using Process = std::function<void(SDL_Renderer*)>;
 
     // clear a portion of the screen with the given color, default is black.
     void clear(const SDL_Color& color = { 0, 0, 0, 255 });
+
+    // clear a portion of the screen with the given color, default is black.
     void clear(const SDL_Rect&, const SDL_Color& color = { 0, 0, 0, 255 });
 
     // perform drawing
