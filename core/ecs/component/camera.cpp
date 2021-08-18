@@ -17,9 +17,8 @@ namespace Component {
     camera::~camera()
     {
         instances.erase(std::remove(instances.begin(), instances.end(), this));
-        SDL_DestroyTexture(backgroundImage);
         SDL_DestroyTexture(_colorTexture);
-        _colorTexture = backgroundImage = nullptr;
+        _colorTexture = nullptr;
     }
 
     void camera::_attachTransform()

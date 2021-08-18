@@ -11,22 +11,28 @@ class SceneManager;
 // Scene Interface
 class Scene
 {
-protected:
+public:
+    // Save the scene in a file
+    virtual void Serialize();
 
+protected:
     virtual ~Scene() = default;
 
-// pop the scene from manager if this method return false
+    // pop the scene from manager if this method return false
     virtual bool update();
 
     Scene(const std::string&);
 
     std::string tag = "Scene";
 
-// used to manage entities
+    // used to manage entities
     Group entities;
 
-// used to manage events
+    // used to manage events
     EventListner event;
+
+private:
+    virtual void SerializeEntity(Entity&);
 
 friend class SceneManager;
 };

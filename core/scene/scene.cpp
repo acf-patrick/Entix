@@ -1,6 +1,8 @@
-#include "scene.h"
 #include <cassert>
 #include <algorithm>
+
+#include "scene.h"
+#include "../ecs/components.h"
 
 SceneManager* SceneManager::instance = nullptr;
 SceneManager& SceneManager::get()

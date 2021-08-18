@@ -93,7 +93,7 @@ void Renderer::draw()
             }
             if (c->clear == c->TEXTURE)
             {
-                SDL_RenderCopyExF(renderer, c->backgroundImage, &rect, &dest, rotation, NULL, flip);
+                SDL_RenderCopyExF(renderer, c->backgroundImage.getTexture(), &rect, &dest, rotation, NULL, flip);
                 
                 if (all)
                     c->clear = c->TEXTURE_AND_SOLID_COLOR;

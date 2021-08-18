@@ -10,6 +10,7 @@
 #include "baseScript.h"
 #include "baseCamera.h"
 #include "entity/entity.h"
+#include "../texture/texture.h"
 
 class Group;
 
@@ -117,7 +118,7 @@ namespace Component {
 
         // stores used for background
         // update the 'clear' property after setting this variable
-        SDL_Texture* backgroundImage = nullptr;
+        Texture backgroundImage;
 
         enum ClearMode { 
             NONE,                       // Don't clear the background
@@ -195,3 +196,4 @@ namespace Component {
     };
 
 };
+
