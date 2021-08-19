@@ -14,7 +14,9 @@ CORE 	= 	core/ecs/component/manager.cpp\
 			core/renderer/renderer.cpp\
 			core/event/event.cpp\
 			core/event/listner.cpp\
-			core/util/blur.cpp
+			core/util/blur.cpp\
+			core/texture/texture.cpp\
+			core/serializer/serializer.cpp
  
 CLIENT 	= 	test.cpp
 
@@ -22,7 +24,7 @@ HEADER 	=  	core/
 LIBS 	= 	libs/
 
 SDL 	= 	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-# YAML 	= 	-lyaml-cpp
+YAML 	= 	-lyaml-cpp
 # TMX 	= 	-lxml2 -lz -ltmx
 # BOX2D =	-lbox2d
 

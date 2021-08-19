@@ -1,7 +1,7 @@
 #pragma once
 
+#include <set>
 #include <list>
-#include <queue>
 #include <tuple>
 #include <memory>
 #include <functional>
@@ -130,9 +130,13 @@ public:
 
 private:
     Entity();
+    Entity(EntityID);
     ~Entity();
 
-    EntityID _id;
+    void _init();
+    EntityID _generateID(EntityID, bool g = false) const;
+
+    const EntityID _id;
     Signature _signature;
 
     ComponentManager& _manager;
@@ -143,8 +147,7 @@ private:
     unsigned int index = 0;
 
 private:
-    static int instance;
-    static std::queue<EntityID> availableID;
+    static std::set<EntityID> takenID;
     static std::unordered_map<EntityID, Entity*> instances;
 
 friend class Group;

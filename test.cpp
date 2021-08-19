@@ -109,10 +109,11 @@ public:
 	
 		event.listen(Input.QUIT, [&](Entity& entity) { active = false; });
 
-		auto& sprite = entities.create();
+		auto& sprite = entities.create("sprite");
 		sprite.attach<Component::transform>().scale = { 0.25, 0.25 };
-		sprite.attach<Component::sprite>().texture = IMG_LoadTexture(Renderer::get().renderer, "texture.jpg");
+		sprite.attach<Component::sprite>().texture.load("texture.jpg");
 		sprite.attach<Component::spriteRenderer>();
+		Serializer().serializeScene(this);
 /*
 		auto& camera = entities["main camera"]->get<Component::camera>();
 		auto& c = camera.get<Component::camera>();

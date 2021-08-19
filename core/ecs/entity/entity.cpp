@@ -1,32 +1,49 @@
 #include <iostream>
 #include <cassert>
+#include <cstdlib>
+
 #include "entity.h"
 #include "../components.h"
+#include <set>
 
-int Entity::instance = 0;
-std::queue<std::uint32_t> Entity::availableID;
+std::set<EntityID> Entity::takenID;
 std::unordered_map<EntityID, Entity*> Entity::instances;
 
 Entity::Entity() : 
+    _id(_generateID(0, true)),
     _manager(ComponentManager::get())
 {
+    _init();
+}
 
-    if (availableID.empty())
-        for (EntityID i=0; i < MAX_ENTITIES; ++i)
-            availableID.push(i);
+Entity::Entity(EntityID id) : 
+    _id(_generateID(id)),
+    _manager(ComponentManager::get())
+{
+    _init();
+}
 
-    if ((EntityID)instance >= MAX_ENTITIES)
+void Entity::_init()
+{
+    if ((EntityID)instances.size() >= MAX_ENTITIES)
     {
         std::cerr << "Too many entities created!" << std::endl;
         exit(1);
     }
-
-    _id = availableID.front();
-
-    availableID.pop();
     instances[_id] = this;
+}
 
-    instance++;
+EntityID Entity::_generateID(EntityID id, bool g) const
+{
+    if (takenID.empty())
+        srand(time(0));
+    while (takenID.find(id) != takenID.end() or g)
+    {
+        g = false;
+        id = rand()%(1<<31);
+    }
+    takenID.emplace(id);
+    return id;
 }
 
 Entity::~Entity()
@@ -44,8 +61,6 @@ Entity::~Entity()
 
 // remove from instances list
     instances.erase(_id);
-    availableID.push(_id);
-    instance--;
 
 // signal all components that the entity has been destroyed
     _manager.entityDestroyed(_id);

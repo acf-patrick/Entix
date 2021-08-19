@@ -7,14 +7,11 @@
 #include "event/event.h"
 
 class SceneManager;
+class Serializer;
 
 // Scene Interface
 class Scene
 {
-public:
-    // Save the scene in a file
-    virtual void Serialize();
-
 protected:
     virtual ~Scene() = default;
 
@@ -31,9 +28,7 @@ protected:
     // used to manage events
     EventListner event;
 
-private:
-    virtual void SerializeEntity(Entity&);
-
+friend class Serializer;
 friend class SceneManager;
 };
 

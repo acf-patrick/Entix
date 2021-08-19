@@ -9,5 +9,7 @@
 #include "./renderer/renderer.h"
 #include "./scene/scene.h"
 #include "./util/vector.h"
+#include "./texture/texture.h"
+#include "./serializer/serializer.h"
 
 #endif

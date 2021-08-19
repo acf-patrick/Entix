@@ -20,10 +20,11 @@ namespace Component {
         if (!has<transform>())
             attach<transform>();    // default position, rotation and scale factor
         auto& t = get<transform>();
+        auto& texture = spriteComponent.texture;
         auto pos = t.position;
         auto scale = t.scale;
         auto rotation = t.rotation;
-        auto tSize = spriteComponent.getTextureSize();
+        auto tSize = texture.getSize();
         SDL_Rect dst = { 0, 0, 0, 0 }, src;
         VectorI frameSize;
         int w, h;
@@ -70,15 +71,15 @@ namespace Component {
             dst.x += w*0.5;
             dst.y += h*0.5;
         }
+        
         // rotate around center for now
-        SDL_RenderCopyEx(renderer, spriteComponent.texture, &src, &dst, rotation, NULL, SDL_RendererFlip((spriteComponent.flip.y<<1)|spriteComponent.flip.x));
+        texture.draw(src, dst, {tSize.x/2, tSize.y/2}, rotation, SDL_RendererFlip((spriteComponent.flip.y<<1)|spriteComponent.flip.x));
     });
     }
 
-    sprite::~sprite()
+    void sprite::setTexture(const std::string& fileName)
     {
-        SDL_DestroyTexture(texture);
-        texture = nullptr;
+        texture.load(fileName);
     }
 
     void sprite::setFrame(int x, int y)

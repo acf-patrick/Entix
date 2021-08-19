@@ -11,8 +11,6 @@ private:
     std::string _file = "";
     SDL_Texture* _texture = nullptr;
 
-    void _free();
-
 public:
     Texture() = default;
     Texture(const std::string&);
@@ -27,6 +25,9 @@ public:
     VectorI getSize() const;
 
     void setTexture(SDL_Texture*);
+
+    // check if inner SDL Texture is null
+    operator bool() const;
 
     void draw(const SDL_Rect&, const SDL_Rect&, float rotation = 0.0f);
     void draw(const SDL_Rect&, const SDL_Rect&, const VectorI&, float, SDL_RendererFlip flip = SDL_FLIP_NONE);

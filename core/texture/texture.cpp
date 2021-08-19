@@ -35,7 +35,7 @@ SDL_Texture* Texture::getTexture() const
 VectorI Texture::getSize() const
 {
     VectorI ret;
-    SDL_QueryTextureSize(_texture, &ret.x, &ret.y);
+    SDL_QueryTexture(_texture, NULL, NULL, &ret.x, &ret.y);
     return ret;
 }
 
@@ -43,6 +43,11 @@ void Texture::setTexture(SDL_Texture* texture)
 {
     _file = "";
     _texture = texture;
+}
+
+Texture::operator bool() const
+{
+    return _texture != NULL;
 }
 
 void Texture::draw(const SDL_Rect& src, const SDL_Rect& dst, float rotation)

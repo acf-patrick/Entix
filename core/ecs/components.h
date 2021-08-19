@@ -16,15 +16,10 @@ class Group;
 
 namespace Component {
     
-    // ID
-    // mostly used to identify Events
+    // Identify entities with tag and IDs
     struct tag
     { 
-        std::string content = ""; 
-        void set(const std::string& c)
-        { content = c; }
-        operator std::string() const
-        { return content; }
+        std::string content = "";
     };
 
     // Space specs
@@ -49,15 +44,7 @@ namespace Component {
     struct sprite
     {
         // the texture
-        SDL_Texture* texture = nullptr;
-
-        // convenience
-        VectorI getTextureSize() const
-        {
-            VectorI ret;
-            SDL_QueryTexture(texture, NULL, NULL, &ret.x, &ret.y);
-            return ret;
-        }
+        Texture texture;
 
         // if true, the texture is centered
         // default : false (draw from top-left)
@@ -85,6 +72,10 @@ namespace Component {
         // matrix coordinates system
         void setFrame(int, int);
 
+        // shortcut to :
+        // sprite.texture.load(fileName);
+        void setTexture(const std::string&);
+
         // use only a part of the texture
         // default : false (use the whole texture)
         bool regionEnabled = false;
@@ -94,7 +85,6 @@ namespace Component {
         // default : (0, 0, 0, 0)
         SDL_Rect region = { 0, 0, 0, 0 };
 
-        ~sprite();
     };
 
     class camera : public ICamera
