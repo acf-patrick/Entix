@@ -35,4 +35,5 @@ protected:
     SDL_Window* _window;
 
 static Application* instance;
+friend int main(int, char**);
 };

@@ -191,9 +191,10 @@ using _predicate = std::function<bool(const Entity&)>;
     // condition defined by the predicate function
     void for_each(_process, _predicate);
 
+    // create an entity
     Entity& create();
 
-    // create an entity and associate an ID
+    // create an entity and associate with an ID
     Entity& create(EntityID);
 
     // create an entity and attach a tag component to it
@@ -202,7 +203,7 @@ using _predicate = std::function<bool(const Entity&)>;
     // Just remove the Entity from this group without destroy
     void erase(EntityID);
 
-    // reorder entities according to entity z-index
+    // reorder entities according to entity index
     void reorder();
 
     ~Group();

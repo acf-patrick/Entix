@@ -15,6 +15,8 @@ Texture::~Texture()
 
 void Texture::load(const std::string& file)
 {
+    if (file.empty())
+        return;
     _texture = IMG_LoadTexture(Renderer::get().renderer, file.c_str());
     if (_texture)
         _file = file;

@@ -137,18 +137,3 @@ private:
 		return active;
 	}
 };
-
-class App : public Application
-{
-public:
-    App() : Application("test", 800, 600)
-    { 
-		scene.push(new Main);
-	}
-
-};
-
-Application* createApp()
-{
-    return new App();
-}

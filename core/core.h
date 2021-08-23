@@ -3,7 +3,6 @@
 
 #include "./application/application.h"
 #include "./ecs/ecs.h"
-#include "./entry/entry.h"
 #include "./event/event.h"
 #include "./event/input.h"
 #include "./renderer/renderer.h"

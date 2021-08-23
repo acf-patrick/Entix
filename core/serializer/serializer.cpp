@@ -80,11 +80,11 @@ void Serializer::serialize(Scene* scene)
     out << YAML::EndMap;
 
     system("mkdir -p scenes");
-    std::ofstream file("scenes/" + scene->tag + ".yml");
+    std::ofstream file("scenes/" + scene->tag + ".scn");
     file << out.c_str();
 }
 
-void Serializer::deserializeEntity(const YAML::Node& node, Entity& entity)
+void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
 {
     YAML::Node n;
     n = node["TagComponent"];
@@ -113,6 +113,10 @@ void Serializer::deserializeEntity(const YAML::Node& node, Entity& entity)
         s.regionEnabled = n["RegionEnabled"].as<bool>();
         s.region = n["Region"].as<SDL_Rect>();
     }
+
+    n = node["SpriteRendererComponent"];
+    if (n)
+        entity.attach<Component::spriteRenderer>();
 
     n = node["CameraComponent"];
     if (n)
@@ -166,7 +170,11 @@ void Serializer::serializeEntity(Entity& entity)
         out << YAML::Key << "Frame" << YAML::Value << s.frame;
         out << YAML::Key << "RegionEnabled" << YAML::Value << s.regionEnabled;
         out << YAML::Key << "Region" << YAML::Value << s.region;
+        out << YAML::EndMap;
     }
+
+    if (entity.has<Component::spriteRenderer>())
+        out << YAML::Key << "SpriteRendererComponent" << YAML::Comment("Native Script derived class");
 
     if (entity.has<Component::camera>())
     {

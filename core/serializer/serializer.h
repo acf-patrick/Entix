@@ -7,10 +7,17 @@
 #include "../util/vector.h"
 #include "../scene/scene.h"
 
+// operator << override
+template <typename T>
+YAML::Emitter& operator<< (YAML::Emitter&, const Vector<T>&);
+YAML::Emitter& operator<< (YAML::Emitter&, const SDL_Rect&);
+YAML::Emitter& operator<< (YAML::Emitter&, const SDL_Color&);
+
+// Serializer class
+// override serialize/desrialize-Entity for more functionality
 class Serializer
 {
 public:
-
     Serializer() = default;
     virtual ~Serializer() = default;
 
@@ -25,9 +32,10 @@ protected:
     virtual void serializeEntity(Entity&);
     
     // how to deserialize an entity
-    virtual void deserializeEntity(const YAML::Node&, Entity&);
+    virtual void deserializeEntity(YAML::Node&, Entity&);
 };
 
+// encode/decode specialization
 namespace YAML {
     
 template <typename T>

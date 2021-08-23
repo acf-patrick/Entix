@@ -1,25 +1,34 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <yaml/yaml.h>
 
-#include "entry.h"
 #include "../application/application.h"
-
-extern Application* createApp();
+#include "../serializer/serializer.h"
 
 int main(int argc, char** argv)
 {
     std::cout << "Creating main application" << std::endl;
-    Application* app = createApp();
 
-    if (!app)
+    std::ifstream cfg("app.cfg");
+    if (!cfg)
     {
-        std::cerr << "Failed to create main application" << std::endl;
-        exit(1);
+        std::cerr << "No configuration file found!" << std::endl;
+        exit(0);
     }
+    std::ostringstream ss;
+    ss << cfg.rdbuf();
+    YAML::Node node = YAML::Load(ss.str());
+    auto title  = node["Title"].as<std::string>();
+    auto wSize  = node["WindowSize"].as<VectorI>();
+    auto scenes = node["Scenes"];
 
-    app->run();
+    Application app(title, wSize.x, wSize.y);
+    Serializer s;
+    for (auto scene : scenes)
+        app.scene.push(s.deserialize("scenes/" + scene.as<std::string>() + ".scn"));
+    app.run();
 
-    std::cout << "Deleting application" << std::endl;
-    delete app;
-
+    std::cout << "Exiting application" << std::endl;
     return 0;
 }

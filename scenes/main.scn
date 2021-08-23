@@ -1,4 +1,4 @@
-Name: main scene
+Name: main
 Entities:
   - ID: 77019925
     TagComponent:
@@ -33,3 +33,4 @@ Entities:
       Frame: 0
       RegionEnabled: false
       Region: [[0, 0], [0, 0]]
+    #SpriteRendererComponent:
