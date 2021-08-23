@@ -113,7 +113,7 @@ public:
 		sprite.attach<Component::transform>().scale = { 0.25, 0.25 };
 		sprite.attach<Component::sprite>().texture.load("texture.jpg");
 		sprite.attach<Component::spriteRenderer>();
-		Serializer().serializeScene(this);
+		Serializer().serialize(this);
 /*
 		auto& camera = entities["main camera"]->get<Component::camera>();
 		auto& c = camera.get<Component::camera>();

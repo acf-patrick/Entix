@@ -102,6 +102,12 @@ void SceneManager::push(Scene* scene)
         scenes.push_back(scene);
 }
 
+void SceneManager::render()
+{
+    if (!scenes.empty())
+        scenes[0]->entities.for_each([](Entity& entity) { entity.Render(); });
+}
+
 bool SceneManager::update()
 {
     static Scene* toRemove = nullptr;
@@ -141,6 +147,5 @@ Scene::Scene(const std::string& _tag) : tag(_tag)
 bool Scene::update()
 {
     entities.for_each([](Entity& entity) { entity.Update(); });
-    entities.for_each([](Entity& entity) { entity.Render(); });
     return true;
 }

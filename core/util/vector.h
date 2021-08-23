@@ -90,6 +90,9 @@ struct Vector
         return self *= (1/double(scalar));
     }
 
+    bool isNull() const
+    { return x == 0 and y == 0; }
+
 // useful cast
     operator Vector<int> () const
     { return Vector<int>(x, y); }
@@ -106,6 +109,7 @@ struct Vector
 
 using VectorI = Vector<int>;
 using VectorF = Vector<float>;
+using VectorD = Vector<double>;
 
 template <typename T>
 std::ostream& operator<<(std::ostream& flux, const Vector<T>& vector)

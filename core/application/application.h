@@ -17,12 +17,11 @@ public:
 
     virtual void run();
 
-    void quit();
+    static void quit();
     void log(const std::string&) const;
 
 private:
-
-    bool _running;
+    bool _running = true;
 
 protected:
 

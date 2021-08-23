@@ -21,6 +21,13 @@ Entity& Group::create()
     return *ret;
 }
 
+Entity& Group::create(EntityID ID)
+{
+    auto ret = new Entity(ID);
+    _ids.push_back(ID);
+    return *ret;
+}
+
 Entity& Group::create(const std::string& tag)
 {
     auto& e = create();

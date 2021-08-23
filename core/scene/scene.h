@@ -40,11 +40,13 @@ public:
 
     static void clean();
 
-// switch to next scene
+    // switch to next scene
     void next();
 
-// No more scene left if return false
+    // No more scene left if return false
     bool update();
+
+    void render();
 
     void push(Scene*);
     

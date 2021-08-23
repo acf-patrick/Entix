@@ -1,6 +1,6 @@
 Name: main scene
 Entities:
-  - ID: 1706086575
+  - ID: 77019925
     TagComponent:
       Tag: main camera
     TransformComponent:
@@ -12,12 +12,12 @@ Entities:
       Destination: [0, 0]
       BackgroundColor: [0, 0, 0, 255]
       BackgroundImage: ""
-      Clear Mode: 0  # 0 : NONE, 1 : TEXTURE, 2 : SOLID_COLOR, 3 : TEXTURE_AND_SOLID_COLOR
+      ClearMode: 0
       Flip: [false, false]
       Depth: 0
       Layers:
         - 0
-  - ID: 1535628177
+  - ID: 152874828
     TagComponent:
       Tag: sprite
     TransformComponent:

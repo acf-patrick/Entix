@@ -7,11 +7,11 @@
 InputType Input;
 
 Application* Application::instance = nullptr;
-Application& Application::get()
+void Application::quit()
 {
     assert(instance && "Create Application first!");
 
-    return *instance;
+    instance->_running = false;
 }
 
 Application::Application(const std::string& title, int width, int height) :
@@ -78,12 +78,9 @@ void Application::run()
 
         if (!scene.update())
             quit(); // No more scene left
+        else
+            scene.render();
             
         renderer.draw();
     }
-}
-
-void Application::quit()
-{
-    _running = false;
 }

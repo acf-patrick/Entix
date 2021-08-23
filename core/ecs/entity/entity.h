@@ -15,6 +15,7 @@
 class Group;
 class EventManager;
 
+// Create an Entity using Group::create method
 class Entity
 {
 public:
@@ -190,10 +191,10 @@ using _predicate = std::function<bool(const Entity&)>;
     // condition defined by the predicate function
     void for_each(_process, _predicate);
 
-    // Since Entity constructor is private method
-    // the only way to create an entity is this method.
-    // Thus, each entity must belong to a group.
     Entity& create();
+
+    // create an entity and associate an ID
+    Entity& create(EntityID);
 
     // create an entity and attach a tag component to it
     Entity& create(const std::string&);
