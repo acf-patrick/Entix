@@ -5,22 +5,7 @@
 #include <ecs/ecs.h>
 #include <application/application.h>
 
-EventManager* EventManager::instance = nullptr;
-
-EventManager& EventManager::get()
-{
-    if (!instance)
-        instance = new EventManager;
-
-    return *instance;
-}
-void EventManager::clean()
-{
-    delete instance;
-    instance = nullptr;
-}
-
-void EventManager::handle()
+void EventManagerType::handle()
 {
     SDLEvents();
     while (!events.empty())
@@ -42,7 +27,7 @@ void EventManager::handle()
     }
 }
 
-void EventManager::SDLEvents()
+void EventManagerType::SDLEvents()
 {
     SDL_Event event;
 
@@ -79,7 +64,7 @@ void EventManager::SDLEvents()
     
 }
 
-Entity& EventManager::emit(const std::string& event_name)
+Entity& EventManagerType::emit(const std::string& event_name)
 {
     if (bind.find(event_name) != bind.end())
         return *bind[event_name];
@@ -93,7 +78,7 @@ Entity& EventManager::emit(const std::string& event_name)
     return *event;
 }
 
-void EventManager::listnerDestroyed(EventListner* listner)
+void EventManagerType::listnerDestroyed(EventListner* listner)
 {
     listners.erase(std::find(listners.begin(), listners.end(), listner));
 }

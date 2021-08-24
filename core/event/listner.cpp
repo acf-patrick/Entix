@@ -1,6 +1,6 @@
 #include "event.h"
 
-EventListner::EventListner() : manager(EventManager::get())
+EventListner::EventListner() : manager(*EventManager)
 {
     manager.listners.push_back(this);
 }

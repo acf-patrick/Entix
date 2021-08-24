@@ -17,7 +17,7 @@ void Texture::load(const std::string& file)
 {
     if (file.empty())
         return;
-    _texture = IMG_LoadTexture(Renderer::get().renderer, file.c_str());
+    _texture = IMG_LoadTexture(Renderer->renderer, file.c_str());
     if (_texture)
         _file = file;
     else
@@ -52,15 +52,34 @@ Texture::operator bool() const
     return _texture != NULL;
 }
 
-void Texture::draw(const SDL_Rect& src, const SDL_Rect& dst, float rotation)
+void Texture::draw(const VectorI& dst)
 {
-    auto renderer = Renderer::get().renderer;
-    SDL_RenderCopyEx(renderer, _texture, &src, &dst, rotation, NULL, SDL_FLIP_NONE);
+    draw(dst, { false, false }, { 1.0f, 1.0f });
 }
 
-void Texture::draw(const SDL_Rect& src, const SDL_Rect& dst, const VectorI& center, float rotation, SDL_RendererFlip flip)
+void Texture::draw(const VectorI& dst, const Vector<bool>& flip, const VectorF& scale)
 {
-    auto renderer = Renderer::get().renderer;
+    auto s = getSize();
+    draw({ 0, 0, s.x, s.y }, dst, flip, scale);
+}
+
+void Texture::draw(const VectorI& dst, const VectorI& center, float rotation, const Vector<bool>& flip, const VectorF& scale)
+{
+    auto s = getSize();
+    draw({ 0, 0, s.x, s.y }, dst, center, rotation, flip, scale);
+}
+
+void Texture::draw(const SDL_Rect& src, const VectorI& dst, const Vector<bool>& flip, const VectorF& scale)
+{
+    draw(src, dst, {0, 0}, 0.0f, flip, scale);
+}
+
+void Texture::draw(const SDL_Rect& src, const VectorI& dst, const VectorI& center, float rotation, const Vector<bool> &flip, const VectorF& scale)
+{
+    SDL_Rect d = {
+        dst.x, dst.y,
+        int(src.w*scale.x), int(src.h*scale.y)
+    };
     SDL_Point c = { center.x, center.y };
-    SDL_RenderCopyEx(renderer, _texture, &src, &dst, rotation, &c, flip);
+    SDL_RenderCopyEx(Renderer->renderer, _texture, &src, &d, rotation, &c, SDL_RendererFlip((flip.y<<1)|flip.x));
 }

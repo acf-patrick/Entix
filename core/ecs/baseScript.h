@@ -25,24 +25,24 @@ public:
     bool isEnabled()
     { return enabled; }
 
-// what to do with the entity each frame
+    // what to do with the entity each frame
     virtual void Update()       {}
 
-// draw the entity
+    // draw the entity
     virtual void Render()       {}
 
 // supposed to be protected but for some reason (that I don't still get), even if Entity is a friend class of its, Entity can't apparently access to these methods
 
-// what to do before the script is enabled ?
+    // what to do before the script is enabled ?
     virtual void onEnable()     {}
 
-// what to do before the script is disabled ?
+    // what to do before the script is disabled ?
     virtual void onDisable()    {}
 
-// what to do before the script is attached to an entity
+    // what to do before the script is attached to an entity
     virtual void onAttach()     {}
 
-// inverse of onAttach
+    // inverse of onAttach
     virtual void onDetach()     {}
 
 protected:

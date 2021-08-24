@@ -9,24 +9,23 @@
 #include <list>
 #include <map>
 
+class Application;
+
 class Entity;
 class EventListner;
 
-class EventManager
+class EventManagerType
 {
 public:
-using Event = Entity*;
-
-    static EventManager& get();
-    static void clean();
+    using Event = Entity*;
 
     void handle();
 
-// Entity must have a tag component attached to it
+    // Entity must have a tag component attached to it
+    // Previous event with the same tag will be erased
     Entity& emit(const std::string&);
 
 private:
-    EventManager() = default;
     
     void SDLEvents();
 
@@ -34,20 +33,14 @@ private:
     std::vector<EventListner*> listners;
     std::unordered_map<std::string, Event> bind;
 
-    static EventManager* instance;
-
     void listnerDestroyed(EventListner*);
 
+    EventManagerType() = default;
+    ~EventManagerType() = default;
+
 friend class EventListner;
+friend class Application;
 };
-/*
-namespace Component {
-    struct keyboard
-    {
-        std::map<SDL_Scancode, bool> &content;
-    };
-}
-*/
 
 // Use this class to handle specific event.
 class EventListner
@@ -58,25 +51,27 @@ using Callback = std::function<void(Entity&)>;
     EventListner();
     ~EventListner();
 
-// provide event's tag and function callback
+    // provide event's tag and function callback
     void listen(const std::string&, const Callback&);
 
-// stop listening to the event with the given tag
+    // stop listening to the event with the given tag
     void stopListening(const std::string&);
 
-// ignore events
+    // ignore events
     void removeCallbacks();
 
-// continue listening
+    // continue listening
     void enable();
 
-// stop listening temporarily
+    // stop listening temporarily
     void disable();
 
 private:
-    EventManager& manager;
+    EventManagerType& manager;
     std::map<std::string, Callback> callbacks;
     bool enabled = true;
 
-friend class EventManager;
+friend class EventManagerType;
 };
+
+extern EventManagerType* EventManager;

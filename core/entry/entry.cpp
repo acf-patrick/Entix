@@ -26,7 +26,7 @@ int main(int argc, char** argv)
     Application app(title, wSize.x, wSize.y);
     Serializer s;
     for (auto scene : scenes)
-        app.scene.push(s.deserialize("scenes/" + scene.as<std::string>() + ".scn"));
+        SceneManager->push(s.deserialize("scenes/" + scene.as<std::string>() + ".scn"));
     app.run();
 
     std::cout << "Exiting application" << std::endl;

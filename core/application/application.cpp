@@ -3,26 +3,18 @@
 
 #include "application.h"
 #include "event/input.h"
+#include "event/event.h"
+#include "scene/scene.h"
 #include "ecs/entity/entity.h"
 
 InputType Input;
-
-Application* Application::instance = nullptr;
-void Application::quit()
-{
-    assert(instance && "Create Application first!");
-
-    instance->_running = false;
-}
+EventManagerType* EventManager;
+SceneManagerType* SceneManager;
+RenderManager* Renderer;
 
 Application::Application(const std::string& title, int width, int height) :
     _running(true)
 {
-    assert(!instance && "Application class instanciated more than once!");
-    if (instance)
-        log("Application class instanciated more than once!");
-    instance = this;
-
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
         log("SDL Error : initialisation of subsystems failed!");
@@ -36,12 +28,18 @@ Application::Application(const std::string& title, int width, int height) :
         exit(EXIT_FAILURE);
     }
 
-    renderer.renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_TARGETTEXTURE);
-    if (!renderer.renderer)
+    // Initializing managers
+    Renderer = new RenderManager;
+    EventManager = new EventManagerType;
+    SceneManager = new SceneManagerType;
+
+    SDL_Renderer* r = SDL_CreateRenderer(_window, -1, SDL_RENDERER_TARGETTEXTURE);
+    if (!r)
     {
         log("SDL Error : unable to create a render context");
         exit(EXIT_FAILURE);
     }
+    Renderer->renderer = r;
 
     if (TTF_Init() < 0)
     {
@@ -54,10 +52,10 @@ Application::Application(const std::string& title, int width, int height) :
 
 Application::~Application()
 {
-    SceneManager::clean();
+    delete SceneManager;
     Entity      ::clean();
-    EventManager::clean();
-    Renderer    ::clean();
+    delete EventManager;
+    delete Renderer;
 
     SDL_DestroyWindow(_window);
     _window = nullptr;
@@ -75,13 +73,18 @@ void Application::run()
 {
     while (_running)
     {
-        event.handle();
+        EventManager->handle();
 
-        if (!scene.update())
+        if (!SceneManager->update())
             quit(); // No more scene left
         else
-            scene.render();
+            SceneManager->render();
             
-        renderer.draw();
+        Renderer->draw();
     }
+}
+
+void Application::quit()
+{
+    _running = false;
 }

@@ -9,8 +9,13 @@
 
 #include <ecs/components.h>
 
-// Renderer System
-class Renderer
+class RenderManager;
+extern RenderManager* Renderer;
+
+class Application;
+
+// RenderManager System
+class RenderManager
 {
 public:
 using Camera = Component::camera;
@@ -23,7 +28,7 @@ using Process = std::function<void(SDL_Renderer*)>;
 
         Drawer()
         {
-            auto& r = Renderer::get();
+            auto& r = *Renderer;
             auto  s = r.getSize();
             target = SDL_CreateTexture(r.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, s.x, s.y);
             assert(target && "Unable to create texture target for layer\n");
@@ -44,19 +49,16 @@ using Process = std::function<void(SDL_Renderer*)>;
         }
         void prepare()
         {
-            SDL_SetRenderTarget(Renderer::get().renderer, target);
+            SDL_SetRenderTarget(Renderer->renderer, target);
         }
         void operator()()
         {
             if (process.empty())
                 return;
-            process.front()(Renderer::get().renderer);
+            process.front()(Renderer->renderer);
             process.pop();
         }
     };
-
-    static Renderer& get();
-    static void clean();
 
     // clear a portion of the screen with the given color, default is black.
     void clear(const SDL_Color& color = { 0, 0, 0, 255 });
@@ -84,10 +86,6 @@ using Process = std::function<void(SDL_Renderer*)>;
     SDL_Renderer* renderer;
 
 private:
-
-    Renderer();
-    ~Renderer();
-
     // SDL_Texture* view;
 
     // There is always one layer remaining
@@ -95,6 +93,8 @@ private:
 
     std::vector<Camera*> cameras;
 
-    static Renderer* instance;
+    RenderManager();
+    ~RenderManager();
 
+friend class Application;
 };

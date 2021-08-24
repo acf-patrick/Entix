@@ -3,7 +3,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <core.h>
-
+/*
 class Button : public Component::script
 {
 	SDL_Texture* texture;
@@ -52,7 +52,7 @@ public:
 
 	void Render() override
 	{
-		auto& renderer = Renderer::get();
+		auto& renderer = ;
 		renderer.submit([&](SDL_Renderer* renderer)
 		{
 			SDL_SetRenderDrawColor(renderer, palette[state].r, palette[state].g, palette[state].b ,255);
@@ -62,10 +62,26 @@ public:
 	}
 
 };
+*/
 
 class FollowBehavior : public Component::script
 {
 public:
+	int entier;
+	char caractere;
+	std::string str;
+	std::vector<int> tab;
+	std::map<int, int> dict;
+
+	FollowBehavior()
+	{
+		auto& r = get<Component::group>();
+		r.content->for_each([](Entity& entity)
+		{
+
+		});
+	}
+
 	void Update() override
 	{
 		const int speed = 1;
@@ -98,42 +114,37 @@ public:
 */
 };
 
-class Main : public Scene
+class MySerializer : public Serializer
 {
-	bool active = true;
-
 public:
-
-	Main() : Scene("main scene")
+	void serializeEntity(YAML::Emitter& out, Entity& entity) override
 	{
-	
-		event.listen(Input.QUIT, [&](Entity& entity) { active = false; });
-
-		auto& sprite = entities.create("sprite");
-		sprite.attach<Component::transform>().scale = { 0.25, 0.25 };
-		sprite.attach<Component::sprite>().texture.load("texture.jpg");
-		sprite.attach<Component::spriteRenderer>();
-		Serializer().serialize(this);
-/*
-		auto& camera = entities["main camera"]->get<Component::camera>();
-		auto& c = camera.get<Component::camera>();
-		c.size = { 0.6, 0.6 };
-		camera.attach<FollowBehavior>();
-
-		auto& c1 = entities.create().attach<Component::camera>();
-		c1.scale.x = c1.scale.y = 0.25;
-		c1.destination.x = 0.5;
-		c1.clear = c1.SOLID_COLOR;
-		c1.background = { 255, 255, 255, 255 };
-		c1.layers = { 1 };
-*/
+		Serializer::serializeEntity(out, entity);
+		
+		if (entity.has<FollowBehavior>())
+		{
+			out << YAML::Key << "FollowBehavior" << YAML::Value;
+			out << YAML::BeginMap;
+			auto& f = entity.get<FollowBehavior>();
+			out << YAML::Key << "Entier" << YAML::Value << f.entier;
+			out << YAML::Key << "Str" << YAML::Value << f.str;
+			out << YAML::Key << "Tab" << YAML::Value << f.tab;
+			out << YAML::Key << "Dict" << YAML::Value << f.dict;
+			out << YAML::EndMap;
+		}
 	}
 
-private:
-
-	bool update() override
+	void deserializeEntity(YAML::Node& node, Entity& entity) override
 	{
-		Scene::update();
-		return active;
+		Serializer::deserializeEntity(node, entity);
+		auto n = node["FollowBehavior"];
+		if (n)
+		{
+			auto& f = entity.attach<FollowBehavior>();
+			f.entier = n["Entier"].as<int>();
+			f.str = n["Str"].as<std::string>();
+			f.tab = n["Tab"].as<std::vector<int>>();
+			f.dict = n["Dict"].as<std::map<int, int>>();
+		}
 	}
 };

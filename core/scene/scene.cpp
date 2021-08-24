@@ -2,22 +2,11 @@
 #include <algorithm>
 
 #include "scene.h"
+
 #include "../ecs/components.h"
+#include "../event/input.h"
 
-SceneManager* SceneManager::instance = nullptr;
-SceneManager& SceneManager::get()
-{
-    if (!instance)
-        instance = new SceneManager;
-    return *instance;
-}
-void SceneManager::clean()
-{
-    delete instance;
-    instance = nullptr;
-}
-
-SceneManager::~SceneManager()
+SceneManagerType::~SceneManagerType()
 {
     for (auto& scene : scenes)
     {
@@ -27,7 +16,7 @@ SceneManager::~SceneManager()
     scenes.clear();
 }
 
-void SceneManager::swap(const std::string& tag1, const std::string& tag2)
+void SceneManagerType::swap(const std::string& tag1, const std::string& tag2)
 {
     int index[2] = { -1 };
     for (int i=0; (index[0] < 0 or index[1] < 0) and i < (int)scenes.size(); ++i)
@@ -43,7 +32,7 @@ void SceneManager::swap(const std::string& tag1, const std::string& tag2)
         swap(index[0], index[1]);
 }
 
-void SceneManager::swap(std::size_t index1, std::size_t index2)
+void SceneManagerType::swap(std::size_t index1, std::size_t index2)
 {
     std::size_t length = scenes.size();
     if (index1 >= length or index2 >= length)
@@ -52,7 +41,7 @@ void SceneManager::swap(std::size_t index1, std::size_t index2)
     std::swap(scenes[index1], scenes[index2]);
 }
 
-void SceneManager::switch_to(const std::string& tag)
+void SceneManagerType::switch_to(const std::string& tag)
 {
     auto it = std::find_if(scenes.begin(), scenes.end(), [&](Scene* s){ return s->tag == tag; });
 
@@ -68,7 +57,7 @@ void SceneManager::switch_to(const std::string& tag)
     scenes.push_front(scene);
 }
 
-void SceneManager::switch_to(std::size_t index)
+void SceneManagerType::switch_to(std::size_t index)
 {
     if (index >= scenes.size())
         return;
@@ -79,14 +68,14 @@ void SceneManager::switch_to(std::size_t index)
     scenes.push_front(scene);
 }
 
-void SceneManager::remove(const std::string& tag)
+void SceneManagerType::remove(const std::string& tag)
 {
     auto it = std::find_if(scenes.begin(), scenes.end(), [&](Scene* scene) { return scene->tag == tag; });
     delete *it;
     scenes.erase(it);
 }
 
-void SceneManager::remove(std::size_t index)
+void SceneManagerType::remove(std::size_t index)
 {
     if (index >= scenes.size())
         return;
@@ -96,19 +85,19 @@ void SceneManager::remove(std::size_t index)
     scenes.erase(it);
 }
 
-void SceneManager::push(Scene* scene)
+void SceneManagerType::push(Scene* scene)
 {
     if (std::find(scenes.begin(), scenes.end(), scene) == scenes.end())
         scenes.push_back(scene);
 }
 
-void SceneManager::render()
+void SceneManagerType::render()
 {
     if (!scenes.empty())
         scenes[0]->entities.for_each([](Entity& entity) { entity.Render(); });
 }
 
-bool SceneManager::update()
+bool SceneManagerType::update()
 {
     static Scene* toRemove = nullptr;
     if (toRemove)
@@ -129,7 +118,7 @@ bool SceneManager::update()
     return true;
 }
 
-void SceneManager::next()
+void SceneManagerType::next()
 {
     if (scenes.empty())
         return;
@@ -142,10 +131,11 @@ void SceneManager::next()
 Scene::Scene(const std::string& _tag) : tag(_tag)
 {
     entities.create("main camera").attach<Component::camera>();
+    event.listen(Input.QUIT, [&](Entity& e) { active = false; });
 }
 
 bool Scene::update()
 {
     entities.for_each([](Entity& entity) { entity.Update(); });
-    return true;
+    return active;
 }

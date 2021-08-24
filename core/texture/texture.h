@@ -29,6 +29,9 @@ public:
     // check if inner SDL Texture is null
     operator bool() const;
 
-    void draw(const SDL_Rect&, const SDL_Rect&, float rotation = 0.0f);
-    void draw(const SDL_Rect&, const SDL_Rect&, const VectorI&, float, SDL_RendererFlip flip = SDL_FLIP_NONE);
+    void draw(const VectorI& dst);
+    void draw(const VectorI& dst, const Vector<bool>& flip, const VectorF& scale);
+    void draw(const SDL_Rect& src, const VectorI& dst, const Vector<bool>& flip, const VectorF& scale);
+    void draw(const VectorI& dst, const VectorI& center, float rotation, const Vector<bool>& flip = { false, false }, const VectorF& scale = { 1.0f, 1.0f });
+    void draw(const SDL_Rect& src, const VectorI& dst, const VectorI& center, float rotation, const Vector<bool>& flip = { false, false }, const VectorF& scale = { 1.0f, 1.0f });
 };

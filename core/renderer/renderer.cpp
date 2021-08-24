@@ -2,44 +2,31 @@
 #include <application/application.h>
 #include <cassert>
 
-Renderer* Renderer::instance = nullptr;
-Renderer& Renderer::get()
-{ 
-    if (!instance)
-        instance = new Renderer;
-    return *instance; 
-}
-void Renderer::clean()
-{
-    delete instance;
-    instance = nullptr;
-}
-
-Renderer::Renderer()
+RenderManager::RenderManager()
 {}
-Renderer::~Renderer()
+RenderManager::~RenderManager()
 {
     SDL_DestroyRenderer(renderer);
 }
 
-void Renderer::submit(const Process& drawer, std::size_t layer_n)
+void RenderManager::submit(const Process& drawer, std::size_t layer_n)
 {
     layers[layer_n].add(drawer);
 }
 
-void Renderer::clear(const SDL_Rect& rect, const SDL_Color& color)
+void RenderManager::clear(const SDL_Rect& rect, const SDL_Color& color)
 {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void Renderer::clear(const SDL_Color& color)
+void RenderManager::clear(const SDL_Color& color)
 {
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderClear(renderer);
 }
 
-void Renderer::draw()
+void RenderManager::draw()
 {
     for (auto& [_, layer] : layers)
     {
@@ -113,25 +100,25 @@ void Renderer::draw()
 
 }
 
-VectorI Renderer::globalCoordinates(float x, float y) const
+VectorI RenderManager::globalCoordinates(float x, float y) const
 {
     auto size = getSize();
     return VectorI(int(size.x*x), int(size.y*y));
 }
 
-VectorI Renderer::globalCoordinates(const VectorF& v) const
+VectorI RenderManager::globalCoordinates(const VectorF& v) const
 { return globalCoordinates(v.x, v.y); }
 
-VectorF Renderer::viewportCoordinates(int x, int y) const
+VectorF RenderManager::viewportCoordinates(int x, int y) const
 {
     auto size = getSize();
     return VectorI(x/float(size.x), y/float(size.y));
 }
 
-VectorF Renderer::viewportCoordinates(const VectorI& v) const
+VectorF RenderManager::viewportCoordinates(const VectorI& v) const
 { return viewportCoordinates(v.x, v.y); }
 
-VectorI Renderer::getSize() const
+VectorI RenderManager::getSize() const
 {
     int w, h;
     SDL_GetRendererOutputSize(renderer, &w, &h);

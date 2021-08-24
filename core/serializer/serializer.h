@@ -26,10 +26,8 @@ public:
     Scene* deserialize(const std::string&);
 
 protected:
-    YAML::Emitter out;
-
     // how to serialize an entity
-    virtual void serializeEntity(Entity&);
+    virtual void serializeEntity(YAML::Emitter&, Entity&);
     
     // how to deserialize an entity
     virtual void deserializeEntity(YAML::Node&, Entity&);

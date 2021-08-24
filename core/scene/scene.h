@@ -6,7 +6,8 @@
 
 #include "event/event.h"
 
-class SceneManager;
+class Application;
+class SceneManagerType;
 class Serializer;
 
 // Scene Interface
@@ -28,18 +29,15 @@ protected:
     // used to manage events
     EventListner event;
 
+    bool active = true;
+
 friend class Serializer;
-friend class SceneManager;
+friend class SceneManagerType;
 };
 
-class SceneManager
+class SceneManagerType
 {
 public:
-
-    static SceneManager& get();
-
-    static void clean();
-
     // switch to next scene
     void next();
 
@@ -59,12 +57,15 @@ public:
     void swap(const std::string&, const std::string&);
     void swap(std::size_t, std::size_t);
 
+
 private:
-
-    SceneManager() = default;
-    ~SceneManager();
-
     std::deque<Scene*> scenes;
 
-    static SceneManager* instance;
+    SceneManagerType() = default;
+    ~SceneManagerType();
+
+
+friend class Application;
 };
+
+extern SceneManagerType* SceneManager;

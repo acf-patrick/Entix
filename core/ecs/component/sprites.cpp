@@ -15,7 +15,7 @@ namespace Component {
         if (!spriteComponent.texture)
             return;         // no texture to draw
 
-    Renderer::get().submit([&](SDL_Renderer* renderer)
+    Renderer->submit([&](SDL_Renderer* renderer)
     {
         if (!has<transform>())
             attach<transform>();    // default position, rotation and scale factor
@@ -25,7 +25,7 @@ namespace Component {
         auto scale = t.scale;
         auto rotation = t.rotation;
         auto tSize = texture.getSize();
-        SDL_Rect dst = { 0, 0, 0, 0 }, src;
+        SDL_Rect src;
         VectorI frameSize;
         int w, h;
 
@@ -59,21 +59,19 @@ namespace Component {
         src.w = frameSize.x;
         src.h = frameSize.y;
 
-        // destination rect
-        dst.x += spriteComponent.offset.x;
-        dst.y += spriteComponent.offset.y;
-        dst.w = src.w*scale.x;
-        dst.h = src.h*scale.y;
+        // destination 
+        pos.x += spriteComponent.offset.x;
+        pos.y += spriteComponent.offset.y;
 
         // center destination
         if (spriteComponent.centered)
         {
-            dst.x += w*0.5;
-            dst.y += h*0.5;
+            pos.x += w*0.5;
+            pos.y += h*0.5;
         }
         
         // rotate around center for now
-        texture.draw(src, dst, {tSize.x/2, tSize.y/2}, rotation, SDL_RendererFlip((spriteComponent.flip.y<<1)|spriteComponent.flip.x));
+        texture.draw(src, {int(pos.x), int(pos.y)}, {tSize.x/2, tSize.y/2}, rotation, spriteComponent.flip, scale);
     });
     }
 

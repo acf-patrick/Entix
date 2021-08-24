@@ -13,7 +13,7 @@
 #include "../component/manager.h"
 
 class Group;
-class EventManager;
+class EventManagerType;
 
 // Create an Entity using Group::create method
 class Entity
@@ -152,7 +152,7 @@ private:
     static std::unordered_map<EntityID, Entity*> instances;
 
 friend class Group;
-friend class EventManager;
+friend class EventManagerType;
 };
 
 // Entity Container

@@ -60,11 +60,17 @@ Scene* Serializer::deserialize(const std::string& source)
     for (auto entity : entities)
         deserializeEntity(entity, scene->entities.create(entity["ID"].as<EntityID>()));
 
+    if (scene)
+        std::cout << source << " loaded." << std::endl;
+    else
+        std::cerr << "Failed to load " << source << std::endl;
+
     return scene;
 }
 
 void Serializer::serialize(Scene* scene)
 {
+    YAML::Emitter out;
     out << YAML::BeginMap;
     out << YAML::Key << "Name" << YAML::Value << scene->tag;
 
@@ -73,15 +79,20 @@ void Serializer::serialize(Scene* scene)
     out << YAML::BeginSeq;
     scene->entities.for_each([&](Entity& entity)
     {
-        serializeEntity(entity);
+        out << YAML::BeginMap;
+        serializeEntity(out, entity);
+        out << YAML::EndMap;
     });
     out << YAML::EndSeq;
 
     out << YAML::EndMap;
 
+    std::string output = "scenes/" + scene->tag + ".scn";
     system("mkdir -p scenes");
-    std::ofstream file("scenes/" + scene->tag + ".scn");
+    std::ofstream file(output);
     file << out.c_str();
+
+    std::cout << "Scene serialized to " << output << std::endl;
 }
 
 void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
@@ -95,23 +106,33 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
     if (n)
     {
         auto& t = entity.attach<Component::transform>();
-        t.position = n["Position"].as<VectorD>();
-        t.scale = n["Scale"].as<VectorF>();
-        t.rotation = n["Rotation"].as<double>();
+        if (n["Position"])
+            t.position = n["Position"].as<VectorD>();
+        if (n["Scale"])
+            t.scale = n["Scale"].as<VectorF>();
+        if (n["Rotation"])
+            t.rotation = n["Rotation"].as<double>();
     }
 
     n = node["SpriteComponent"];
     if (n)
     {
         auto& s = entity.attach<Component::sprite>();
-        s.texture.load(n["Texture"].as<std::string>());
-        s.centered = n["Centered"].as<bool>();
-        s.offset = n["Offset"].as<VectorI>();
-        s.flip = n["Flip"].as<Vector<bool>>();
-        s.framesNumber = n["FramesNumber"].as<VectorI>();
-        s.frame = n["Frame"].as<int>();
-        s.regionEnabled = n["RegionEnabled"].as<bool>();
-        s.region = n["Region"].as<SDL_Rect>();
+        if (n["Texture"])
+            s.texture.load(n["Texture"].as<std::string>());
+        if (n["Centered"])
+            s.centered = n["Centered"].as<bool>();
+        if (n["Offset"])
+            s.offset = n["Offset"].as<VectorI>();
+        if (n["Flip"])
+            s.flip = n["Flip"].as<Vector<bool>>();
+        if (n["FramesNumber"])
+            s.framesNumber = n["FramesNumber"].as<VectorI>();
+        if (n["Frame"])
+            s.frame = n["Frame"].as<int>();
+        if (n["RegionEnabled"])
+            s.regionEnabled = n["RegionEnabled"].as<bool>();
+        if (n["Region"])s.region = n["Region"].as<SDL_Rect>();
     }
 
     n = node["SpriteRendererComponent"];
@@ -122,20 +143,27 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
     if (n)
     {
         auto& c = entity.attach<Component::camera>();
-        c.size = n["Size"].as<VectorF>();
-        c.destination = n["Destination"].as<VectorF>();
-        c.background = n["BackgroundColor"].as<SDL_Color>();
-        c.backgroundImage.load(n["BackgroundImage"].as<std::string>());
-        c.clear = Component::camera::ClearMode(n["ClearMode"].as<int>());
-        c.flip = n["Flip"].as<Vector<bool>>();
-        c.depth = n["Depth"].as<int>();
-        c.layers = n["Layers"].as<std::vector<int>>();
+        if (n["Size"])
+            c.size = n["Size"].as<VectorF>();
+        if (n["Destination"])
+            c.destination = n["Destination"].as<VectorF>();
+        if (n["BackgroundColor"])
+            c.background = n["BackgroundColor"].as<SDL_Color>();
+        if (n["BackgroundImage"])
+            c.backgroundImage.load(n["BackgroundImage"].as<std::string>());
+        if (n["ClearMode"])
+            c.clear = Component::camera::ClearMode(n["ClearMode"].as<int>());
+        if (n["Flip"])
+            c.flip = n["Flip"].as<Vector<bool>>();
+        if (n["Depth"])
+            c.depth = n["Depth"].as<int>();
+        if (n["Layers"])
+            c.layers = n["Layers"].as<std::vector<int>>();
     }
 }
 
-void Serializer::serializeEntity(Entity& entity)
+void Serializer::serializeEntity(YAML::Emitter& out, Entity& entity)
 {
-    out << YAML::BeginMap;
     out << YAML::Key << "ID" << YAML::Value << entity.id();
 
     if (entity.has<Component::tag>())
@@ -173,6 +201,7 @@ void Serializer::serializeEntity(Entity& entity)
         out << YAML::EndMap;
     }
 
+    // using map in case SpriteRenderer has propreties in the futur
     if (entity.has<Component::spriteRenderer>())
         out << YAML::Key << "SpriteRendererComponent" << YAML::Comment("Native Script derived class");
 
@@ -191,6 +220,4 @@ void Serializer::serializeEntity(Entity& entity)
         out << YAML::Key << "Layers" << YAML::Value << c.layers;
         out << YAML::EndMap;
     }
-    
-    out << YAML::EndMap;
 }
