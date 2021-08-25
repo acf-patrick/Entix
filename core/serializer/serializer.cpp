@@ -221,3 +221,10 @@ void Serializer::serializeEntity(YAML::Emitter& out, Entity& entity)
         out << YAML::EndMap;
     }
 }
+
+int Serializer::_cnt = 0;
+Serializer::Serializer()
+{
+    assert(!_cnt && "Serializer can't have more than one instance!");
+    _cnt++;
+}

@@ -4,7 +4,6 @@
 #include <yaml/yaml.h>
 
 #include "../application/application.h"
-#include "../serializer/serializer.h"
 
 int main(int argc, char** argv)
 {
@@ -24,9 +23,11 @@ int main(int argc, char** argv)
     auto scenes = node["Scenes"];
 
     Application app(title, wSize.x, wSize.y);
-    Serializer s;
+    assert(app.serializer && "No serializer declared. Create serializer in global scope!");
+    auto& s = *app.serializer;
     for (auto scene : scenes)
         SceneManager->push(s.deserialize("scenes/" + scene.as<std::string>() + ".scn"));
+    
     app.run();
 
     std::cout << "Exiting application" << std::endl;

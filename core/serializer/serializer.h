@@ -13,24 +13,30 @@ YAML::Emitter& operator<< (YAML::Emitter&, const Vector<T>&);
 YAML::Emitter& operator<< (YAML::Emitter&, const SDL_Rect&);
 YAML::Emitter& operator<< (YAML::Emitter&, const SDL_Color&);
 
+class Application;
+
 // Serializer class
 // override serialize/desrialize-Entity for more functionality
+// Application::serializer to use unique instance of this class
 class Serializer
 {
+    static int _cnt;
 public:
-    Serializer() = default;
-    virtual ~Serializer() = default;
+    Serializer();
 
-    void serialize(Scene*);
-
-    Scene* deserialize(const std::string&);
+    virtual void serialize(Scene*);
+    virtual Scene* deserialize(const std::string&);
 
 protected:
+    virtual ~Serializer() = default;
+
     // how to serialize an entity
     virtual void serializeEntity(YAML::Emitter&, Entity&);
     
     // how to deserialize an entity
     virtual void deserializeEntity(YAML::Node&, Entity&);
+
+friend class Application;
 };
 
 // encode/decode specialization

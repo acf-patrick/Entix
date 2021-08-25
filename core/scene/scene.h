@@ -19,6 +19,8 @@ protected:
     // pop the scene from manager if this method return false
     virtual bool update();
 
+    virtual void render();
+
     Scene(const std::string&);
 
     std::string tag = "Scene";
@@ -63,7 +65,6 @@ private:
 
     SceneManagerType() = default;
     ~SceneManagerType();
-
 
 friend class Application;
 };

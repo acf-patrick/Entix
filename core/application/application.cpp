@@ -12,6 +12,8 @@ EventManagerType* EventManager;
 SceneManagerType* SceneManager;
 RenderManager* Renderer;
 
+// Serializer* Application::serializer;
+
 Application::Application(const std::string& title, int width, int height) :
     _running(true)
 {

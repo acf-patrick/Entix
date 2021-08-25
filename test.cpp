@@ -67,21 +67,6 @@ public:
 class FollowBehavior : public Component::script
 {
 public:
-	int entier;
-	char caractere;
-	std::string str;
-	std::vector<int> tab;
-	std::map<int, int> dict;
-
-	FollowBehavior()
-	{
-		auto& r = get<Component::group>();
-		r.content->for_each([](Entity& entity)
-		{
-
-		});
-	}
-
 	void Update() override
 	{
 		const int speed = 1;
@@ -117,34 +102,13 @@ public:
 class MySerializer : public Serializer
 {
 public:
-	void serializeEntity(YAML::Emitter& out, Entity& entity) override
-	{
-		Serializer::serializeEntity(out, entity);
-		
-		if (entity.has<FollowBehavior>())
-		{
-			out << YAML::Key << "FollowBehavior" << YAML::Value;
-			out << YAML::BeginMap;
-			auto& f = entity.get<FollowBehavior>();
-			out << YAML::Key << "Entier" << YAML::Value << f.entier;
-			out << YAML::Key << "Str" << YAML::Value << f.str;
-			out << YAML::Key << "Tab" << YAML::Value << f.tab;
-			out << YAML::Key << "Dict" << YAML::Value << f.dict;
-			out << YAML::EndMap;
-		}
-	}
-
 	void deserializeEntity(YAML::Node& node, Entity& entity) override
 	{
 		Serializer::deserializeEntity(node, entity);
-		auto n = node["FollowBehavior"];
-		if (n)
-		{
+		if (node["FollowBehavior"])
 			auto& f = entity.attach<FollowBehavior>();
-			f.entier = n["Entier"].as<int>();
-			f.str = n["Str"].as<std::string>();
-			f.tab = n["Tab"].as<std::vector<int>>();
-			f.dict = n["Dict"].as<std::map<int, int>>();
-		}
+		std::cout << "Deserialized\n";
 	}
 };
+
+Serializer* Application::serializer = new MySerializer;

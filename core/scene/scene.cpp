@@ -94,7 +94,7 @@ void SceneManagerType::push(Scene* scene)
 void SceneManagerType::render()
 {
     if (!scenes.empty())
-        scenes[0]->entities.for_each([](Entity& entity) { entity.Render(); });
+        scenes[0]->render();
 }
 
 bool SceneManagerType::update()
@@ -138,4 +138,9 @@ bool Scene::update()
 {
     entities.for_each([](Entity& entity) { entity.Update(); });
     return active;
+}
+
+void Scene::render()
+{
+    entities.for_each([](Entity& entity) { entity.Render(); });
 }
