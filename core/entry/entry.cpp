@@ -5,6 +5,8 @@
 
 #include "../application/application.h"
 
+Application* APP;
+
 int main(int argc, char** argv)
 {
     std::cout << "Creating main application" << std::endl;
@@ -22,14 +24,15 @@ int main(int argc, char** argv)
     auto wSize  = node["WindowSize"].as<VectorI>();
     auto scenes = node["Scenes"];
 
-    Application app(title, wSize.x, wSize.y);
-    assert(app.serializer && "No serializer declared. Create serializer in global scope!");
-    auto& s = *app.serializer;
+    APP = new Application(title, wSize.x, wSize.y);
+    assert(APP->serializer && "No serializer declared. Create serializer in global scope!");
+    auto& s = *APP->serializer;
     for (auto scene : scenes)
-        SceneManager->push(s.deserialize("scenes/" + scene.as<std::string>() + ".scn"));
+        s.deserialize("scenes/" + scene.as<std::string>() + ".scn");
     
-    app.run();
+    APP->run();
 
     std::cout << "Exiting application" << std::endl;
+    delete APP;
     return 0;
 }

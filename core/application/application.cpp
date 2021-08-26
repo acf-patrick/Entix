@@ -12,8 +12,6 @@ EventManagerType* EventManager;
 SceneManagerType* SceneManager;
 RenderManager* Renderer;
 
-// Serializer* Application::serializer;
-
 Application::Application(const std::string& title, int width, int height) :
     _running(true)
 {
@@ -54,10 +52,13 @@ Application::Application(const std::string& title, int width, int height) :
 
 Application::~Application()
 {
-    delete SceneManager;
-    Entity      ::clean();
     delete EventManager;
+    std::cout << "Event manager destroyed\n";
     delete Renderer;
+    std::cout << "Renderer manager destroyed\n";
+    delete SceneManager;
+    std::cout << "Scene manager destroyed\n";
+    Entity::clean();
 
     SDL_DestroyWindow(_window);
     _window = nullptr;

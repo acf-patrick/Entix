@@ -24,7 +24,7 @@ class Serializer
 public:
     Serializer();
 
-    virtual void serialize(Scene*);
+    virtual void serialize(Scene*, const std::string& fileName = "");
     virtual Scene* deserialize(const std::string&);
 
 protected:

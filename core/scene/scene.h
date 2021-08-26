@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ecs/ecs.h>
+#include <memory>
 #include <string>
 #include <deque>
 
@@ -13,15 +14,25 @@ class Serializer;
 // Scene Interface
 class Scene
 {
-protected:
-    virtual ~Scene() = default;
+public:
+    // Save to file
+    void save(const std::string& fileName = "");
 
+    // Merge given scene into this scene
+    void merge(const Scene&);
+
+    // Set this scene to be active
+    void setActive();
+
+protected:
+    Scene(const std::string&);
+    virtual ~Scene() = default;
+    
     // pop the scene from manager if this method return false
     virtual bool update();
 
     virtual void render();
 
-    Scene(const std::string&);
 
     std::string tag = "Scene";
 
@@ -40,33 +51,43 @@ friend class SceneManagerType;
 class SceneManagerType
 {
 public:
-    // switch to next scene
+    // Load Scene from file
+    void load(const std::string&);
+
+    // Return active scene
+    Scene& getActive();
+
+    // Set scene at index to be active
+    void setActive(std::size_t);
+
+    // Set scene with the given name to be active
+    void setActive(const std::string&);
+    
+    // Remove scene at index
+    void remove(std::size_t);
+
+    // Remove scene with the given name from SceneManager
+    void remove(const std::string&);
+
+    // Set next scene to be active
     void next();
 
     // No more scene left if return false
     bool update();
 
+    // Render active scene
     void render();
-
-    void push(Scene*);
-    
-    void remove(std::size_t);
-    void remove(const std::string&);
-
-    void switch_to(const std::string&);
-    void switch_to(std::size_t);
-
-    void swap(const std::string&, const std::string&);
-    void swap(std::size_t, std::size_t);
-
 
 private:
     std::deque<Scene*> scenes;
 
     SceneManagerType() = default;
-    ~SceneManagerType();
+    ~SceneManagerType() = default;
+
+    void push(Scene*);
 
 friend class Application;
+friend class Scene;
 };
 
 extern SceneManagerType* SceneManager;

@@ -9,6 +9,8 @@
 #include <list>
 #include <map>
 
+#include "input.h"
+
 class Application;
 
 class Entity;
@@ -36,7 +38,7 @@ private:
     void listnerDestroyed(EventListner*);
 
     EventManagerType() = default;
-    ~EventManagerType() = default;
+    ~EventManagerType();
 
 friend class EventListner;
 friend class Application;

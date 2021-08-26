@@ -15,8 +15,7 @@ Entities:
       ClearMode: 0
       Flip: [false, false]
       Depth: 0
-      Layers:
-        - 0
+      Layers: [0]
   - ID: 152874828
     TagComponent:
       Tag: sprite
@@ -35,3 +34,4 @@ Entities:
       Region: [[0, 0], [0, 0]]
     SpriteRendererComponent:
     FollowBehavior:
+    Controller:

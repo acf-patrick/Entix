@@ -184,6 +184,10 @@ using _predicate = std::function<bool(const Entity&)>;
     // return null pointer if not found
     Entity* operator[](const std::string&);
 
+    // retrieve by ID
+    // return null pointer if not found
+    Entity* operator[](EntityID);
+
     // apply a callback to entities in this group
     void for_each(_process);
     

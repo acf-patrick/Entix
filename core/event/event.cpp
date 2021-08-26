@@ -5,6 +5,16 @@
 #include <ecs/ecs.h>
 #include <application/application.h>
 
+EventManagerType::~EventManagerType()
+{
+    while(!events.empty())
+    {
+        delete events.front();
+        events.pop();
+    }
+    bind.clear();
+}
+
 void EventManagerType::handle()
 {
     SDLEvents();

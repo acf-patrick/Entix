@@ -64,7 +64,25 @@ public:
 };
 */
 
-class FollowBehavior : public Component::script
+using Script = Component::script;
+
+class Controller : public Script
+{
+public:
+	Controller()
+	{
+		event.listen(Input.QUIT, [](Entity& e)
+		{
+			APP->quit();
+		});
+	}
+	void onDetach() override
+	{
+		SceneManager->getActive().save("scene");
+	}
+};
+
+class FollowBehavior : public Script
 {
 public:
 	void Update() override
@@ -106,9 +124,10 @@ public:
 	{
 		Serializer::deserializeEntity(node, entity);
 		if (node["FollowBehavior"])
-			auto& f = entity.attach<FollowBehavior>();
-		std::cout << "Deserialized\n";
+			entity.attach<FollowBehavior>();
+		if (node["Controller"])
+			entity.attach<Controller>();
 	}
 };
 
-Serializer* Application::serializer = new MySerializer;
+Serializer* Application::serializer = new MySerializer();

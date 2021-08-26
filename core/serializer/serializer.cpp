@@ -61,15 +61,21 @@ Scene* Serializer::deserialize(const std::string& source)
         deserializeEntity(entity, scene->entities.create(entity["ID"].as<EntityID>()));
 
     if (scene)
-        std::cout << source << " loaded." << std::endl;
+        std::cout << source << " loaded" << std::endl;
     else
         std::cerr << "Failed to load " << source << std::endl;
 
     return scene;
 }
 
-void Serializer::serialize(Scene* scene)
+void Serializer::serialize(Scene* scene, const std::string& fileName)
 {
+    if (!scene)
+    {
+        std::cerr << "NULL scene : Failed to serialize!" << std::endl;
+        return;
+    }
+
     YAML::Emitter out;
     out << YAML::BeginMap;
     out << YAML::Key << "Name" << YAML::Value << scene->tag;
@@ -87,7 +93,7 @@ void Serializer::serialize(Scene* scene)
 
     out << YAML::EndMap;
 
-    std::string output = "scenes/" + scene->tag + ".scn";
+    std::string output = "scenes/" + fileName.empty()?(scene->tag + ".scn"):fileName;
     system("mkdir -p scenes");
     std::ofstream file(output);
     file << out.c_str();
@@ -152,7 +158,13 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
         if (n["BackgroundImage"])
             c.backgroundImage.load(n["BackgroundImage"].as<std::string>());
         if (n["ClearMode"])
-            c.clear = Component::camera::ClearMode(n["ClearMode"].as<int>());
+        {
+            std::map<std::string, Component::camera::ClearMode> bind = {
+                { "none", c.NONE }, { "texture", c.TEXTURE }, { "solid color", c.SOLID_COLOR },
+                { "texture and solid color", c.TEXTURE_AND_SOLID_COLOR }
+            };
+            c.clear = bind[n["ClearMode"].as<std::string>()];
+        }
         if (n["Flip"])
             c.flip = n["Flip"].as<Vector<bool>>();
         if (n["Depth"])
@@ -214,10 +226,11 @@ void Serializer::serializeEntity(YAML::Emitter& out, Entity& entity)
         out << YAML::Key << "Destination" << YAML::Value << c.destination;
         out << YAML::Key << "BackgroundColor" << YAML::Value << c.background;
         out << YAML::Key << "BackgroundImage" << YAML::Value << c.backgroundImage.getName();
-        out << YAML::Key << "ClearMode" << YAML::Value << c.clear;
+        std::string bind[] = { "none", "texture", "solid Color", "texture and solid color" };
+        out << YAML::Key << "ClearMode" << YAML::Value << bind[c.clear];
         out << YAML::Key << "Flip" << YAML::Value << c.flip;
         out << YAML::Key << "Depth" << YAML::Value << c.depth;
-        out << YAML::Key << "Layers" << YAML::Value << c.layers;
+        out << YAML::Key << "Layers" << YAML::Value << YAML::Flow << c.layers;
         out << YAML::EndMap;
     }
 }

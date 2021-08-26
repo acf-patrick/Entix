@@ -3,61 +3,41 @@
 
 #include "scene.h"
 
+#include "../application/application.h"
 #include "../ecs/components.h"
-#include "../event/input.h"
+#include "../event/event.h"
 
-SceneManagerType::~SceneManagerType()
+using SceneRef = std::shared_ptr<Scene>;
+
+void SceneManagerType::load(const std::string& fileName)
 {
-    for (auto& scene : scenes)
-    {
-        delete scene;
-        scene = nullptr;
-    }
-    scenes.clear();
+    Application::serializer->deserialize(fileName);
+    EventManager->emit(Input.SCENE_LOADED);
+    EventManager->emit(Input.SCENE_CHANGED);
 }
 
-void SceneManagerType::swap(const std::string& tag1, const std::string& tag2)
+Scene& SceneManagerType::getActive()
 {
-    int index[2] = { -1 };
-    for (int i=0; (index[0] < 0 or index[1] < 0) and i < (int)scenes.size(); ++i)
-    {
-        auto s = scenes[i];
-        if (s->tag == tag1)
-            index[0] = i;
-        else if (s->tag == tag2)
-            index[1] = i;
-    }
-
-    if (index[0] >= 0 and index[1] >= 0)
-        swap(index[0], index[1]);
+    return *scenes[0];
 }
 
-void SceneManagerType::swap(std::size_t index1, std::size_t index2)
-{
-    std::size_t length = scenes.size();
-    if (index1 >= length or index2 >= length)
-        return;
-
-    std::swap(scenes[index1], scenes[index2]);
-}
-
-void SceneManagerType::switch_to(const std::string& tag)
+void SceneManagerType::setActive(const std::string& tag)
 {
     auto it = std::find_if(scenes.begin(), scenes.end(), [&](Scene* s){ return s->tag == tag; });
 
-// there is no scene with such tag
+    // there is no scene with such tag
     if (it == scenes.end())
         return;
 
-// remove and stack elements together
-    auto* scene = *it;
+    // remove and stack elements together
     scenes.erase(it);
 
-// puts the element at the end of the queue
-    scenes.push_front(scene);
+    // puts the element at the end of the queue
+    scenes.push_front(*it);
+    EventManager->emit(Input.SCENE_CHANGED);
 }
 
-void SceneManagerType::switch_to(std::size_t index)
+void SceneManagerType::setActive(std::size_t index)
 {
     if (index >= scenes.size())
         return;
@@ -66,10 +46,11 @@ void SceneManagerType::switch_to(std::size_t index)
     scenes.erase(scenes.begin() + index);
 
     scenes.push_front(scene);
+    EventManager->emit(Input.SCENE_CHANGED);
 }
 
 void SceneManagerType::remove(const std::string& tag)
-{
+{   
     auto it = std::find_if(scenes.begin(), scenes.end(), [&](Scene* scene) { return scene->tag == tag; });
     delete *it;
     scenes.erase(it);
@@ -99,22 +80,12 @@ void SceneManagerType::render()
 
 bool SceneManagerType::update()
 {
-    static Scene* toRemove = nullptr;
-    if (toRemove)
-    {
-        delete toRemove;
-        toRemove = nullptr;
-    }
+    static bool last(true);
+    if (!last)
+        next();
     if (scenes.empty())
         return false;
-
-    auto& scene = scenes[0];
-    if (!scene->update())
-    {
-        scenes.pop_front();
-        toRemove = scene;
-    }
-    
+    last = scenes[0]->update();
     return true;
 }
 
@@ -122,16 +93,15 @@ void SceneManagerType::next()
 {
     if (scenes.empty())
         return;
-
-    auto& scene = scenes[0];
+    delete scenes[0];
     scenes.pop_front();
-    delete scene;
+    EventManager->emit(Input.SCENE_CHANGED);
 }
 
 Scene::Scene(const std::string& _tag) : tag(_tag)
 {
     entities.create("main camera").attach<Component::camera>();
-    event.listen(Input.QUIT, [&](Entity& e) { active = false; });
+    SceneManager->push(this);
 }
 
 bool Scene::update()
@@ -143,4 +113,14 @@ bool Scene::update()
 void Scene::render()
 {
     entities.for_each([](Entity& entity) { entity.Render(); });
+}
+
+void Scene::save(const std::string& fileName)
+{
+    Application::serializer->serialize(this, fileName);
+}
+
+void Scene::setActive()
+{
+    SceneManager->setActive(tag);
 }

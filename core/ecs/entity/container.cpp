@@ -37,7 +37,10 @@ Entity& Group::create(const std::string& tag)
 
 void Group::erase(EntityID id)
 {
-    _ids.erase(std::remove(_ids.begin(), _ids.end(), id));
+    auto it = std::find(_ids.begin(), _ids.end(), id);
+    auto& tmp = Entity::get(*it);
+    delete &tmp;
+    _ids.erase(it);
 }
 
 void Group::for_each(_process process)
@@ -71,6 +74,17 @@ Entity* Group::operator[](const std::string& tag)
         if (entity.has<Component::tag>())
             if (entity.get<Component::tag>().content == tag)
                 return &entity;
+    }
+    return nullptr;
+}
+
+Entity* Group::operator[](EntityID ID)
+{
+    for (auto id : _ids)
+    {
+        auto& e = Entity::get(ID);
+        if (ID == e.id())
+            return &e;
     }
     return nullptr;
 }

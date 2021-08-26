@@ -52,17 +52,17 @@ Entity::~Entity()
 
     _signature.reset();
 
-// remove from its group
+    // remove from its group
     if (has<Component::group>())
     {
         auto& group = *get<Component::group>().content;
         group.erase(_id);
     }
 
-// remove from instances list
+    // remove from instances list
     instances.erase(_id);
 
-// signal all components that the entity has been destroyed
+    // signal all components that the entity has been destroyed
     _manager.entityDestroyed(_id);
 }
 
@@ -79,7 +79,6 @@ void Entity::clean()
 Entity& Entity::get(EntityID id)
 {
     assert(instances.find(id) != instances.end() && "There is no instance matching with the given ID");
-
     return *instances[id];
 }
 

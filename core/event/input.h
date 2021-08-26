@@ -10,7 +10,9 @@ struct InputType
         KEY_DOWN = "SDL key down",
         MOUSE_MOTION = "SDL mouse motion",
         MOUSE_BUTTON_UP = "SDL mouse button up",
-        MOUSE_BUTTON_DOWN = "SDL mouse button down";
+        MOUSE_BUTTON_DOWN = "SDL mouse button down",
+        SCENE_LOADED = "Scene loaded",
+        SCENE_CHANGED = "Scene changed";
 
     struct Mouse
     {
