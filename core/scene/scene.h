@@ -26,13 +26,12 @@ public:
 
 protected:
     Scene(const std::string&);
-    virtual ~Scene() = default;
+    virtual ~Scene();
     
     // pop the scene from manager if this method return false
     virtual bool update();
 
     virtual void render();
-
 
     std::string tag = "Scene";
 
@@ -82,7 +81,7 @@ private:
     std::deque<Scene*> scenes;
 
     SceneManagerType() = default;
-    ~SceneManagerType() = default;
+    ~SceneManagerType();
 
     void push(Scene*);
 

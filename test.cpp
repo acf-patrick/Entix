@@ -78,7 +78,7 @@ public:
 	}
 	void onDetach() override
 	{
-		SceneManager->getActive().save("scene");
+		SceneManager->getActive().save();
 	}
 };
 

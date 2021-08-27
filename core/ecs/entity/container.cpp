@@ -5,11 +5,7 @@
 
 Group::~Group()
 {
-    for_each([&](Entity& entity)
-    { 
-        auto addr = &entity;
-        delete addr;
-    });
+    Entity::_destroy(_ids);
     _ids.clear();
 }
 

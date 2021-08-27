@@ -93,7 +93,8 @@ void Serializer::serialize(Scene* scene, const std::string& fileName)
 
     out << YAML::EndMap;
 
-    std::string output = "scenes/" + fileName.empty()?(scene->tag + ".scn"):fileName;
+    std::string output = "scenes/";
+    output += (fileName.empty()?(scene->tag + ".scn"):fileName);
     system("mkdir -p scenes");
     std::ofstream file(output);
     file << out.c_str();

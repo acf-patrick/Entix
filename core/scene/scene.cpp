@@ -11,9 +11,8 @@ using SceneRef = std::shared_ptr<Scene>;
 
 void SceneManagerType::load(const std::string& fileName)
 {
-    Application::serializer->deserialize(fileName);
-    EventManager->emit(Input.SCENE_LOADED);
-    EventManager->emit(Input.SCENE_CHANGED);
+    auto scene = Application::serializer->deserialize(fileName);
+    EventManager->emit(Input.SCENE_LOADED).attach<Component::tag>(scene->tag);
 }
 
 Scene& SceneManagerType::getActive()
@@ -32,9 +31,10 @@ void SceneManagerType::setActive(const std::string& tag)
     // remove and stack elements together
     scenes.erase(it);
 
+    auto scene = *it;
     // puts the element at the end of the queue
-    scenes.push_front(*it);
-    EventManager->emit(Input.SCENE_CHANGED);
+    scenes.push_front(scene);
+    EventManager->emit(Input.SCENE_CHANGED).attach<Component::tag>(scene->tag);
 }
 
 void SceneManagerType::setActive(std::size_t index)
@@ -46,7 +46,7 @@ void SceneManagerType::setActive(std::size_t index)
     scenes.erase(scenes.begin() + index);
 
     scenes.push_front(scene);
-    EventManager->emit(Input.SCENE_CHANGED);
+    EventManager->emit(Input.SCENE_CHANGED).attach<Component::tag>(scene->tag);;
 }
 
 void SceneManagerType::remove(const std::string& tag)
@@ -93,9 +93,21 @@ void SceneManagerType::next()
 {
     if (scenes.empty())
         return;
-    delete scenes[0];
+    auto scene = scenes[0];
+    delete scene;
     scenes.pop_front();
-    EventManager->emit(Input.SCENE_CHANGED);
+    EventManager->emit(Input.SCENE_CHANGED).attach<Component::tag>(scene->tag);;
+}
+
+SceneManagerType::~SceneManagerType()
+{
+    for (auto scene : scenes)
+    {
+        auto name = scene->tag;
+        delete scene;
+        std::cout << name << "scene destroyed" << std::endl;
+    }
+    scenes.clear();
 }
 
 Scene::Scene(const std::string& _tag) : tag(_tag)

@@ -2,7 +2,7 @@
 
 EventListner::EventListner() : manager(*EventManager)
 {
-    manager.listners.push_back(this);
+    manager.newListner(this);
 }
 
 EventListner::~EventListner()

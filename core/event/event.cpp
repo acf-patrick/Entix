@@ -13,6 +13,7 @@ EventManagerType::~EventManagerType()
         events.pop();
     }
     bind.clear();
+    listners.clear();
 }
 
 void EventManagerType::handle()
@@ -86,6 +87,11 @@ Entity& EventManagerType::emit(const std::string& event_name)
     events.push(event);
 
     return *event;
+}
+
+void EventManagerType::newListner(EventListner* listner)
+{
+    listners.push_back(listner);
 }
 
 void EventManagerType::listnerDestroyed(EventListner* listner)

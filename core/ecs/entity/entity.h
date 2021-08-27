@@ -122,7 +122,6 @@ using Camera = ICamera;
     operator EntityID() const;
     EntityID id() const;
 
-public:
     void Update();
     void Render();
     
@@ -137,6 +136,9 @@ private:
     void _init();
     EntityID _generateID(EntityID, bool g = false) const;
 
+    static void _destroy(const std::list<EntityID>&);
+
+private:
     const EntityID _id;
     Signature _signature;
 
@@ -147,7 +149,6 @@ private:
     // z-index used when rendering entity
     unsigned int index = 0;
 
-private:
     static std::set<EntityID> takenID;
     static std::unordered_map<EntityID, Entity*> instances;
 
@@ -204,7 +205,7 @@ using _predicate = std::function<bool(const Entity&)>;
     // create an entity and attach a tag component to it
     Entity& create(const std::string&);
 
-    // Just remove the Entity from this group without destroy
+    // Remove Entity from this group without destroy
     void erase(EntityID);
 
     // reorder entities according to entity index

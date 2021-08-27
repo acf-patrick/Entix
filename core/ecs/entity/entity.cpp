@@ -52,13 +52,6 @@ Entity::~Entity()
 
     _signature.reset();
 
-    // remove from its group
-    if (has<Component::group>())
-    {
-        auto& group = *get<Component::group>().content;
-        group.erase(_id);
-    }
-
     // remove from instances list
     instances.erase(_id);
 
@@ -131,4 +124,10 @@ void Entity::setIndex(unsigned int i)
     index = i;
     if (has<Component::group>())
         get<Component::group>().content->reorder();
+}
+
+void Entity::_destroy(const std::list<EntityID>& entities)
+{
+    for (auto e : entities)
+        delete instances[e];
 }

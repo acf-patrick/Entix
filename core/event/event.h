@@ -36,6 +36,7 @@ private:
     std::unordered_map<std::string, Event> bind;
 
     void listnerDestroyed(EventListner*);
+    void newListner(EventListner*);
 
     EventManagerType() = default;
     ~EventManagerType();

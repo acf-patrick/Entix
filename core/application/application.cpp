@@ -56,9 +56,9 @@ Application::~Application()
     std::cout << "Event manager destroyed\n";
     delete Renderer;
     std::cout << "Renderer manager destroyed\n";
+    Entity::clean();
     delete SceneManager;
     std::cout << "Scene manager destroyed\n";
-    Entity::clean();
 
     SDL_DestroyWindow(_window);
     _window = nullptr;
