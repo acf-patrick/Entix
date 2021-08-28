@@ -4,6 +4,7 @@
 #include <list>
 #include <tuple>
 #include <memory>
+#include <algorithm>
 #include <functional>
 #include <unordered_map>
 
@@ -26,7 +27,7 @@ using Camera = ICamera;
     static void clean();
 
     // get entity with the given ID
-    static Entity& get(EntityID);
+    static Entity* get(EntityID);
 
     // getter for index property
     int  getIndex() const;
@@ -101,17 +102,9 @@ using Camera = ICamera;
         if (std::is_base_of<Script, T>::value)
         {
             auto& tmp = get<T>();
-            void* script = &tmp;
-            ((Script*)script)->onDetach();
-
-            int i = 0, len = _scripts.size();
-            while (_scripts[i] != script)
-                ++i;
-            if (i < len)
-            {
-                std::swap(_scripts[i], _scripts[len-1]);
-                _scripts.pop_back();
-            }
+            auto script = static_cast<Script*>((void*)(&tmp));
+            script->onDetach();
+            _scripts.erase(std::remove(_scripts.begin(), _scripts.end(), (void*)script));
         }
         _manager.removeComponent<T>(_id);
         _signature.set(_manager.getComponentTypeID<T>(), false);
@@ -136,8 +129,6 @@ private:
     void _init();
     EntityID _generateID(EntityID, bool g = false) const;
 
-    static void _destroy(const std::list<EntityID>&);
-
 private:
     const EntityID _id;
     Signature _signature;
@@ -151,6 +142,7 @@ private:
 
     static std::set<EntityID> takenID;
     static std::unordered_map<EntityID, Entity*> instances;
+    static bool _cleanFlag;
 
 friend class Group;
 friend class EventManagerType;
@@ -174,9 +166,9 @@ using _predicate = std::function<bool(const Entity&)>;
         std::vector<Entity*> ret;
         for (auto id : _ids)
         {
-            auto& e = Entity::get(id);
-            if (e.all_of<TComponents...>())
-                ret.push_back(&e);
+            auto e = Entity::get(id);
+            if (e->all_of<TComponents...>())
+                ret.push_back(e);
         }
         return ret;
     }

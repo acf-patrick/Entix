@@ -5,7 +5,17 @@
 
 Group::~Group()
 {
-    Entity::_destroy(_ids);
+    std::cout << "destroying container" << std::endl;
+    for (auto id : _ids)
+    {
+        auto e = Entity::get(id);
+        if (e)
+        {
+            e->detach<Component::group>();
+            std::cout << e->get<Component::tag>().content << std::endl;
+            delete e;
+        }
+    }
     _ids.clear();
 }
 
@@ -34,24 +44,27 @@ Entity& Group::create(const std::string& tag)
 void Group::erase(EntityID id)
 {
     auto it = std::find(_ids.begin(), _ids.end(), id);
-    auto& tmp = Entity::get(*it);
-    delete &tmp;
+    auto tmp = Entity::get(*it);
+    delete tmp;
     _ids.erase(it);
 }
 
 void Group::for_each(_process process)
 {
     for (auto& id : _ids)
-        process(Entity::get(id));
+    {
+        auto tmp = Entity::get(id);
+        process(*tmp);
+    }
 }
 
 void Group::for_each(_process process, _predicate predicate)
 {
     for (auto id : _ids)
     {
-        auto& entity = Entity::get(id);
-        if (predicate(entity))
-            process(entity);
+        auto tmp = Entity::get(id);
+        if (predicate(*tmp))
+            process(*tmp);
     }
 }
 
@@ -66,10 +79,10 @@ Entity* Group::operator[](const std::string& tag)
 {
     for (auto id : _ids)
     {
-        auto& entity = Entity::get(id);
-        if (entity.has<Component::tag>())
-            if (entity.get<Component::tag>().content == tag)
-                return &entity;
+        auto entity = Entity::get(id);
+        if (entity->has<Component::tag>())
+            if (entity->get<Component::tag>().content == tag)
+                return entity;
     }
     return nullptr;
 }
@@ -78,9 +91,9 @@ Entity* Group::operator[](EntityID ID)
 {
     for (auto id : _ids)
     {
-        auto& e = Entity::get(ID);
-        if (ID == e.id())
-            return &e;
+        auto e = Entity::get(ID);
+        if (ID == e->id())
+            return e;
     }
     return nullptr;
 }
@@ -91,7 +104,7 @@ void Group::reorder()
     {
         bool operator()(const EntityID& id1, const EntityID& id2) const
         {
-            return Entity::get(id1).index < Entity::get(id2).index;
+            return Entity::get(id1)->index < Entity::get(id2)->index;
         }
     };
     _ids.sort(compare());

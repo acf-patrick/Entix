@@ -11,6 +11,7 @@ CORE 	= 	core/ecs/component/manager.cpp\
 			core/application/application.cpp\
 			core/entry/entry.cpp\
 			core/scene/scene.cpp\
+			core/scene/sceneManager.cpp\
 			core/renderer/renderer.cpp\
 			core/event/event.cpp\
 			core/event/listner.cpp\

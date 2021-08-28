@@ -8,6 +8,7 @@
 
 std::set<EntityID> Entity::takenID;
 std::unordered_map<EntityID, Entity*> Entity::instances;
+bool Entity::_cleanFlag = false;
 
 Entity::Entity() : 
     _id(_generateID(0, true)),
@@ -27,7 +28,7 @@ void Entity::_init()
 {
     if ((EntityID)instances.size() >= MAX_ENTITIES)
     {
-        std::cerr << "Too many entities created!" << std::endl;
+        std::cerr << "Entity : Maximum instance number reached!" << std::endl;
         exit(1);
     }
     instances[_id] = this;
@@ -53,14 +54,17 @@ Entity::~Entity()
     _signature.reset();
 
     // remove from instances list
-    instances.erase(_id);
+    if (!_cleanFlag)
+        instances.erase(_id);
 
+    std::cout << _id << " destroyed" << std::endl;
     // signal all components that the entity has been destroyed
     _manager.entityDestroyed(_id);
 }
 
 void Entity::clean()
 {
+    _cleanFlag = true;
     for (auto& [_, entity] : instances)
         delete entity;
     instances.clear();
@@ -69,10 +73,12 @@ void Entity::clean()
     ComponentManager::instance = nullptr;
 }
 
-Entity& Entity::get(EntityID id)
+Entity* Entity::get(EntityID id)
 {
-    assert(instances.find(id) != instances.end() && "There is no instance matching with the given ID");
-    return *instances[id];
+    auto ret = instances[id];
+    if (!ret)
+        std::cerr << "There is no instance matching with the given ID" << std::endl;
+    return ret;
 }
 
 Entity::operator EntityID() const
@@ -124,10 +130,4 @@ void Entity::setIndex(unsigned int i)
     index = i;
     if (has<Component::group>())
         get<Component::group>().content->reorder();
-}
-
-void Entity::_destroy(const std::list<EntityID>& entities)
-{
-    for (auto e : entities)
-        delete instances[e];
 }

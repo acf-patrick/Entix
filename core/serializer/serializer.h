@@ -30,10 +30,10 @@ public:
 protected:
     virtual ~Serializer() = default;
 
-    // how to serialize an entity
+    // Serialize entity
     virtual void serializeEntity(YAML::Emitter&, Entity&);
     
-    // how to deserialize an entity
+    // Deserialize entity
     virtual void deserializeEntity(YAML::Node&, Entity&);
 
 friend class Application;

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <ecs/ecs.h>
 #include <memory>
 #include <string>
 #include <deque>
 
-#include "event/event.h"
+#include "../ecs/entity/entity.h"
+#include "../event/event.h"
 
 class Application;
 class SceneManagerType;
@@ -26,7 +26,7 @@ public:
 
 protected:
     Scene(const std::string&);
-    virtual ~Scene();
+    virtual ~Scene() = default;
     
     // pop the scene from manager if this method return false
     virtual bool update();
