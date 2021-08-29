@@ -148,6 +148,8 @@ friend class Group;
 friend class EventManagerType;
 };
 
+class Scene;
+
 // Entity Container
 class Group
 {
@@ -203,8 +205,11 @@ using _predicate = std::function<bool(const Entity&)>;
     // reorder entities according to entity index
     void reorder();
 
+private:
     ~Group();
 
 private:
     std::list<EntityID> _ids;
+
+friend class Scene;
 };

@@ -56,8 +56,8 @@ Application::~Application()
     std::cout << "Event manager destroyed\n";
     delete Renderer;
     std::cout << "Renderer manager destroyed\n";
-    delete SceneManager;
-    std::cout << "Scene manager destroyed\n";
+    // delete SceneManager;
+    // std::cout << "Scene manager destroyed\n";
     Entity::clean();
     std::cout << "No more entity instance left" << std::endl;
 

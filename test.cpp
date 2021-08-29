@@ -69,16 +69,22 @@ using Script = Component::script;
 class Controller : public Script
 {
 public:
-	Controller()
+	void onAttach() override
 	{
 		event.listen(Input.QUIT, [](Entity& e)
 		{
 			APP->quit();
 		});
 	}
-	void onDetach() override
+	void Render() override
 	{
-		// SceneManager->getActive().save();
+		Renderer->submit([&](SDL_Renderer* renderer)
+		{
+			auto& pos = get<Component::transform>().position;
+			SDL_Rect rect = { int(pos.x), int(pos.y), 50, 50 };
+			SDL_SetRenderDrawColor(renderer, 32, 100, 0, 255);
+			SDL_RenderFillRect(renderer, &rect);
+		});
 	}
 };
 
@@ -98,23 +104,6 @@ public:
 		if (Input.keys[SDL_SCANCODE_RIGHT])
 			position.x += speed;
 	}
-/*
-	{
-		auto& r = Renderer::get();
-		auto& mouse = EventManager::get().mouse;
-		auto& camera = get<Component::camera>();
-		auto& pos = camera.position;
-		auto& dest	= camera.destination;
-		auto  size 	= r.globalCoordinates(camera.size);
-
-		pos.x = mouse.x - 0.5*size.x;
-		pos.y = mouse.y - 0.5*size.y;
-
-		dest.x = pos.x;
-		dest.y = pos.y;
-		dest = r.viewportCoordinates(dest);
-	}
-*/
 };
 
 class MySerializer : public Serializer

@@ -61,7 +61,7 @@ Scene* Serializer::deserialize(const std::string& source)
         if (entity["ID"])
             deserializeEntity(entity, scene->entities.create(entity["ID"].as<EntityID>()));
         else
-        // Let Entity class create an ID if there's no ID node
+            // Let Entity class create an ID if there's no ID node
             deserializeEntity(entity, scene->entities.create());
     if (!scene->entities["main camera"])
         scene->entities.create("main camera").attach<Component::camera>();
@@ -113,7 +113,7 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
     YAML::Node n;
     n = node["TagComponent"];
     if (n)
-        entity.attach<Component::tag>().content = n["Tag"].as<std::string>();
+        entity.attach<Component::tag>(n["Tag"].as<std::string>());
 
     n = node["TransformComponent"];
     if (n)

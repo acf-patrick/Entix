@@ -57,13 +57,9 @@ void RenderManager::draw()
             scale.x*rect.w, scale.y*rect.h
         };
 
-        auto all = c->clear == c->TEXTURE_AND_SOLID_COLOR;
-        if (all)
-            c->clear = c->SOLID_COLOR;
-
         auto draw = [&](SDL_Texture* target)
         {
-            if (c->clear == c->SOLID_COLOR)
+            if (c->clear & c->SOLID_COLOR)
             {
                 if (!c->_colorTexture)
                 {
@@ -74,17 +70,9 @@ void RenderManager::draw()
                     SDL_SetRenderTarget(renderer, NULL);
                 }
                 SDL_RenderCopyExF(renderer, c->_colorTexture, &rect, &dest, rotation, NULL, flip);
-                
-                if (all)
-                    c->clear = c->TEXTURE;
             }
-            if (c->clear == c->TEXTURE)
-            {
+            if (c->clear & c->TEXTURE)
                 SDL_RenderCopyExF(renderer, c->backgroundImage.getTexture(), &rect, &dest, rotation, NULL, flip);
-                
-                if (all)
-                    c->clear = c->TEXTURE_AND_SOLID_COLOR;
-            }
 
             SDL_RenderCopyExF(renderer, target, &rect, &dest, rotation, NULL, flip);
         };

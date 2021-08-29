@@ -20,6 +20,10 @@ namespace Component {
     struct tag
     { 
         std::string content = "";
+        bool operator==(const std::string& str) const
+        {
+            return content == str;
+        }
     };
 
     // Space specs
@@ -36,7 +40,7 @@ namespace Component {
     };
 
     // Entity Container
-    // when we create Entity through a group, this components contening the group is attached to the entity
+    // Component containing the group that created the entity
     struct group
     { Group* content; };
 

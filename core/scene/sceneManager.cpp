@@ -100,10 +100,6 @@ void SceneManagerType::next()
 SceneManagerType::~SceneManagerType()
 {
     for (auto scene : scenes)
-    {
-        auto name = scene->tag;
         delete scene;
-        std::cout << name << " scene destroyed" << std::endl;
-    }
     scenes.clear();
 }

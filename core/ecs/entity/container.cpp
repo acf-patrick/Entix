@@ -5,17 +5,9 @@
 
 Group::~Group()
 {
-    std::cout << "destroying container" << std::endl;
+    std::cout << "Destroying container" << std::endl;
     for (auto id : _ids)
-    {
-        auto e = Entity::get(id);
-        if (e)
-        {
-            e->detach<Component::group>();
-            std::cout << e->get<Component::tag>().content << std::endl;
-            delete e;
-        }
-    }
+        delete Entity::get(id);
     _ids.clear();
 }
 
@@ -23,7 +15,7 @@ Entity& Group::create()
 {
     auto ret = new Entity;
     _ids.push_back(*ret);
-
+    ret->attach<Component::group>(this);
     return *ret;
 }
 
@@ -31,6 +23,7 @@ Entity& Group::create(EntityID ID)
 {
     auto ret = new Entity(ID);
     _ids.push_back(ID);
+    ret->attach<Component::group>(this);
     return *ret;
 }
 
@@ -38,6 +31,8 @@ Entity& Group::create(const std::string& tag)
 {
     auto& e = create();
     e.attach<Component::tag>(tag);
+    _ids.push_back(e);
+    e.attach<Component::group>(this);
     return e;
 }
 
@@ -81,7 +76,7 @@ Entity* Group::operator[](const std::string& tag)
     {
         auto entity = Entity::get(id);
         if (entity->has<Component::tag>())
-            if (entity->get<Component::tag>().content == tag)
+            if (entity->get<Component::tag>() == tag)
                 return entity;
     }
     return nullptr;

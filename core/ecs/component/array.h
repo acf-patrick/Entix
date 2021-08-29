@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cassert>
+#include <iostream>
 #include <functional>
 #include <unordered_map>
 #include "../defs.h"
@@ -31,7 +32,11 @@ public:
 
     void insertData(EntityID entity, T* component)
     {
-        assert(_entity_index.find(entity) == std::end(_entity_index) && "Component added to the same entity more than once!");
+        if (_entity_index.find(entity) != _entity_index.end())
+        {
+            std::cerr << "Component added to the same entity more than once!" << std::endl;
+            return;
+        }
 
         _entity_index[entity] = _size;
         _index_entity[_size] = entity;
@@ -42,7 +47,11 @@ public:
 
     void removeData(EntityID entity)
     {
-        assert(_entity_index.find(entity) != std::end(_entity_index) && "Removing non-existent component!");
+        if (_entity_index.find(entity) == _entity_index.end())
+        {
+            std::cerr << "Removing non-existent Component!" << std::endl;
+            return;
+        } 
 
         size_t entityIndex = _entity_index[entity];
         size_t lastIndex = _size - 1;

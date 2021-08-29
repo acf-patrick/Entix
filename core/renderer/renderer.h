@@ -7,12 +7,11 @@
 #include <queue>
 #include <map>
 
-#include <ecs/components.h>
-
-class RenderManager;
-extern RenderManager* Renderer;
+#include "../ecs/components.h"
 
 class Application;
+class RenderManager;
+extern RenderManager* Renderer;
 
 // RenderManager System
 class RenderManager
@@ -25,17 +24,19 @@ using Process = std::function<void(SDL_Renderer*)>;
     {
         std::queue<Process> process;
         SDL_Texture* target = nullptr;
+        SDL_Renderer* renderer = Renderer->renderer;
 
         Drawer()
         {
             auto& r = *Renderer;
             auto  s = r.getSize();
-            target = SDL_CreateTexture(r.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, s.x, s.y);
+            target = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, s.x, s.y);
             assert(target && "Unable to create texture target for layer\n");
             SDL_SetTextureBlendMode(target, SDL_BLENDMODE_BLEND);
         }
         ~Drawer()
         {
+            SDL_SetRenderTarget(renderer, NULL);
             SDL_DestroyTexture(target);
         }
         void add(const Process& p)
@@ -49,13 +50,15 @@ using Process = std::function<void(SDL_Renderer*)>;
         }
         void prepare()
         {
-            SDL_SetRenderTarget(Renderer->renderer, target);
+            SDL_SetRenderTarget(renderer, target);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+            SDL_RenderFillRect(renderer, NULL);
         }
         void operator()()
         {
             if (process.empty())
                 return;
-            process.front()(Renderer->renderer);
+            process.front()(renderer);
             process.pop();
         }
     };
@@ -90,8 +93,6 @@ private:
 
     // There is always one layer remaining
     std::map<int, Drawer> layers;
-
-    std::vector<Camera*> cameras;
 
     RenderManager();
     ~RenderManager();

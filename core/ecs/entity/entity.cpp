@@ -56,8 +56,7 @@ Entity::~Entity()
     // remove from instances list
     if (!_cleanFlag)
         instances.erase(_id);
-
-    std::cout << _id << " destroyed" << std::endl;
+    
     // signal all components that the entity has been destroyed
     _manager.entityDestroyed(_id);
 }
