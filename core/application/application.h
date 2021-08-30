@@ -19,7 +19,7 @@ public:
     static Serializer* serializer;
 
 private:
-    Application(const std::string&, int, int);
+    Application(const std::string&, int, int, SDL_WindowFlags windowFlag = SDL_WINDOW_SHOWN);
 
     bool _running = true;
     SDL_Window* _window;

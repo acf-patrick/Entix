@@ -12,7 +12,7 @@ EventManagerType* EventManager;
 SceneManagerType* SceneManager;
 RenderManager* Renderer;
 
-Application::Application(const std::string& title, int width, int height) :
+Application::Application(const std::string& title, int width, int height, SDL_WindowFlags windowFlag) :
     _running(true)
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -21,7 +21,7 @@ Application::Application(const std::string& title, int width, int height) :
         exit(EXIT_FAILURE);
     }
     
-    _window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_SHOWN);
+    _window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, windowFlag);
     if (!_window)
     {
         log("SDL Error : unable to create window");
@@ -52,14 +52,10 @@ Application::Application(const std::string& title, int width, int height) :
 
 Application::~Application()
 {
+    delete SceneManager;
     delete EventManager;
-    std::cout << "Event manager destroyed\n";
     delete Renderer;
-    std::cout << "Renderer manager destroyed\n";
-    // delete SceneManager;
-    // std::cout << "Scene manager destroyed\n";
     Entity::clean();
-    std::cout << "No more entity instance left" << std::endl;
 
     SDL_DestroyWindow(_window);
     _window = nullptr;

@@ -1,6 +1,7 @@
-#include <iostream>
+#include <map>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include <yaml/yaml.h>
 
 #include "../application/application.h"
@@ -11,7 +12,7 @@ int main(int argc, char** argv)
 {
     std::cout << "Creating main application" << std::endl;
 
-    std::ifstream cfg("app.cfg");
+    std::ifstream cfg((argc > 1)?argv[1]:"app.cfg");
     if (!cfg)
     {
         std::cerr << "No configuration file found!" << std::endl;
@@ -20,15 +21,36 @@ int main(int argc, char** argv)
     std::ostringstream ss;
     ss << cfg.rdbuf();
     YAML::Node node = YAML::Load(ss.str());
-    auto title  = node["Title"].as<std::string>();
-    auto wSize  = node["WindowSize"].as<VectorI>();
-    auto scenes = node["Scenes"];
+    std::string title = "Untitled";
+    if (node["Title"])
+        title = node["Title"].as<std::string>();
+    auto wSize = VectorI();
+    if (node["WindowSize"])
+        wSize = node["WindowSize"].as<VectorI>();
 
-    APP = new Application(title, wSize.x, wSize.y);
+    int flag(0);
+    if (node["Flags"])
+    {
+        std::map<std::string, SDL_WindowFlags> bind = {
+            { "shown", SDL_WINDOW_SHOWN }, 
+            { "resizable", SDL_WINDOW_RESIZABLE },
+            { "minimized", SDL_WINDOW_MINIMIZED },
+            { "maximized", SDL_WINDOW_MAXIMIZED },
+            { "borderless", SDL_WINDOW_BORDERLESS },
+            { "always on top", SDL_WINDOW_ALWAYS_ON_TOP },
+            { "fullscreen", SDL_WINDOW_FULLSCREEN_DESKTOP }
+        };
+        for (auto f : node["Flags"])
+            flag |= bind[f.as<std::string>()];
+    }
+
+    APP = new Application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
     assert(APP->serializer && "No serializer declared. Create serializer in global scope!");
     auto& s = *APP->serializer;
-    for (auto scene : scenes)
-        s.deserialize("scenes/" + scene.as<std::string>() + ".scn");
+
+    if (node["Scenes"])
+        for (auto scene : node["Scenes"])
+            s.deserialize("scenes/" + scene.as<std::string>() + ".scn");
     
     APP->run();
 

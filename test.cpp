@@ -68,13 +68,19 @@ using Script = Component::script;
 
 class Controller : public Script
 {
+	bool once = true;
 public:
-	void onAttach() override
+	void Update() override
 	{
-		event.listen(Input.QUIT, [](Entity& e)
+		if (once)
 		{
-			APP->quit();
-		});
+			once = false;
+			event.listen(Input.QUIT, [](Entity& e)
+			{
+				// APP->quit();
+				SceneManager->next();
+			});
+		}
 	}
 	void Render() override
 	{

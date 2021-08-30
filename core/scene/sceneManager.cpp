@@ -6,11 +6,12 @@
 #include "../ecs/components.h"
 
 using SceneRef = std::shared_ptr<Scene>;
+using Couple = std::pair<Scene*, Scene*>;
 
 void SceneManagerType::load(const std::string& fileName)
 {
     auto scene = Application::serializer->deserialize(fileName);
-    EventManager->emit(Input.SCENE_LOADED).attach<Component::tag>(scene->tag);
+    EventManager->emit(Input.SCENE_LOADED).attach<Scene*>(scene);
 }
 
 Scene& SceneManagerType::getActive()
@@ -20,6 +21,7 @@ Scene& SceneManagerType::getActive()
 
 void SceneManagerType::setActive(const std::string& tag)
 {
+    auto prev = scenes[0];
     auto it = std::find_if(scenes.begin(), scenes.end(), [&](Scene* s){ return s->tag == tag; });
 
     // there is no scene with such tag
@@ -32,11 +34,12 @@ void SceneManagerType::setActive(const std::string& tag)
     auto scene = *it;
     // puts the element at the end of the queue
     scenes.push_front(scene);
-    EventManager->emit(Input.SCENE_CHANGED).attach<Component::tag>(scene->tag);
+    EventManager->emit(Input.SCENE_CHANGED);
 }
 
 void SceneManagerType::setActive(std::size_t index)
 {
+    auto prev = scenes[0];
     if (index >= scenes.size())
         return;
 
@@ -44,7 +47,7 @@ void SceneManagerType::setActive(std::size_t index)
     scenes.erase(scenes.begin() + index);
 
     scenes.push_front(scene);
-    EventManager->emit(Input.SCENE_CHANGED).attach<Component::tag>(scene->tag);;
+    EventManager->emit(Input.SCENE_CHANGED);
 }
 
 void SceneManagerType::remove(const std::string& tag)
@@ -94,7 +97,7 @@ void SceneManagerType::next()
     auto scene = scenes[0];
     delete scene;
     scenes.pop_front();
-    EventManager->emit(Input.SCENE_CHANGED).attach<Component::tag>(scene->tag);;
+    EventManager->emit(Input.SCENE_CHANGED);
 }
 
 SceneManagerType::~SceneManagerType()

@@ -1,7 +1,6 @@
 Name: main
 Entities:
-  - ID: 77019925
-    TagComponent:
+  - TagComponent:
       Tag: main camera
     TransformComponent:
       Position: [0, 0]
@@ -10,14 +9,13 @@ Entities:
     CameraComponent:
       Size: [1, 1]
       Destination: [0, 0]
-      BackgroundColor: [20, 20, 100, 255]
+      BackgroundColor: [120, 20, 100, 255]
       BackgroundImage: ""
-      ClearMode: none
+      ClearMode: solid color
       Flip: [false, false]
       Depth: 0
       Layers: [0]
-  - ID: 152874828
-    TagComponent:
+  - TagComponent:
       Tag: sprite
     TransformComponent:
       Position: [0, 0]

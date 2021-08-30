@@ -17,6 +17,7 @@ public:
 template<typename T>
 class ComponentArray : public IComponentArray
 {
+    const std::string name = typeid(T).name();
 public:
 
     ComponentArray() = default;
@@ -34,7 +35,7 @@ public:
     {
         if (_entity_index.find(entity) != _entity_index.end())
         {
-            std::cerr << "Component added to the same entity more than once!" << std::endl;
+            std::cerr << name << ": Component added to the same entity more than once!" << std::endl;
             return;
         }
 
@@ -49,7 +50,7 @@ public:
     {
         if (_entity_index.find(entity) == _entity_index.end())
         {
-            std::cerr << "Removing non-existent Component!" << std::endl;
+            std::cerr << name << ": Removing non-existent Component!" << std::endl;
             return;
         } 
 
