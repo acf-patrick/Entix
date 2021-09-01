@@ -1,0 +1,15 @@
+Name: test
+Entities:
+  - TransformComponent:
+    SpriteComponent:
+      Texture: texture.png
+      RegionEnabled: true
+      Region: [[0, 0], [32, 32]]
+      Centered: true
+    SpriteRendererComponent:
+    Controller:
+  - TagComponent:
+      Tag: main camera
+    CameraComponent:
+      ClearMode: solid color
+      BackgroundColor: [5, 22, 40, 255]

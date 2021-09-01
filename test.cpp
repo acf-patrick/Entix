@@ -1,114 +1,72 @@
-#include <iostream>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 #include <core.h>
-/*
-class Button : public Component::script
-{
-	SDL_Texture* texture;
-	std::string state = "idle";
-	SDL_Rect rect = { 10, 10, 0, 0 };
-	std::map<std::string, SDL_Color> palette = {
-		{ "idle"    , {  79,  79,  79, 255 } },
-		{ "hover"   , { 120, 120, 120, 255 } },
-		{ "pressed" , {  45,  45,  45, 255 } }
-	};
-
-public:
-	Button()
-	{
-		TTF_Font* font = TTF_OpenFont("font.ttf", 12);
-		SDL_Surface *s = TTF_RenderText_Blended(font, "QUIT", {255, 255, 255, 255});
-		texture = SDL_CreateTextureFromSurface(Renderer::get().renderer, s);
-		rect.w = s->w + 7*2;
-		rect.h = s->w + 5*2;
-		SDL_FreeSurface(s);
-		TTF_CloseFont(font);
-
-		event.listen(Input.MOUSE_BUTTON_DOWN, [&](Entity& e)
-		{
-			SDL_Point mouse = { Input.mouse.x, Input.mouse.y };
-			state = "idle";
-			if (SDL_PointInRect(&mouse, &rect))
-				state = "pressed";
-		});
-		event.listen(Input.MOUSE_BUTTON_UP, [&](Entity& e)
-		{
-			SDL_Point mouse = { Input.mouse.x, Input.mouse.y };
-			if (SDL_PointInRect(&mouse, &rect))
-				Application::get().quit();
-		});
-		event.listen(Input.MOUSE_MOTION, [&](Entity& e)
-		{
-			SDL_Point mouse = { Input.mouse.x, Input.mouse.y };
-			state = SDL_PointInRect(&mouse, &rect)?"hover":"idle";
-		});
-	}
-	~Button()
-	{
-		SDL_DestroyTexture(texture);
-	}
-
-	void Render() override
-	{
-		auto& renderer = ;
-		renderer.submit([&](SDL_Renderer* renderer)
-		{
-			SDL_SetRenderDrawColor(renderer, palette[state].r, palette[state].g, palette[state].b ,255);
-			SDL_RenderFillRect(renderer, &rect);
-			SDL_RenderCopy(renderer, texture, NULL, &rect);
-		});
-	}
-
-};
-*/
+#include <box2d/box2d.h>
+#include <yaml-cpp/yaml.h>
+#include <SDL2/SDL_image.h>
 
 using Script = Component::script;
 
 class Controller : public Script
 {
-	bool once = true;
 public:
+	const float MtoPX = 80.0f;
+	const float timeStep = 1/60.0f;
+	b2World world;
+	b2Body* body;
+
+	Controller(VectorF gravity) :
+		world(b2Vec2(gravity.x, gravity.y))
+	{
+		event.listen(Input.QUIT, [](Entity& entity)
+		{
+			APP->quit();
+		});
+
+		// Dynamic body
+		b2BodyDef def;
+		def.type = b2_dynamicBody;
+		def.position.Set(120/MtoPX, 40/MtoPX);
+		def.angle = b2_pi/6;
+		body = world.CreateBody(&def);
+
+		b2FixtureDef fdef;
+		fdef.density = 1.0f;
+		fdef.friction = 0.3f;
+		fdef.restitution = 0.7f;
+		b2PolygonShape shape;
+		shape.SetAsBox(32/MtoPX, 32/MtoPX);
+		fdef.shape = &shape;
+		body->CreateFixture(&fdef);
+
+		// Ground
+		b2BodyDef groundBodyDef;
+		groundBodyDef.position.Set(400/MtoPX, 400/MtoPX);
+		groundBodyDef.type = b2_staticBody;
+		auto ground = world.CreateBody(&groundBodyDef);
+		
+		b2PolygonShape groundShape;
+		groundShape.SetAsBox(600/MtoPX, 20/MtoPX);
+		ground->CreateFixture(&groundShape, 0.0f);
+	}
+
 	void Update() override
 	{
-		if (once)
-		{
-			once = false;
-			event.listen(Input.QUIT, [](Entity& e)
-			{
-				// APP->quit();
-				SceneManager->next();
-			});
-		}
+		world.Step(timeStep, 8, 3);
+
+		auto pos = body->GetPosition();
+		auto& t = get<Component::transform>();
+		t.position.x = pos.x*MtoPX;
+		t.position.y = pos.y*MtoPX;
+		t.rotation = body->GetAngle()*180/b2_pi;
 	}
+
 	void Render() override
 	{
 		Renderer->submit([&](SDL_Renderer* renderer)
 		{
-			auto& pos = get<Component::transform>().position;
-			SDL_Rect rect = { int(pos.x), int(pos.y), 50, 50 };
-			SDL_SetRenderDrawColor(renderer, 32, 100, 0, 255);
-			SDL_RenderFillRect(renderer, &rect);
+			SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+			SDL_Rect rect = { 100, 390, 600, 20 };
+			SDL_RenderDrawRect(renderer, &rect);
 		});
-	}
-};
-
-class FollowBehavior : public Script
-{
-public:
-	void Update() override
-	{
-		const int speed = 1;
-		auto& position = get<Component::transform>().position;
-		if (Input.keys[SDL_SCANCODE_UP])
-			position.y -= speed;
-		if (Input.keys[SDL_SCANCODE_DOWN])
-			position.y += speed;
-		if (Input.keys[SDL_SCANCODE_LEFT])
-			position.x -= speed;
-		if (Input.keys[SDL_SCANCODE_RIGHT])
-			position.x += speed;
 	}
 };
 
@@ -118,11 +76,15 @@ public:
 	void deserializeEntity(YAML::Node& node, Entity& entity) override
 	{
 		Serializer::deserializeEntity(node, entity);
-		if (node["FollowBehavior"])
-			entity.attach<FollowBehavior>();
-		if (node["Controller"])
-			entity.attach<Controller>();
+		auto c = node["Controller"];
+		if (c)
+		{
+			VectorF gravity(0, 10.0f);
+			float timeStep = 1/60.0f;
+			if (c["Gravity"])
+				gravity = c["Gravity"].as<VectorF>();
+			entity.attach<Controller>(gravity);
+		}
 	}
 };
-
-Serializer* Application::serializer = new MySerializer();
+Serializer* Application::serializer = new MySerializer;

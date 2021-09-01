@@ -5,7 +5,6 @@
 
 Group::~Group()
 {
-    std::cout << "Destroying container" << std::endl;
     for (auto id : _ids)
         delete Entity::get(id);
     _ids.clear();

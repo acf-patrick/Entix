@@ -90,8 +90,8 @@ struct Vector
         return self *= (1/double(scalar));
     }
 
-    bool isNull() const
-    { return x == 0 and y == 0; }
+    operator bool() const
+    { return x != 0 or y != 0; }
 
 // useful cast
     operator Vector<int> () const

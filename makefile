@@ -26,15 +26,15 @@ LIBS 	= 	libs/
 
 SDL 	= 	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 YAML 	= 	-lyaml-cpp
+BOX2D =	-lbox2d
 # TMX 	= 	-lxml2 -lz -ltmx
-# BOX2D =	-lbox2d
 
 SRC 	= 	$(CORE) $(CLIENT)
 
 ifeq ($(OS), Windows_NT)
 	# fill
 else
-	L = $(SDL) -L$(LIBS)linux/ $(TMX) $(YAML)
+	L = $(SDL) -L$(LIBS)linux/ $(TMX) $(YAML) $(BOX2D)
 endif
 
 all : obj
