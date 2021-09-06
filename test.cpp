@@ -12,6 +12,7 @@ public:
 	const float timeStep = 1/60.0f;
 	b2World world;
 	b2Body* body;
+	Uint32 lastTick;
 
 	Controller(VectorF gravity) :
 		world(b2Vec2(gravity.x, gravity.y))
@@ -24,14 +25,14 @@ public:
 		// Dynamic body
 		b2BodyDef def;
 		def.type = b2_dynamicBody;
-		def.position.Set(120/MtoPX, 40/MtoPX);
+		def.position.Set(400/MtoPX, 100/MtoPX);
 		def.angle = b2_pi/6;
 		body = world.CreateBody(&def);
 
 		b2FixtureDef fdef;
 		fdef.density = 1.0f;
 		fdef.friction = 0.3f;
-		fdef.restitution = 0.7f;
+		fdef.restitution = 0.4f;
 		b2PolygonShape shape;
 		shape.SetAsBox(32/MtoPX, 32/MtoPX);
 		fdef.shape = &shape;
@@ -44,7 +45,7 @@ public:
 		auto ground = world.CreateBody(&groundBodyDef);
 		
 		b2PolygonShape groundShape;
-		groundShape.SetAsBox(600/MtoPX, 20/MtoPX);
+		groundShape.SetAsBox(300/MtoPX, 10/MtoPX);
 		ground->CreateFixture(&groundShape, 0.0f);
 	}
 
@@ -70,6 +71,31 @@ public:
 	}
 };
 
+class FollowMouseBehavior : public Script
+{
+	bool follow = false;
+public:
+	FollowMouseBehavior()
+	{
+		event.listen(Input.MOUSE_BUTTON_UP, [&](Entity& entity)
+		{
+			follow = !follow;
+		});
+	}
+
+	void Update() override
+	{
+		if (follow)
+		{
+			auto& cameraPos = get<Component::camera>().destination;
+			auto rs = Renderer->getSize();
+			auto mouse = Input.mouse.getPosition();
+			cameraPos.x = mouse.x/float(rs.x);
+			cameraPos.y = mouse.y/float(rs.y);
+		}
+	}
+};
+
 class MySerializer : public Serializer
 {
 public:
@@ -84,6 +110,11 @@ public:
 			if (c["Gravity"])
 				gravity = c["Gravity"].as<VectorF>();
 			entity.attach<Controller>(gravity);
+		}
+		c = node["FollowMouseBehavior"];
+		if (c)
+		{
+			entity.attach<FollowMouseBehavior>();
 		}
 	}
 };

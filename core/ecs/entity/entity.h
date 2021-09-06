@@ -93,6 +93,15 @@ using Camera = ICamera;
         return *ret;
     }
     
+    // Attach component if entity doesn't have 
+    template<typename T, typename... TArgs>
+    T& attachIf(TArgs&&... args)
+    {
+        if (has<T>())
+            return get<T>();
+        return attach<T>(args...);
+    }
+
     template<typename T>
     void detach()
     {

@@ -39,6 +39,7 @@ Application::Application(const std::string& title, int width, int height, SDL_Wi
         log("SDL Error : unable to create a render context");
         exit(EXIT_FAILURE);
     }
+    // SDL_SetRenderDrawBlendMode(r, SDL_BLENDMODE_BLEND);
     Renderer->renderer = r;
 
     if (TTF_Init() < 0)

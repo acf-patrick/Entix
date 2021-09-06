@@ -1,6 +1,9 @@
 #pragma once
 
+#include "../util/vector.h"
+
 #include <map>
+#include <SDL2/SDL.h>
 
 struct InputType 
 {
@@ -8,6 +11,7 @@ struct InputType
         QUIT = "SDL quit",
         KEY_UP = "SDL key up",
         KEY_DOWN = "SDL key down",
+        MOUSE_WHEEL = "SDL mouse wheel",
         MOUSE_MOTION = "SDL mouse motion",
         MOUSE_BUTTON_UP = "SDL mouse button up",
         MOUSE_BUTTON_DOWN = "SDL mouse button down",
@@ -16,8 +20,22 @@ struct InputType
 
     struct Mouse
     {
-        bool pressed;
-        int x, y;
+        bool isPressed(const std::string& button)
+        {
+            std::map<std::string, int> bind = {
+                { "left", SDL_BUTTON_LMASK },
+                { "right", SDL_BUTTON_RMASK },
+                { "middle", SDL_BUTTON_MMASK }
+            };
+            return bind[button] & SDL_GetMouseState(NULL, NULL);
+        }
+
+        VectorI getPosition()
+        {
+            VectorI ret;
+            SDL_GetMouseState(&ret.x, &ret.y);
+            return ret;
+        }
     };
     Mouse mouse;
 

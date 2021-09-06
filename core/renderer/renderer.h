@@ -13,7 +13,7 @@ class Application;
 class RenderManager;
 extern RenderManager* Renderer;
 
-// RenderManager System
+// Rendering System
 class RenderManager
 {
 public:
@@ -25,6 +25,7 @@ using Process = std::function<void(SDL_Renderer*)>;
         std::queue<Process> process;
         SDL_Texture* target = nullptr;
         SDL_Renderer* renderer = Renderer->renderer;
+        int currentTarget = 0;
 
         Drawer()
         {
@@ -52,14 +53,16 @@ using Process = std::function<void(SDL_Renderer*)>;
         {
             SDL_SetRenderTarget(renderer, target);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-            SDL_RenderFillRect(renderer, NULL);
+            SDL_RenderClear(renderer);
+            SDL_SetRenderTarget(renderer, target);
         }
         void operator()()
         {
-            if (process.empty())
-                return;
-            process.front()(renderer);
-            process.pop();
+            while (!process.empty())
+            {
+                process.front()(renderer);
+                process.pop();                
+            }
         }
     };
 
@@ -80,7 +83,7 @@ using Process = std::function<void(SDL_Renderer*)>;
 
     VectorI globalCoordinates(float, float) const;
 
-    VectorI globalCoordinates(const VectorF&) const; 
+    VectorI globalCoordinates(const VectorF&) const;
 
     VectorF viewportCoordinates(int, int) const;
 

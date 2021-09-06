@@ -24,11 +24,9 @@ struct Vector
 
 // Vector operations
 
-    Vector<T>& operator- () const
+    Vector<T> operator- () const
     {
-        x *= -1;
-        y *= -1;
-        return *this;
+        return { -x, -y };
     }
 
     template <typename _T>

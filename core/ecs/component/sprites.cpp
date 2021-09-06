@@ -60,18 +60,14 @@ namespace Component {
         src.h = frameSize.y;
 
         // destination 
-        pos.x += spriteComponent.offset.x;
-        pos.y += spriteComponent.offset.y;
+        pos += spriteComponent.offset;
 
         // center destination
         if (spriteComponent.centered)
-        {
-            pos.x += w*0.5;
-            pos.y += h*0.5;
-        }
+            pos -= {src.w*0.5, src.h*0.5};
         
         // rotate around center for now
-        texture.draw(src, {int(pos.x), int(pos.y)}, {tSize.x/2, tSize.y/2}, rotation, spriteComponent.flip, scale);
+        texture.draw(src, {int(pos.x), int(pos.y)}, {src.w/2, src.h/2}, rotation, spriteComponent.flip, scale);
     });
     }
 

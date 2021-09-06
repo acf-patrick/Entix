@@ -30,13 +30,13 @@ namespace Component {
     struct transform
     {
         // top-left, SDL coordinates system
-        Vector<double> position = { 0, 0 };
+        Vector<double> position = { 0.0f, 0.0f };
 
         // Scale factor
         // default : no scale, i.e (1, 1)
-        VectorF scale = { 1, 1 };
+        VectorF scale = { 1.0f, 1.0f };
 
-        double rotation = 0;
+        double rotation = 0.0f;
     };
 
     // Entity Container
@@ -106,8 +106,8 @@ namespace Component {
         Vector<float> destination = { 0, 0 };
 
         // color applied before any rendering
-        // default : black
-        SDL_Color background = { 0, 0, 0, 255 };
+        // default : dark grey
+        SDL_Color background = { 14, 16, 18, 255 };
         SDL_Texture* _colorTexture = nullptr;
 
         // stores used for background
@@ -121,9 +121,9 @@ namespace Component {
             TEXTURE_AND_SOLID_COLOR     // Useless if the texture doesn't support transparency
         };
 
-        // clear the background?
-        // default : NONE (don't clear)
-        ClearMode clear = NONE;
+        // clear mode
+        // default : SOLID_COLOR (clear the background with Camera::background)
+        ClearMode clear = SOLID_COLOR;
 
         // flip rendered view
         // default : false, false (no flip)

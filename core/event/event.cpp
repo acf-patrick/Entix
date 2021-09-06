@@ -41,7 +41,7 @@ void EventManagerType::handle()
 void EventManagerType::SDLEvents()
 {
     SDL_Event event;
-
+    Entity& e = *static_cast<Entity*>(nullptr);
     while (SDL_PollEvent(&event))
         switch (event.type)
         {
@@ -57,22 +57,19 @@ void EventManagerType::SDLEvents()
             Input.keys[event.key.keysym.scancode] = false;
             break;
         case SDL_MOUSEBUTTONDOWN:
-            emit(Input.MOUSE_BUTTON_DOWN);
-            Input.mouse.pressed = true;
-            SDL_GetMouseState(&Input.mouse.x, &Input.mouse.y);
+            emit(Input.MOUSE_BUTTON_DOWN).attachIf<SDL_MouseButtonEvent>(event.button);
             break;
         case SDL_MOUSEBUTTONUP:
-            emit(Input.MOUSE_BUTTON_UP);
-            Input.mouse.pressed = true;
-            SDL_GetMouseState(&Input.mouse.x, &Input.mouse.y);
+            emit(Input.MOUSE_BUTTON_UP).attachIf<SDL_MouseButtonEvent>(event.button);
             break;
         case SDL_MOUSEMOTION:
-            emit(Input.MOUSE_MOTION);
-            SDL_GetMouseState(&Input.mouse.x, &Input.mouse.y);
+            emit(Input.MOUSE_MOTION).attachIf<SDL_MouseMotionEvent>(event.motion);
+            break;
+        case SDL_MOUSEWHEEL:
+            emit(Input.MOUSE_WHEEL).attachIf<SDL_MouseWheelEvent>(event.wheel);
             break;
         default : ;
         }
-    
 }
 
 Entity& EventManagerType::emit(const std::string& event_name)

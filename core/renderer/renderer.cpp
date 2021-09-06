@@ -34,12 +34,11 @@ void RenderManager::draw()
         layer();
     }
     SDL_SetRenderTarget(renderer, NULL);
-
     for (auto c : Camera::instances)
     {
-        auto t = c->entity->get<Component::transform>();
-        auto position   = t.position;
+        auto& t = c->entity->get<Component::transform>();
         auto scale      = t.scale;
+        auto position   = t.position;
         auto rotation   = t.rotation;
         auto viewport   = c->destination;
         auto size       = c->size;
@@ -57,35 +56,40 @@ void RenderManager::draw()
             scale.x*rect.w, scale.y*rect.h
         };
 
-        auto draw = [&](SDL_Texture* target)
+        for (auto index : c->layers)
         {
             if (c->clear & c->SOLID_COLOR)
             {
-                if (!c->_colorTexture)
+                if (rotation == 0.0f)
                 {
-                    auto& t = c->_colorTexture;
-                    t = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
-                    SDL_SetRenderTarget(renderer, t);
-                    clear(c->background);
-                    SDL_SetRenderTarget(renderer, NULL);
+                    SDL_Rect dst = {
+                        int(dest.x), int(dest.y),
+                        int(dest.w), int(dest.h)
+                    };
+                    clear(dst, c->background);
                 }
-                SDL_RenderCopyExF(renderer, c->_colorTexture, &rect, &dest, rotation, NULL, flip);
+                else
+                {
+                    if (!c->_colorTexture)
+                    {
+                        auto& t = c->_colorTexture;
+                        t = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h);
+                        SDL_SetRenderTarget(renderer, t);
+                        clear(c->background);
+                        SDL_SetRenderTarget(renderer, NULL);
+                    }
+                    SDL_RenderCopyExF(renderer, c->_colorTexture, NULL, &dest, rotation, NULL, SDL_FLIP_NONE);
+                }
             }
             if (c->clear & c->TEXTURE)
                 SDL_RenderCopyExF(renderer, c->backgroundImage.getTexture(), &rect, &dest, rotation, NULL, flip);
 
-            SDL_RenderCopyExF(renderer, target, &rect, &dest, rotation, NULL, flip);
+            SDL_RenderCopyExF(renderer, layers[index].target, &rect, &dest, rotation, NULL, flip);
         };
-
-        for (auto index : c->layers)
-            draw(layers[index].target);
     }
 
-
     // camera draws
-    // SDL_RenderCopy(renderer, view, NULL, NULL);
     SDL_RenderPresent(renderer);
-
 }
 
 VectorI RenderManager::globalCoordinates(float x, float y) const
