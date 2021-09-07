@@ -1,12 +1,6 @@
 Name: test
 Entities:
-  - SpriteComponent:
-      Texture: texture.png
-      Centered: true
-      FramesNumber: [11, 1]
-    TransformComponent:
-    SpriteRendererComponent:
-    Controller:
+  - Template: prefabs/controller.entt
   - TagComponent:
       Tag: main camera
     CameraComponent:

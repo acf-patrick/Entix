@@ -119,6 +119,30 @@ void Serializer::serialize(Scene* scene, const std::string& fileName)
 void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
 {
     YAML::Node n;
+    n = node["Template"];
+    if (n)
+    {
+        auto load = [&](YAML::Node& nc)
+        {
+            auto rsc = nc.as<std::string>();
+            std::ifstream file(rsc);
+            if (file)
+            {
+                std::stringstream ss;
+                ss << file.rdbuf();
+                auto p = YAML::Load(ss.str());
+                deserializeEntity(p, entity);
+            }
+            else
+                std::cerr << "Template file inexistant : " << rsc << std::endl;
+        };
+        if (n.IsSequence())
+            for (auto childNode : n)
+                load(childNode);
+        else
+            load(n);
+    }
+
     n = node["TagComponent"];
     if (n)
         entity.attach<Component::tag>(n["Tag"].as<std::string>());

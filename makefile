@@ -21,7 +21,7 @@ CORE 	= 	core/ecs/component/manager.cpp\
  
 CLIENT 	= 	test.cpp
 
-HEADER 	=  	core/
+HEADER 	=  	core/ 3rd-party/
 LIBS 	= 	libs/
 
 SDL 	= 	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
