@@ -27,14 +27,14 @@ public:
     virtual void serialize(Scene*, const std::string& fileName = "");
     virtual Scene* deserialize(const std::string&);
 
-protected:
-    virtual ~Serializer() = default;
-
     // Serialize entity
     virtual void serializeEntity(YAML::Emitter&, Entity&);
     
     // Deserialize entity
     virtual void deserializeEntity(YAML::Node&, Entity&);
+
+protected:
+    virtual ~Serializer() = default;
 
 friend class Application;
 };

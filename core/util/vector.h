@@ -13,6 +13,12 @@ struct Vector
     Vector(T _x, T _y) : x(_x), y(_y)
     {}
 
+    void set(T _x, T _y)
+    {
+        x = _x;
+        y = _y;
+    }
+
     void normalize()
     {
         auto& self = *this;

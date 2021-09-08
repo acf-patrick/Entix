@@ -1,9 +1,10 @@
 Name: test
 Entities:
   - Template: prefabs/controller.entt
+    CreatorBehavior:
   - TagComponent:
       Tag: main camera
     CameraComponent:
     TransformComponent:
       # Scale: [0.5, 0.5]
-    FollowMouseBehavior:
+    #FollowMouseBehavior:

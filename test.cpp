@@ -5,29 +5,28 @@
 
 using Script = Component::script;
 
+const float MtoPX = 80.0f;
+
 class Controller : public Script
 {
 public:
-	const float MtoPX = 80.0f;
 	const float timeStep = 1/60.0f;
-	b2World world;
+	static b2World world;
+	static VectorF gravity;
 	b2Body* body;
 	Uint32 lastTick;
 
-	Controller(VectorF gravity) :
-		world(b2Vec2(gravity.x, gravity.y))
+	Controller() 
 	{
-		event.listen(Input.QUIT, [](Entity& entity)
-		{
-			APP->quit();
-		});
-
+		world.SetGravity({gravity.x, gravity.y});
 		// Dynamic body
 		b2BodyDef def;
 		def.type = b2_dynamicBody;
 		def.position.Set(400/MtoPX, 100/MtoPX);
 		def.angle = b2_pi/6;
 		body = world.CreateBody(&def);
+		if (!body)
+			std::cerr << "Failed to create box2D body" << std::endl;
 
 		b2FixtureDef fdef;
 		fdef.density = 1.0f;
@@ -70,6 +69,32 @@ public:
 		});
 	}
 };
+VectorF Controller::gravity;
+b2World Controller::world({0.0f, 0.0f});
+
+class CreatorBehavior : public Script
+{
+public: 
+	void onAttach() override
+	{
+		event.listen(Input.QUIT, [](Entity& entity)
+		{
+			APP->quit();
+		});
+		event.listen(Input.MOUSE_BUTTON_UP, [&](Entity& entity)
+		{
+			auto& e = get<Component::group>().content->create();
+			auto& serializer = *Application::serializer;
+			YAML::Node n;
+			n["Template"] = "prefabs/controller.entt";
+			serializer.deserializeEntity(n, e);
+			auto& body = *e.get<Controller>().body;
+			auto mousePos = Input.mouse.getPosition();
+			body.SetTransform({mousePos.x/MtoPX, mousePos.y/MtoPX}, 0.0f);
+			std::cout << "created" << std::endl;
+		});
+	}
+};
 
 class FollowMouseBehavior : public Script
 {
@@ -105,17 +130,18 @@ public:
 		auto c = node["Controller"];
 		if (c)
 		{
-			VectorF gravity(0, 10.0f);
+			Controller::gravity.y = 10.0f;
 			float timeStep = 1/60.0f;
 			if (c["Gravity"])
-				gravity = c["Gravity"].as<VectorF>();
-			entity.attach<Controller>(gravity);
+				Controller::gravity = c["Gravity"].as<VectorF>();
+			entity.attach<Controller>();
 		}
 		c = node["FollowMouseBehavior"];
 		if (c)
-		{
 			entity.attach<FollowMouseBehavior>();
-		}
+		c = node["CreatorBehavior"];
+		if (c)
+			entity.attach<CreatorBehavior>();
 	}
 };
 Serializer* Application::serializer = new MySerializer;

@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <yaml/yaml.h>
+#include <yaml-cpp/yaml.h>
 
 #include "../application/application.h"
 
