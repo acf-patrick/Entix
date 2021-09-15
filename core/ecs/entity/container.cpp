@@ -30,8 +30,6 @@ Entity& Group::create(const std::string& tag)
 {
     auto& e = create();
     e.attach<Component::tag>(tag);
-    _ids.push_back(e);
-    e.attach<Component::group>(this);
     return e;
 }
 

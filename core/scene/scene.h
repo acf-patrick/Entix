@@ -38,9 +38,6 @@ protected:
     // used to manage entities
     Group entities;
 
-    // used to manage events
-    EventListner event;
-
     bool active = true;
 
 friend class Serializer;

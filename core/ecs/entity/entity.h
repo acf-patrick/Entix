@@ -29,6 +29,10 @@ using Camera = ICamera;
     // get entity with the given ID
     static Entity* get(EntityID);
 
+    // construct entity using a template
+    // argument : file name
+    void useTemplate(const std::string&);
+
     // getter for index property
     int  getIndex() const;
 

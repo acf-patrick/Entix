@@ -8,13 +8,19 @@ Scene::Scene(const std::string& _tag) : tag(_tag)
 
 bool Scene::update()
 {
-    entities.for_each([](Entity& entity) { entity.Update(); });
+    entities.for_each([](Entity& entity) 
+    { 
+        entity.Update(); 
+    });
     return active;
 }
 
 void Scene::render()
 {
-    entities.for_each([](Entity& entity) { entity.Render(); });
+    entities.for_each([](Entity& entity) 
+    { 
+        entity.Render(); 
+    });
 }
 
 void Scene::save(const std::string& fileName)

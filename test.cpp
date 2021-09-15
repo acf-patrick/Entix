@@ -1,6 +1,5 @@
 #include <core.h>
 #include <box2d/box2d.h>
-#include <yaml-cpp/yaml.h>
 #include <SDL2/SDL_image.h>
 
 using Script = Component::script;
@@ -23,8 +22,6 @@ public:
 		def.position.Set(400/MtoPX, 100/MtoPX);
 		def.angle = b2_pi/6;
 		body = World->CreateBody(&def);
-		if (!body)
-			std::cerr << "Failed to create physic body" << std::endl;
 
 		b2FixtureDef fdef;
 		fdef.density = 1.0f;
@@ -91,17 +88,21 @@ public:
 		event.listen(Input.MOUSE_BUTTON_UP, [&](Entity& entity)
 		{
 			auto& e = get<Component::group>().content->create();
-			std::cout << "created" << std::endl;
- 			auto& serializer = *Application::serializer;
-			YAML::Node n;
-			n["Template"] = "prefabs/mob.entt";
-			serializer.deserializeEntity(n, e);
-			std::cout << "entity deserialized" << std::endl;
- 			auto& body = *e.get<Mob>().body;
-			auto mousePos = Input.mouse.getPosition()/MtoPX;
-			body.SetTransform({mousePos.x, mousePos.y}, 0.0f);
-			std::cout << "entity position set" << std::endl;
-  		});
+			e.useTemplate("prefabs/mob.entt");
+			auto mousePos = Input.mouse.getPosition();
+ 			if (e.has<Mob>())
+			{
+				auto& body = *e.get<Mob>().body;
+				body.SetTransform({mousePos.x/MtoPX, mousePos.y/MtoPX}, 0.0f);
+				std::cout << "entity position set" << std::endl;
+			}
+			else
+			{
+				auto& pos = e.get<Component::transform>().position;
+				pos = mousePos;
+			}
+ 			std::cout << "created" << std::endl;
+   		});
 	}
 };
 

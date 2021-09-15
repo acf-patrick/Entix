@@ -12,14 +12,14 @@ int main(int argc, char** argv)
 {
     std::cout << "Creating main application" << std::endl;
 
-    std::ifstream cfg((argc > 1)?argv[1]:"app.cfg");
-    if (!cfg)
-    {
-        std::cerr << "No configuration file found!" << std::endl;
-        exit(0);
-    }
     std::ostringstream ss;
-    ss << cfg.rdbuf();
+    {
+        std::ifstream cfg((argc > 1)?argv[1]:"app.cfg");
+        if (cfg)
+            ss << cfg.rdbuf();
+        else
+            std::cout << "Default configuration used" << std::endl;
+    }
     YAML::Node node = YAML::Load(ss.str());
     std::string title = "Untitled";
     if (node["Title"])

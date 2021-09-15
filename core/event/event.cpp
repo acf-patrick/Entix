@@ -24,13 +24,16 @@ void EventManagerType::handle()
         Event& event = events.front();
         auto tag = event->get<Component::tag>().content;
 
-        for (auto l : listners)
-            if (l->enabled)
+        for (int i=0; i<(int)listners.size(); ++i)
+        {
+            auto& l = *listners[i];
+            if (l.enabled)
             {
-                auto& c = l->callbacks;
+                auto& c = l.callbacks;
                 if (c.find(tag) != c.end())
                     c[tag](*event);
             }
+        }
 
         delete event;
         events.pop();
@@ -45,33 +48,52 @@ void EventManagerType::SDLEvents()
         switch (event.type)
         {
         case SDL_QUIT:
-            emit(Input.QUIT);
+            _emit(Input.QUIT);
             break;
         case SDL_KEYDOWN:
-            emit(Input.KEY_DOWN);
+            _emit(Input.KEY_DOWN).attachIf<SDL_KeyboardEvent>(event.key);
             Input.keys[event.key.keysym.scancode] = true;
             break;
         case SDL_KEYUP:
-            emit(Input.KEY_UP);
+            _emit(Input.KEY_UP).attachIf<SDL_KeyboardEvent>(event.key);
             Input.keys[event.key.keysym.scancode] = false;
             break;
         case SDL_MOUSEBUTTONDOWN:
-            emit(Input.MOUSE_BUTTON_DOWN).attachIf<SDL_MouseButtonEvent>(event.button);
+            _emit(Input.MOUSE_BUTTON_DOWN).attachIf<SDL_MouseButtonEvent>(event.button);
             break;
         case SDL_MOUSEBUTTONUP:
-            emit(Input.MOUSE_BUTTON_UP).attachIf<SDL_MouseButtonEvent>(event.button);
+            _emit(Input.MOUSE_BUTTON_UP).attachIf<SDL_MouseButtonEvent>(event.button);
             break;
         case SDL_MOUSEMOTION:
-            emit(Input.MOUSE_MOTION).attachIf<SDL_MouseMotionEvent>(event.motion);
+            _emit(Input.MOUSE_MOTION).attachIf<SDL_MouseMotionEvent>(event.motion);
             break;
         case SDL_MOUSEWHEEL:
-            emit(Input.MOUSE_WHEEL).attachIf<SDL_MouseWheelEvent>(event.wheel);
+            _emit(Input.MOUSE_WHEEL).attachIf<SDL_MouseWheelEvent>(event.wheel);
             break;
         default : ;
         }
 }
 
 Entity& EventManagerType::emit(const std::string& event_name)
+{
+    std::vector<std::string> reserved = {
+        Input.QUIT, Input.KEY_DOWN, Input.KEY_UP,
+        Input.MOUSE_BUTTON_DOWN, Input.MOUSE_BUTTON_UP,
+        Input.MOUSE_WHEEL, Input.MOUSE_MOTION,
+        Input.SCENE_LOADED, Input.SCENE_CHANGED
+    };
+    if (std::find(reserved.begin(), reserved.end(), event_name) != reserved.end())
+    {
+        std::cerr << "You can not emit this event!" << std::endl;
+        if (!invalidEvent)
+            invalidEvent = new Entity;
+        return *invalidEvent;
+    }
+
+    return _emit(event_name);
+}
+
+Entity& EventManagerType::_emit(const std::string& event_name)
 {
     if (bind.find(event_name) != bind.end())
         return *bind[event_name];

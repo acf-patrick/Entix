@@ -1,10 +1,15 @@
 #include <iostream>
+#include <sstream>
+#include <fstream>
 #include <cassert>
 #include <cstdlib>
+#include <set>
+
+#include <yaml-cpp/yaml.h>
 
 #include "entity.h"
 #include "../components.h"
-#include <set>
+#include "../../application/application.h" 
 
 std::set<EntityID> Entity::takenID;
 std::unordered_map<EntityID, Entity*> Entity::instances;
@@ -129,4 +134,20 @@ void Entity::setIndex(unsigned int i)
     index = i;
     if (has<Component::group>())
         get<Component::group>().content->reorder();
+}
+
+void Entity::useTemplate(const std::string& fileName)
+{
+    auto& s = *Application::serializer;
+    std::ifstream file(fileName);
+    if (!file)
+    {
+        std::cerr << "Failed to load template : " << fileName << " doesn't exist" << std::endl;
+        return;
+    }
+    std::ostringstream ss;
+    ss << file.rdbuf();
+    auto n = YAML::Load(ss.str());
+    s.deserializeEntity(n, *this);
+    std::cout << fileName << " : Template loaded" << std::endl;
 }

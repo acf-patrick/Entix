@@ -22,18 +22,24 @@ public:
     using Event = Entity*;
 
     void handle();
-
-    // Entity must have a tag component attached to it
-    // Previous event with the same tag will be erased
+    
+    // Emit this message and attach as a tag to an entity
+    // Use an EventListner instance to listent to this event anywhere
     Entity& emit(const std::string&);
 
 private:
     
+    Event invalidEvent = nullptr;
+
+    Entity& _emit(const std::string&);
     void SDLEvents();
 
     std::queue<Event> events;
     std::vector<EventListner*> listners;
     std::unordered_map<std::string, Event> bind;
+
+    // std::vector<EventListner*> toAdd;
+    // std::vector<EventListner*> toRemove;
 
     void listnerDestroyed(EventListner*);
     void newListner(EventListner*);
