@@ -12,6 +12,8 @@ EventManagerType* EventManager;
 SceneManagerType* SceneManager;
 RenderManager* Renderer;
 
+Application* Application::instance = nullptr;
+
 Application::Application(const std::string& title, int width, int height, SDL_WindowFlags windowFlag) :
     _running(true)
 {
@@ -48,6 +50,7 @@ Application::Application(const std::string& title, int width, int height, SDL_Wi
         exit(EXIT_FAILURE);
     }
     
+    instance = this;
     std::cout << "Application created" << std::endl;
 }
 
@@ -56,7 +59,8 @@ Application::~Application()
     delete SceneManager;
     delete EventManager;
     delete Renderer;
-    Entity::clean();
+    // Make sure to free memory
+    Entity::Clean();
 
     SDL_DestroyWindow(_window);
     _window = nullptr;
@@ -88,4 +92,9 @@ void Application::run()
 void Application::quit()
 {
     _running = false;
+}
+
+Application& Application::Get()
+{
+    return *instance;
 }

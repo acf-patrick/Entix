@@ -17,14 +17,14 @@ bool Entity::_cleanFlag = false;
 
 Entity::Entity() : 
     _id(_generateID(0, true)),
-    _manager(ComponentManager::get())
+    _manager(ComponentManager::Get())
 {
     _init();
 }
 
 Entity::Entity(EntityID id) : 
     _id(_generateID(id)),
-    _manager(ComponentManager::get())
+    _manager(ComponentManager::Get())
 {
     _init();
 }
@@ -66,7 +66,7 @@ Entity::~Entity()
     _manager.entityDestroyed(_id);
 }
 
-void Entity::clean()
+void Entity::Clean()
 {
     _cleanFlag = true;
     for (auto& [_, entity] : instances)
@@ -77,7 +77,7 @@ void Entity::clean()
     ComponentManager::instance = nullptr;
 }
 
-Entity* Entity::get(EntityID id)
+Entity* Entity::Get(EntityID id)
 {
     auto ret = instances[id];
     if (!ret)

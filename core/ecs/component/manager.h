@@ -12,7 +12,7 @@ class ComponentManager
 {
 private:
 
-    static ComponentManager& get();
+    static ComponentManager& Get();
     
     template<typename T>
     ComponentTypeID getComponentTypeID()

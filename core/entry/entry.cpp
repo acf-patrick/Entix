@@ -6,8 +6,6 @@
 
 #include "../application/application.h"
 
-Application* APP;
-
 int main(int argc, char** argv)
 {
     std::cout << "Creating main application" << std::endl;
@@ -44,7 +42,7 @@ int main(int argc, char** argv)
             flag |= bind[f.as<std::string>()];
     }
 
-    APP = new Application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
+    auto APP = new Application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
     assert(APP->serializer && "No serializer declared. Create serializer in global scope!");
     auto& s = *APP->serializer;
 

@@ -83,7 +83,7 @@ public:
 	{
 		event.listen(Input.QUIT, [](Entity& entity)
 		{
-			APP->quit();
+			Application::Get().quit();
 		});
 		event.listen(Input.MOUSE_BUTTON_UP, [&](Entity& entity)
 		{

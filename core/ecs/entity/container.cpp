@@ -6,7 +6,7 @@
 Group::~Group()
 {
     for (auto id : _ids)
-        delete Entity::get(id);
+        delete Entity::Get(id);
     _ids.clear();
 }
 
@@ -36,7 +36,7 @@ Entity& Group::create(const std::string& tag)
 void Group::erase(EntityID id)
 {
     auto it = std::find(_ids.begin(), _ids.end(), id);
-    auto tmp = Entity::get(*it);
+    auto tmp = Entity::Get(*it);
     delete tmp;
     _ids.erase(it);
 }
@@ -45,7 +45,7 @@ void Group::for_each(_process process)
 {
     for (auto& id : _ids)
     {
-        auto tmp = Entity::get(id);
+        auto tmp = Entity::Get(id);
         process(*tmp);
     }
 }
@@ -54,7 +54,7 @@ void Group::for_each(_process process, _predicate predicate)
 {
     for (auto id : _ids)
     {
-        auto tmp = Entity::get(id);
+        auto tmp = Entity::Get(id);
         if (predicate(*tmp))
             process(*tmp);
     }
@@ -71,7 +71,7 @@ Entity* Group::operator[](const std::string& tag)
 {
     for (auto id : _ids)
     {
-        auto entity = Entity::get(id);
+        auto entity = Entity::Get(id);
         if (entity->has<Component::tag>())
             if (entity->get<Component::tag>() == tag)
                 return entity;
@@ -83,7 +83,7 @@ Entity* Group::operator[](EntityID ID)
 {
     for (auto id : _ids)
     {
-        auto e = Entity::get(ID);
+        auto e = Entity::Get(ID);
         if (ID == e->id())
             return e;
     }
@@ -96,7 +96,7 @@ void Group::reorder()
     {
         bool operator()(const EntityID& id1, const EntityID& id2) const
         {
-            return Entity::get(id1)->index < Entity::get(id2)->index;
+            return Entity::Get(id1)->index < Entity::Get(id2)->index;
         }
     };
     _ids.sort(compare());

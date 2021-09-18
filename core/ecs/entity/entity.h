@@ -24,10 +24,10 @@ using Script = BaseScript;
 using Camera = ICamera;
 
     // make sure to free memory
-    static void clean();
+    static void Clean();
 
     // get entity with the given ID
-    static Entity* get(EntityID);
+    static Entity* Get(EntityID);
 
     // construct entity using a template
     // argument : file name
@@ -181,7 +181,7 @@ using _predicate = std::function<bool(const Entity&)>;
         std::vector<Entity*> ret;
         for (auto id : _ids)
         {
-            auto e = Entity::get(id);
+            auto e = Entity::Get(id);
             if (e->all_of<TComponents...>())
                 ret.push_back(e);
         }

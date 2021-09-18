@@ -2,7 +2,7 @@
 
 ComponentManager* ComponentManager::instance = nullptr;
 
-ComponentManager& ComponentManager::get()
+ComponentManager& ComponentManager::Get()
 {
 	if (!instance)
 		instance = new ComponentManager;

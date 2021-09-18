@@ -16,6 +16,8 @@ public:
     void quit();
     void log(const std::string&) const;
 
+    static Application& Get();
+
     static Serializer* serializer;
 
 private:
@@ -24,7 +26,7 @@ private:
     bool _running = true;
     SDL_Window* _window;
 
+    static Application* instance;
+
 friend int main(int, char**);
 };
-
-extern Application* APP;
