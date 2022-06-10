@@ -16,7 +16,9 @@
 class Group;
 class EventManagerType;
 
-// Create an Entity using Group::create method
+/**
+ * Create an Entity using Group::create method
+*/
 class Entity
 {
 public:
@@ -29,8 +31,9 @@ using Camera = ICamera;
     // get entity with the given ID
     static Entity* Get(EntityID);
 
-    // construct entity using a template
-    // argument : file name
+    /** construct entity using a template
+    * @param fileName
+    */
     void useTemplate(const std::string&);
 
     // getter for index property
@@ -74,6 +77,7 @@ using Camera = ICamera;
         _manager.addComponent<T>(_id, ret);
         _signature.set(_manager.getComponentTypeID<T>());
 
+    // Check if attaching script component
         if (std::is_base_of<Script, T>::value)
         {
             Script* s = (Script*)ret;
@@ -126,7 +130,13 @@ using Camera = ICamera;
     bool operator==  (const Entity&) const;
 
     operator EntityID() const;
+
     EntityID id() const;
+    
+    /**
+     * @return string representation of entity's id
+     */
+    std::string idAsString() const;
 
     void Update();
     void Render();

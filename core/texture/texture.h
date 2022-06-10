@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <SDL2/SDL.h>
 
 #include "../util/vector.h"
@@ -11,20 +12,31 @@ private:
     std::string _file = "";
     SDL_Texture* _texture = nullptr;
 
+    static std::map<std::string, SDL_Texture*> _loadedTextures;
+
 public:
     Texture() = default;
     Texture(const std::string&);
 
     ~Texture();
 
+    // Make sure to unload left textures
+    static void unload();
+
     void load(const std::string&);
 
+    // Get filename used to load the texture
     std::string getName() const;
-    SDL_Texture* getTexture() const;
 
+    // Get SDL_Texture* raw data
+    SDL_Texture* get() const;
+
+    // Return texture size
     VectorI getSize() const;
 
-    void setTexture(SDL_Texture*);
+    // Set texture content
+    // This method reset the texture's initial name
+    void set(SDL_Texture*);
 
     // check if inner SDL Texture is null
     operator bool() const;

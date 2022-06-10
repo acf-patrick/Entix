@@ -91,6 +91,13 @@ Entity::operator EntityID() const
 EntityID Entity::id() const
 { return _id; }
 
+std::string Entity::idAsString() const
+{
+    std::stringstream ss;
+    ss << std::hex << _id;
+    return ss.str();
+}
+
 bool Entity::operator==(const Entity& entity) const
 { return _id == entity._id; }
 

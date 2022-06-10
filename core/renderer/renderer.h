@@ -61,7 +61,7 @@ using Process = std::function<void(SDL_Renderer*)>;
             while (!process.empty())
             {
                 process.front()(renderer);
-                process.pop();                
+                process.pop();
             }
         }
     };

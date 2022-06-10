@@ -201,7 +201,7 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
 
 void Serializer::serializeEntity(YAML::Emitter& out, Entity& entity)
 {
-    out << YAML::Key << "ID" << YAML::Value << entity.id();
+    out << YAML::Key << "ID" << YAML::Value << entity.idAsString();
 
     if (entity.has<Component::tag>())
     {
