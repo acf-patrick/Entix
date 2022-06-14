@@ -1,10 +1,16 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Declaration of some useful components
+ */
+
 #pragma once
 
 #include <string>
 #include <vector>
 #include <SDL2/SDL.h>
 
-#include <util/vector.h>
+#include <util/geometry/vector.h>
 #include <event/event.h>
 
 #include "baseScript.h"

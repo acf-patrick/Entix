@@ -3,7 +3,7 @@
 #include <map>
 #include <SDL2/SDL.h>
 
-#include "../util/vector.h"
+#include "../util/geometry/vector.h"
 
 // Equivalent class for SDL_Texture
 class Texture

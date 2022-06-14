@@ -4,7 +4,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../ecs/entity/entity.h"
-#include "../util/vector.h"
+#include "../util/geometry/vector.h"
 #include "../scene/scene.h"
 
 // operator << override

@@ -15,7 +15,7 @@ CORE 	= 	core/ecs/component/manager.cpp\
 			core/renderer/renderer.cpp\
 			core/event/event.cpp\
 			core/event/listner.cpp\
-			core/util/blur.cpp\
+			core/util/blur/blur.cpp\
 			core/texture/texture.cpp\
 			core/serializer/serializer.cpp
  

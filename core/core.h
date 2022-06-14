@@ -7,7 +7,7 @@
 #include "./event/input.h"
 #include "./renderer/renderer.h"
 #include "./scene/scene.h"
-#include "./util/vector.h"
+#include "./util/util.h"
 #include "./texture/texture.h"
 #include "./serializer/serializer.h"
 

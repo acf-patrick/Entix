@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../util/vector.h"
+#include "../util/geometry/vector.h"
 
 #include <map>
 #include <SDL2/SDL.h>
