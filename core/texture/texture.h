@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Definition of Texture
+ */
+
 #pragma once
 
 #include <map>
@@ -5,7 +11,12 @@
 
 #include "../util/geometry/vector.h"
 
-// Equivalent class for SDL_Texture
+/**
+ * Texture 
+ *
+ * Prevent memory leak and ensure texture reusability
+ * by avoid multiple loading of the same texture
+ */
 class Texture
 {
 private:

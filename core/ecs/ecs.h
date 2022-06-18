@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Includes headers used for Entity-Component-System logic
+ */
+
 #ifndef ECS_H
 #define ECS_H
 

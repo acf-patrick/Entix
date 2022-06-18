@@ -1,3 +1,9 @@
+
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Contains function for image bluring
+ */
 #pragma once
 
 #include <string>

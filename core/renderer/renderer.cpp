@@ -1,5 +1,5 @@
 #include "renderer.h"
-#include <application/application.h>
+#include "../application/application.h"
 #include <cassert>
 
 RenderManager::RenderManager()

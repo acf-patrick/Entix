@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Class used for reading and writing datas
+ */
+
 #pragma once
 
 #include <vector>

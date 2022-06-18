@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Main component class composer
+ */
+
 #pragma once
 
 #include <iostream>

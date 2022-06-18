@@ -1,8 +1,14 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Define application main class
+ */
+
 #pragma once
 
 #include <string>
 #include <SDL2/SDL.h>
-#include <renderer/renderer.h>
+#include "../renderer/renderer.h"
 #include "../serializer/serializer.h"
 
 // interface

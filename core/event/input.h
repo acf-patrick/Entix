@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Definition of input type injected when event occures
+ */
+
 #pragma once
 
 #include "../util/geometry/vector.h"

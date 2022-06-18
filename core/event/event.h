@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Definition of Event listner and Event composer type
+ */
+
 #pragma once
 
 #include <unordered_map>

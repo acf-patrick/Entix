@@ -2,8 +2,8 @@
 #include "input.h"
 #include <map>
 #include <cstdlib>
-#include <ecs/ecs.h>
-#include <application/application.h>
+#include "../ecs/ecs.h"
+#include "../application/application.h"
 
 EventManagerType::~EventManagerType()
 {

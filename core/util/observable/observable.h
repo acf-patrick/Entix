@@ -1,7 +1,7 @@
 /**
  * @author acf-patrick (miharisoap@gmail.com)
  * 
- * Inspired by Observable in common Angular projects
+ * Inspired by Observable in common state management
  */
 
 #pragma once

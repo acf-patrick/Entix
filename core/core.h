@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Header importing library components
+ */
+
 #ifndef _CORE_
 #define _CORE_
 

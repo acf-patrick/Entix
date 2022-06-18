@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * The rendering system
+ */
+
 #pragma once
 
 #include <functional>

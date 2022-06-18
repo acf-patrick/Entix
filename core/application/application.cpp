@@ -2,10 +2,10 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "application.h"
-#include "event/input.h"
-#include "event/event.h"
-#include "scene/scene.h"
-#include "ecs/entity/entity.h"
+#include "../event/input.h"
+#include "../event/event.h"
+#include "../scene/scene.h"
+#include "../ecs/entity/entity.h"
 
 InputType Input;
 EventManagerType* EventManager;

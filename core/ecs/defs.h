@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Class and constants definition
+ */
+
 #pragma once
 
 #include <bitset>

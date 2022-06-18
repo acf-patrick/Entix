@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Contains classes for Scene management
+ */
+
 #pragma once
 
 #include <memory>

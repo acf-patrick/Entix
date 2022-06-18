@@ -10,8 +10,8 @@
 #include <vector>
 #include <SDL2/SDL.h>
 
-#include <util/geometry/vector.h>
-#include <event/event.h>
+#include "../util/geometry/vector.h"
+#include "../event/event.h"
 
 #include "baseScript.h"
 #include "baseCamera.h"

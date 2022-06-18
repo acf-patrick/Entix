@@ -1,5 +1,5 @@
 #include "../components.h"
-#include "renderer/renderer.h"
+#include "../../renderer/renderer.h"
 
 namespace Component {
 

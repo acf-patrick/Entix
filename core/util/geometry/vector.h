@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Definition of a 2D vector class
+ */
+
 #pragma once
 
 #include <ostream>

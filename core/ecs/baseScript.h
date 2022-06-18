@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Interface for script components
+ */
+
 #pragma once
 
 class Entity;

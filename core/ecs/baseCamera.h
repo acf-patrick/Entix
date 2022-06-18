@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Interface for the camera
+ */
+
 #pragma once
 
 class Entity;

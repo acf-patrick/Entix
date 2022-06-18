@@ -1,3 +1,9 @@
+/**
+ * @author acf-patrick (miharisoap@gmail.com)
+ * 
+ * Internal class used for component management
+ */
+
 #pragma once
 
 #include <array>
