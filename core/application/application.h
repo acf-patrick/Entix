@@ -11,8 +11,7 @@
 #include "../renderer/renderer.h"
 #include "../serializer/serializer.h"
 
-// interface
-class Application
+class Application final
 {
 public:
     ~Application();

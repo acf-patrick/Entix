@@ -10,9 +10,10 @@ EventListner::~EventListner()
     manager.listnerDestroyed(this);
 }
 
-void EventListner::listen(const std::string& event, const Callback& callback)
+EventListner& EventListner::listen(const std::string& event, const Callback& callback)
 {
     callbacks[event] = callback;
+    return *this;
 }
 
 void EventListner::stopListening(const std::string& event)

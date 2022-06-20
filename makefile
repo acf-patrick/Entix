@@ -6,6 +6,8 @@ CFLAGS 	= 	-std=c++2a -W
 CORE 	= 	core/ecs/component/manager.cpp\
 			core/ecs/component/camera.cpp\
 			core/ecs/component/sprites.cpp\
+			core/ecs/component/tilemap.cpp\
+			core/ecs/component/drawer.cpp\
 			core/ecs/entity/entity.cpp\
 			core/ecs/entity/container.cpp\
 			core/application/application.cpp\
@@ -49,3 +51,6 @@ obj: $(SRC)
 
 clean:
 	@rm -f bin *.o -r obj/
+
+rebuild:
+	@make clean; make

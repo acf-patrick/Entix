@@ -48,8 +48,8 @@ public:
     // what to do before the script is attached to an entity
     virtual void onAttach()     {}
 
-    // inverse of onAttach
-    virtual void onDetach()     {}
+    // what to do before the script is distached to an entity
+    virtual void onDistach()     {}
 
 protected:
     bool enabled = true;

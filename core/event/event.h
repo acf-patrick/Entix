@@ -67,7 +67,7 @@ using Callback = std::function<void(Entity&)>;
     ~EventListner();
 
     // provide event's tag and function callback
-    void listen(const std::string&, const Callback&);
+    EventListner& listen(const std::string&, const Callback&);
 
     // stop listening to the event with the given tag
     void stopListening(const std::string&);

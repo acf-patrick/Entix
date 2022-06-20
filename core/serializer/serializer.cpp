@@ -6,14 +6,14 @@
 #include <cstdlib>
 
 template <typename VType>
-YAML::Emitter& operator<< (YAML::Emitter& out, const Vector<VType>& v)
+YAML::Emitter &operator<<(YAML::Emitter &out, const Vector<VType> &v)
 {
     out << YAML::Flow;
     out << YAML::BeginSeq << v.x << v.y << YAML::EndSeq;
     return out;
 }
 
-YAML::Emitter& operator<< (YAML::Emitter& out, const SDL_Rect& rect)
+YAML::Emitter &operator<<(YAML::Emitter &out, const SDL_Rect &rect)
 {
     out << YAML::Flow;
     out << YAML::BeginSeq;
@@ -23,7 +23,7 @@ YAML::Emitter& operator<< (YAML::Emitter& out, const SDL_Rect& rect)
     return out;
 }
 
-YAML::Emitter& operator<< (YAML::Emitter& out, const SDL_Color& color)
+YAML::Emitter &operator<<(YAML::Emitter &out, const SDL_Color &color)
 {
     out << YAML::Flow;
     out << YAML::BeginSeq;
@@ -32,9 +32,9 @@ YAML::Emitter& operator<< (YAML::Emitter& out, const SDL_Color& color)
     return out;
 }
 
-Scene* Serializer::deserialize(const std::string& source)
+Scene *Serializer::deserialize(const std::string &source)
 {
-    auto error = []() -> Scene*
+    auto error = []() -> Scene *
     {
         std::cerr << "Invalid file format!" << std::endl;
         return nullptr;
@@ -52,7 +52,7 @@ Scene* Serializer::deserialize(const std::string& source)
     auto name = node["Name"];
     if (!name)
         return error();
-    Scene* scene = new Scene(name.as<std::string>());
+    Scene *scene = new Scene(name.as<std::string>());
 
     auto entities = node["Entities"];
     if (!entities)
@@ -69,7 +69,7 @@ Scene* Serializer::deserialize(const std::string& source)
         scene->entities.create("main camera").attach<Component::camera>();
     else
     {
-        auto& cameraEntity = *scene->entities["main camera"];
+        auto &cameraEntity = *scene->entities["main camera"];
         if (!cameraEntity.has<Component::camera>())
             cameraEntity.attach<Component::camera>();
     }
@@ -82,7 +82,7 @@ Scene* Serializer::deserialize(const std::string& source)
     return scene;
 }
 
-void Serializer::serialize(Scene* scene, const std::string& fileName)
+void Serializer::serialize(Scene *scene, const std::string &fileName)
 {
     if (!scene)
     {
@@ -97,18 +97,18 @@ void Serializer::serialize(Scene* scene, const std::string& fileName)
     out << YAML::Key << "Entities" << YAML::Value;
 
     out << YAML::BeginSeq;
-    scene->entities.for_each([&](Entity& entity)
-    {
-        out << YAML::BeginMap;
-        serializeEntity(out, entity);
-        out << YAML::EndMap;
-    });
+    scene->entities.for_each([&](Entity &entity)
+                             {
+                                 out << YAML::BeginMap;
+                                 serializeEntity(out, entity);
+                                 out << YAML::EndMap;
+                             });
     out << YAML::EndSeq;
 
     out << YAML::EndMap;
 
     std::string output = "scenes/";
-    output += (fileName.empty()?(scene->tag + ".scn"):fileName);
+    output += (fileName.empty() ? (scene->tag + ".scn") : fileName);
     system("mkdir -p scenes");
     std::ofstream file(output);
     file << out.c_str();
@@ -116,7 +116,7 @@ void Serializer::serialize(Scene* scene, const std::string& fileName)
     std::cout << "Scene serialized to " << output << std::endl;
 }
 
-void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
+void Serializer::deserializeEntity(YAML::Node &node, Entity &entity)
 {
     YAML::Node n;
     n = node["Template"];
@@ -136,7 +136,7 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
     n = node["TransformComponent"];
     if (n)
     {
-        auto& t = entity.attach<Component::transform>();
+        auto &t = entity.attach<Component::transform>();
         if (n["Position"])
             t.position = n["Position"].as<VectorD>();
         if (n["Scale"])
@@ -148,7 +148,7 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
     n = node["SpriteComponent"];
     if (n)
     {
-        auto& s = entity.attach<Component::sprite>();
+        auto &s = entity.attach<Component::sprite>();
         if (n["Texture"])
             s.texture.load(n["Texture"].as<std::string>());
         if (n["Centered"])
@@ -163,7 +163,8 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
             s.frame = n["Frame"].as<int>();
         if (n["RegionEnabled"])
             s.regionEnabled = n["RegionEnabled"].as<bool>();
-        if (n["Region"])s.region = n["Region"].as<SDL_Rect>();
+        if (n["Region"])
+            s.region = n["Region"].as<SDL_Rect>();
     }
 
     n = node["SpriteRendererComponent"];
@@ -173,7 +174,7 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
     n = node["CameraComponent"];
     if (n)
     {
-        auto& c = entity.attach<Component::camera>();
+        auto &c = entity.attach<Component::camera>();
         if (n["Size"])
             c.size = n["Size"].as<VectorF>();
         if (n["Destination"])
@@ -185,9 +186,7 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
         if (n["ClearMode"])
         {
             std::map<std::string, Component::camera::ClearMode> bind = {
-                { "none", c.NONE }, { "texture", c.TEXTURE }, { "solid color", c.SOLID_COLOR },
-                { "texture and solid color", c.TEXTURE_AND_SOLID_COLOR }
-            };
+                {"none", c.NONE}, {"texture", c.TEXTURE}, {"solid color", c.SOLID_COLOR}, {"texture and solid color", c.TEXTURE_AND_SOLID_COLOR}};
             c.clear = bind[n["ClearMode"].as<std::string>()];
         }
         if (n["Flip"])
@@ -197,9 +196,15 @@ void Serializer::deserializeEntity(YAML::Node& node, Entity& entity)
         if (n["Layers"])
             c.layers = n["Layers"].as<std::vector<int>>();
     }
+
+    n = node["Tilemap"];
+    if (n)
+    {
+        entity.attach<Component::Tilemap>(n.as<std::string>());
+    }
 }
 
-void Serializer::serializeEntity(YAML::Emitter& out, Entity& entity)
+void Serializer::serializeEntity(YAML::Emitter &out, Entity &entity)
 {
     out << YAML::Key << "ID" << YAML::Value << entity.idAsString();
 
@@ -214,7 +219,7 @@ void Serializer::serializeEntity(YAML::Emitter& out, Entity& entity)
     if (entity.has<Component::transform>())
     {
         out << YAML::Key << "TransformComponent" << YAML::Value;
-        auto& t = entity.get<Component::transform>();
+        auto &t = entity.get<Component::transform>();
         out << YAML::BeginMap;
         out << YAML::Key << "Position" << YAML::Value << t.position;
         out << YAML::Key << "Scale" << YAML::Value << t.scale;
@@ -225,7 +230,7 @@ void Serializer::serializeEntity(YAML::Emitter& out, Entity& entity)
     if (entity.has<Component::sprite>())
     {
         out << YAML::Key << "SpriteComponent" << YAML::Value;
-        auto& s = entity.get<Component::sprite>();
+        auto &s = entity.get<Component::sprite>();
         out << YAML::BeginMap;
         out << YAML::Key << "Texture" << YAML::Value << s.texture.getName();
         out << YAML::Key << "Centered" << YAML::Value << s.centered;
@@ -245,18 +250,24 @@ void Serializer::serializeEntity(YAML::Emitter& out, Entity& entity)
     if (entity.has<Component::camera>())
     {
         out << YAML::Key << "CameraComponent" << YAML::Value;
-        auto& c = entity.get<Component::camera>();
+        auto &c = entity.get<Component::camera>();
         out << YAML::BeginMap;
         out << YAML::Key << "Size" << YAML::Value << c.size;
         out << YAML::Key << "Destination" << YAML::Value << c.destination;
         out << YAML::Key << "BackgroundColor" << YAML::Value << c.background;
         out << YAML::Key << "BackgroundImage" << YAML::Value << c.backgroundImage.getName();
-        std::string bind[] = { "none", "texture", "solid Color", "texture and solid color" };
+        std::string bind[] = {"none", "texture", "solid Color", "texture and solid color"};
         out << YAML::Key << "ClearMode" << YAML::Value << bind[c.clear];
         out << YAML::Key << "Flip" << YAML::Value << c.flip;
         out << YAML::Key << "Depth" << YAML::Value << c.depth;
         out << YAML::Key << "Layers" << YAML::Value << YAML::Flow << c.layers;
         out << YAML::EndMap;
+    }
+
+    if (entity.has<Component::Tilemap>())
+    {
+        auto& t = entity.get<Component::Tilemap>();
+        out << YAML::Key << "Tilemap" << YAML::Value << t.file;
     }
 }
 

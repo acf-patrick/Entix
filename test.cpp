@@ -44,6 +44,28 @@ public:
 	}
 };
 
+class FollowMouseBehavior : public Script
+{
+	bool follow = false;
+
+public:
+	FollowMouseBehavior()
+	{
+		event
+			.listen(Input.MOUSE_BUTTON_UP, [&](Entity &entity)
+					{ follow = !follow; })
+			.listen(Input.MOUSE_MOTION, [&](Entity &entity)
+					{
+						if (follow)
+						{
+							auto &position = get<Component::transform>().position;
+							auto event = entity.get<SDL_MouseMotionEvent>();
+							position.set(event.x, event.y);
+						}
+					});
+	}
+};
+
 class Controller : public Script
 {
 public:
@@ -67,12 +89,13 @@ public:
 
 	void Render() override
 	{
-		Renderer->submit([&](SDL_Renderer *renderer)
-		{
-			SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
-			SDL_Rect rect = {100, 390, 600, 20};
-			SDL_RenderDrawRect(renderer, &rect);
-		});
+		Renderer->submit(
+			[&](SDL_Renderer *renderer)
+			{
+				SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
+				SDL_Rect rect = {100, 390, 600, 20};
+				SDL_RenderDrawRect(renderer, &rect);
+			});
 	}
 
 	void Update() override
@@ -84,49 +107,26 @@ public:
 	{
 		event.listen(Input.QUIT, [](Entity &entity)
 					 { Application::Get().quit(); });
-		event.listen(Input.MOUSE_BUTTON_UP, [&](Entity &entity)
-					 {
-						 auto &e = get<Component::group>().content->create();
-						 e.useTemplate("prefabs/mob.entt");
-						 std::cout << "id : " << e.idAsString() << std::endl;
-						 auto mousePos = Input.mouse.getPosition();
-						 if (e.has<Mob>())
-						 {
-							 auto &body = *e.get<Mob>().body;
-							 body.SetTransform({mousePos.x / MtoPX, mousePos.y / MtoPX}, 0.0f);
-							 std::cout << "entity position set" << std::endl;
-						 }
-						 else
-						 {
-							 auto &pos = e.get<Component::transform>().position;
-							 pos = mousePos;
-						 }
-						 std::cout << "created" << std::endl;
-					 });
-	}
-};
-
-class FollowMouseBehavior : public Script
-{
-	bool follow = false;
-
-public:
-	FollowMouseBehavior()
-	{
-		event.listen(Input.MOUSE_BUTTON_UP, [&](Entity &entity)
-					 { follow = !follow; });
-	}
-
-	void Update() override
-	{
-		if (follow)
-		{
-			auto &cameraPos = get<Component::camera>().destination;
-			auto rs = Renderer->getSize();
-			auto mouse = Input.mouse.getPosition();
-			cameraPos.x = mouse.x / float(rs.x);
-			cameraPos.y = mouse.y / float(rs.y);
-		}
+		event.listen(
+			Input.MOUSE_BUTTON_UP, [&](Entity &entity)
+			{
+				auto &e = get<Component::group>().content->create();
+				e.useTemplate("prefabs/mob.entt");
+				std::cout << "id : " << e.idAsString() << std::endl;
+				auto mousePos = Input.mouse.getPosition();
+				if (e.has<Mob>())
+				{
+					auto &body = *e.get<Mob>().body;
+					body.SetTransform({mousePos.x / MtoPX, mousePos.y / MtoPX}, 0.0f);
+					std::cout << "entity position set" << std::endl;
+				}
+				else
+				{
+					auto &pos = e.get<Component::transform>().position;
+					pos = mousePos;
+				}
+				std::cout << "created" << std::endl;
+			});
 	}
 };
 

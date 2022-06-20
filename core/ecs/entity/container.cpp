@@ -101,3 +101,8 @@ void Group::reorder()
     };
     _ids.sort(compare());
 }
+
+void Group::reorder(_compare comparator)
+{
+    _ids.sort(comparator);
+}

@@ -111,7 +111,7 @@ using Camera = ICamera;
     }
 
     template<typename T>
-    void detach()
+    void distach()
     {
         if (!has<T>())
             return;
@@ -120,7 +120,7 @@ using Camera = ICamera;
         {
             auto& tmp = get<T>();
             auto script = static_cast<Script*>((void*)(&tmp));
-            script->onDetach();
+            script->onDistach();
             _scripts.erase(std::remove(_scripts.begin(), _scripts.end(), (void*)script));
         }
         _manager.removeComponent<T>(_id);
@@ -141,7 +141,7 @@ using Camera = ICamera;
     void Update();
     void Render();
     
-// all we're doing here is detach all of the scripts from this entity
+// all we're doing here is distach all of the scripts from this entity
     void onDestroy();
 
 private:
@@ -180,6 +180,7 @@ public:
 
 using _process   = std::function<void(Entity&)>;
 using _predicate = std::function<bool(const Entity&)>;
+using _compare = std::function<bool(EntityID, EntityID)>;
 
     // return a list of entities having required components
     std::vector<Entity*> get(_predicate);
@@ -227,6 +228,9 @@ using _predicate = std::function<bool(const Entity&)>;
 
     // reorder entities according to entity index
     void reorder();
+
+    // reorder entites according to the comparator passed as argument
+    void reorder(_compare);
 
 private:
     ~Group();
