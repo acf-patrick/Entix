@@ -61,11 +61,47 @@ namespace Component
             break;
 
         case type::ImageLayer:
-            _drawer->drawImage(layer.getImage());
+            _drawer->drawImage(layer.getImage(), layer.getOffset(), renderer);
             break;
 
-        // case type::ObjectGroup:
-        //     layer.
+        case type::ObjectGroup:
+            for (auto& object: layer.getObjects())
+            {
+                auto objPos = object.getPosition();
+                auto objSize = object.getSize();
+                SDL_Rect objBoundingRect = { objPos.x, objPos.y, objSize.x, objSize.y };
+
+                switch(object.getObjectType())
+                {                
+                case tson::ObjectType::Ellipse:
+                    _drawer->drawEllipse(objBoundingRect, renderer);
+                    break;
+
+                case tson::ObjectType::Point:
+                    _drawer->drawPoint(objPos, renderer);
+                    break;
+
+                case tson::ObjectType::Polygon:
+                    _drawer->drawPolygon(object.getPolygons(), renderer);
+                    break;
+
+                case tson::ObjectType::Polyline:
+                    _drawer->drawPolyline(object.getPolylines(), renderer);
+                    break;
+                    
+                case tson::ObjectType::Rectangle:
+                    _drawer->drawRectangle(objBoundingRect, renderer);
+                    break;
+
+                case tson::ObjectType::Text:
+                    _drawer->drawText(object.getText(), objPos, renderer);
+                    break;
+
+                default:
+                    _drawer->drawObject(object, renderer);
+                    break;
+                }
+            }
         }
     }
 

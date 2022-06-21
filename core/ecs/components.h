@@ -237,10 +237,11 @@ namespace Component
     */
     class Tilemap : public script
     {
-    // Component rendering object in a tilemap
-    public: class Drawer : public script
+        // Component rendering object in a tilemap
+    public:
+        class Drawer : public script
         {
-            static std::map<EntityID, Drawer*> instances;
+            static std::map<EntityID, Drawer *> instances;
 
         public:
             virtual ~Drawer();
@@ -248,26 +249,80 @@ namespace Component
             void onAttach() override;
             void onDistach() override;
 
-            // Parameter : the image resource
-            virtual void drawImage(const std::string&, SDL_Renderer*);
+            /**
+         * Draw a layer image from tilemap
+         * 
+         * @param imgPath image file
+         * @param position layer offset
+         * @param renderer Renderer to be used
+         */
+            virtual void drawImage(const std::string &, const tson::Vector2f &, SDL_Renderer *);
 
-            
-            virtual void drawObject();
-            virtual void drawEllipse();
-            virtual void drawRectangle();
-            virtual void drawPoint();
-            virtual void drawPolygon();
-            virtual void drawPolyline();
-            virtual void drawText();
+            /**
+         *  Draw an object from a tilemap
+         *  
+         * @param object the object to draw
+         * @param renderer Renderer to be used
+         */
+            virtual void drawObject(tson::Object, SDL_Renderer *);
 
-        friend class Tilemap;
+            /**
+         * Draw an ellipse from a tilemap
+         * 
+         * @param rect bouding rect of the ellipse
+         * @param renderer Renderer to be used
+         */
+            virtual void drawEllipse(const SDL_Rect &, SDL_Renderer *);
+
+            /**
+         * Draw a rectangle from a tilemap
+         * 
+         * @param rect the rectangle
+         * @param renderer Renderer to be used
+         */
+            virtual void drawRectangle(const SDL_Rect &, SDL_Renderer *);
+
+            /**
+         * Draw a point indicator from a tilemap
+         * 
+         * @param point position of the point
+         * @param renderer Renderer to be used
+         */
+            virtual void drawPoint(const tson::Vector2i &, SDL_Renderer *);
+
+            /**
+         * Draw a polygon from a tilemap
+         * 
+         * @param vertexes list of the polygon's vertexes
+         * @param renderer Renderer to be used
+         */
+            virtual void drawPolygon(const std::vector<tson::Vector2i> &, SDL_Renderer *);
+
+            /**
+         * Draw a polyline from a tilemap
+         * 
+         * @param vertexes list of the polyline vertexes
+         * @param renderer Renderer to be used
+         */
+            virtual void drawPolyline(const std::vector<tson::Vector2i> &, SDL_Renderer *);
+
+            /**
+         * Draw text from a tilemap
+         * 
+         * @param text data containing the string content, wrap and color of the text
+         * @param position position of the
+         * @param renderer Renderer to be used
+         */
+            virtual void drawText(const tson::Text &, const tson::Vector2i &, SDL_Renderer *);
+
+            friend class Tilemap;
         };
 
     private:
         static tson::Tileson tileson;
 
         // Drawer used by this map
-        Drawer* _drawer = nullptr;
+        Drawer *_drawer = nullptr;
 
         bool _defaultDrawer = false;
 
@@ -279,7 +334,7 @@ namespace Component
         VectorF scale = {1, 1};
 
         // Draw a layer
-        void _drawLayer(tson::Layer&, SDL_Renderer*);
+        void _drawLayer(tson::Layer &, SDL_Renderer *);
 
     public:
         // File loaded

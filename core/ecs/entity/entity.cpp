@@ -126,7 +126,7 @@ void Entity::onDestroy()
     for (auto& s : _scripts)
     {
         auto& script = *static_cast<Script*>(s);
-        script.onDetach();
+        script.onDistach();
     }
     _scripts.clear();
 }

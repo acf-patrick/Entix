@@ -1,13 +1,13 @@
 .SUFFIXE:
 
 CXX 	= 	g++-10
-CFLAGS 	= 	-std=c++2a -W
+CFLAGS 	= 	-std=c++2a
 
 CORE 	= 	core/ecs/component/manager.cpp\
 			core/ecs/component/camera.cpp\
 			core/ecs/component/sprites.cpp\
-			core/ecs/component/tilemap.cpp\
-			core/ecs/component/drawer.cpp\
+			core/ecs/component/tilemap/tilemap.cpp\
+			core/ecs/component/tilemap/drawer.cpp\
 			core/ecs/entity/entity.cpp\
 			core/ecs/entity/container.cpp\
 			core/application/application.cpp\
@@ -21,9 +21,10 @@ CORE 	= 	core/ecs/component/manager.cpp\
 			core/texture/texture.cpp\
 			core/serializer/serializer.cpp
  
+
 CLIENT 	= 	test.cpp
 
-HEADER 	=  	core/ 3rd-party/
+HEADER 	=  	3rd-party/ core/
 LIBS 	= 	libs/
 
 SDL 	= 	-lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
