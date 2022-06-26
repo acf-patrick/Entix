@@ -1,7 +1,7 @@
 .SUFFIXE:
 
 CXX 	= 	g++-10
-CFLAGS 	= 	-std=c++2a
+CFLAGS 	= 	-std=c++17
 
 CORE 	= 	core/ecs/component/manager.cpp\
 			core/ecs/component/camera.cpp\

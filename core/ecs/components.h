@@ -34,6 +34,11 @@ namespace Component
         {
             return content == str;
         }
+
+        tag(const std::string& str) : content(str)
+        {}
+
+        tag() {}
     };
 
     // Space specs
@@ -48,6 +53,14 @@ namespace Component
 
         // Rotation angle in degrees
         double rotation = 0.0f;
+
+        transform(const VectorD& _position, const VectorF& _scale, double _rotation) :
+            position(_position),
+            scale(_scale),
+            rotation(_rotation)
+            {}
+
+        transform() {}
     };
 
     // Entity Container
@@ -55,6 +68,9 @@ namespace Component
     struct group
     {
         Group *content;
+
+        group(Group * g) : content(g)
+        {}
     };
 
     // Sprite renderer component
