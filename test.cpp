@@ -189,11 +189,39 @@ public:
 	}
 };
 
-class MySerializer : public Serializer
-{
+class SpriteAnimator : public Script {
+	// frame duration in milliseconds
+	Uint32 frameDuration;
+
+	Uint32 latestTick;
+
 public:
-	void deserializeEntity(YAML::Node& node, Entity& entity) override
+	SpriteAnimator(Uint32 frameDuration) :
+		frameDuration(frameDuration)
 	{
+		latestTick = SDL_GetTicks();
+	}
+
+	void Update() override {
+		auto currentTick = SDL_GetTicks();
+		if (currentTick - latestTick >= frameDuration) {
+			latestTick = currentTick;
+
+			auto& sprite = get<Component::sprite>();
+			sprite.frame++;
+			sprite.frame %= sprite.framesNumber.x;
+
+			// skip first frame 
+			if (sprite.frame == 0) {
+				sprite.frame = 1;
+			}
+		}
+	}
+};
+
+class CustomSerializer : public Serializer {
+public:
+	void deserializeEntity(YAML::Node& node, Entity& entity) override {
 		Serializer::deserializeEntity(node, entity);
 		
 		auto c = node["Mob"];
@@ -211,7 +239,13 @@ public:
 		c = node["FpsText"];
 		if (c)
 			entity.attach<FpsText>();
+
+		c = node["SpriteAnimator"];
+		if (c) {
+			auto frameDuration = c["FrameDuration"].as<Uint32>();
+			entity.attach<SpriteAnimator>(frameDuration);
+		}
 	}
 };
 
-Serializer* Application::serializer = new MySerializer;
+Serializer* Application::serializer = new CustomSerializer;

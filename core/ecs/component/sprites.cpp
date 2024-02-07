@@ -78,7 +78,7 @@ namespace Component {
 
     void sprite::setFrame(int x, int y)
     {
-        if (x >= framesNumber.x and y >= framesNumber.y)
+        if (x >= framesNumber.x || y >= framesNumber.y)
             return;
         frame = x*framesNumber.x + y;
     }

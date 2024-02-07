@@ -5,3 +5,5 @@ SpriteComponent:
   Texture: assets/_texture.png
   Centered: true
   FramesNumber: [11, 1]
+SpriteAnimator:
+  FrameDuration: 50
