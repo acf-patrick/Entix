@@ -1,4 +1,4 @@
 .vs/
-libraries/
+libraries/*
 x64/
 ECS.vcxproj.user
