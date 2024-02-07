@@ -1,5 +1,7 @@
 #include "blur.h"
 #include <SDL2/SDL_image.h>
+#include <vector>
+#include <algorithm>
 #include <iostream>
 #include <cmath>
 
@@ -144,11 +146,14 @@ SDL_Surface* gaussianBlur(SDL_Surface* surface, int extent)
         return NULL;
     }
     int i, j;
-
+    
     float sigma = std::max(extent/2.0, 1.0);
     float var = sigma*sigma;
     float sum = 0;
-    double ker[radius][radius];
+    
+    // double ker[radius][radius];
+    std::vector<std::vector<double>> ker(radius, std::vector<double>(radius));
+
     for (i = -extent; i <= extent; ++i)
         for (j = -extent; j <= extent; ++j)
         {

@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iostream>
 #include <yaml-cpp/yaml.h>
+#include <filesystem>
 
 #include "../application/application.h"
 
@@ -10,9 +11,10 @@ int main(int argc, char **argv)
 {
     std::cout << "Creating main application" << std::endl;
 
+    std::string configFile((argc > 1) ? argv[1] : "app.cfg");
     std::ostringstream ss;
     {
-        std::ifstream cfg((argc > 1) ? argv[1] : "app.cfg");
+        std::ifstream cfg(configFile);
         if (cfg)
             ss << cfg.rdbuf();
         else
@@ -56,9 +58,19 @@ int main(int argc, char **argv)
         }
     }
 
-    if (node["Scenes"])
-        for (auto scene : node["Scenes"])
-            s.deserialize("scenes/" + scene.as<std::string>() + ".scn");
+    if (node["Scenes"]) {
+        using Path = std::filesystem::path;
+        Path configPath(configFile);
+
+        // configPath.parent_path()
+        for (auto scene : node["Scenes"]) {
+            Path scenePath("scenes");
+            scenePath /= scene.as<std::string>() + ".scn";
+            scenePath = configPath.parent_path() / scenePath;
+
+            s.deserialize(scenePath.string());
+        }
+    }
 
     APP->run();
 

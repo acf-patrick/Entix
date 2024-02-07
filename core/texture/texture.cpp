@@ -35,7 +35,7 @@ void Texture::load(const std::string &file)
     {
         _file = file;
         _texture = _loadedTextures[file];
-        std::cout << file << " : Texture already loaded" << std::endl;
+        std::cout << file << " : texture loaded from cache" << std::endl;
     }
     else
     {

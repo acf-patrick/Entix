@@ -27,7 +27,7 @@ public:
 		b2FixtureDef fdef;
 		fdef.density = 1.0f;
 		fdef.friction = 0.5f;
-		fdef.restitution = 0.4f;
+		fdef.restitution = 0.2f;
 		b2PolygonShape shape;
 		shape.SetAsBox(16 / MtoPX, 16 / MtoPX);
 		fdef.shape = &shape;
@@ -111,7 +111,7 @@ public:
 			Input.MOUSE_BUTTON_UP, [&](Entity &entity)
 			{
 				auto &e = get<Component::group>().content->create();
-				e.useTemplate("prefabs/mob.entt");
+				e.useTemplate("assets/prefabs/mob.entt");
 				std::cout << "id : " << e.idAsString() << std::endl;
 				auto mousePos = Input.mouse.getPosition();
 				if (e.has<Mob>())
