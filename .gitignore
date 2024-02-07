@@ -1,11 +1,5 @@
-/*
-!*.cpp
-!*.h
-!*.hpp
-!.gitignore
-!README.md
-!ECS.vcxproj
-!ECS.sln
-!libs/
-!3rd-party/
-!assets/
+.vs/
+libraries/
+x64/
+ECS.vcxproj.filters
+ECS.vcxproj.user
