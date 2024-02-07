@@ -1,5 +1,6 @@
 #include <core.h>
 #include <box2d/box2d.h>
+#include <SDL2/SDL2_framerate.h>
 #include <SDL2/SDL2_gfxPrimitives.h>
 #include <SDL2/SDL_image.h>
 
@@ -68,9 +69,14 @@ public:
 
 class Controller : public Script
 {
+	FPSmanager fpsManager;
+
 public:
 	Controller()
 	{
+		SDL_initFramerate(&fpsManager);
+		SDL_setFramerate(&fpsManager, 60);
+
 		// create ground
 		b2BodyDef groundBodyDef;
 		groundBodyDef.position.Set(400 / MtoPX, 400 / MtoPX);
@@ -100,6 +106,7 @@ public:
 
 	void Update() override
 	{
+		SDL_framerateDelay(&fpsManager);
 		World->Step(timeStep, 6, 2);
 	}
 
