@@ -158,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\core\application\application.h" />
+    <ClInclude Include="..\core\core.h" />
     <ClInclude Include="..\core\ecs\baseCamera.h" />
     <ClInclude Include="..\core\ecs\baseScript.h" />
     <ClInclude Include="..\core\ecs\components.h" />
@@ -177,6 +178,15 @@
     <ClInclude Include="..\core\util\geometry\visibility.h" />
     <ClInclude Include="..\core\util\observable\observable.h" />
     <ClInclude Include="..\core\util\util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\app.cfg" />
+    <None Include="assets\prefabs\mob.entt" />
+    <None Include="assets\scenes\box2d.scn" />
+    <None Include="assets\scenes\main.scn" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\_texture.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

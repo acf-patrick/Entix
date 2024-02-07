@@ -1,16 +1,25 @@
 Name: test
 Entities:
   - Controller:
+  - FpsText:
   - TagComponent:
       Tag: main camera
-    CameraComponent:
     TransformComponent:
-      # Scale: [0.5, 0.5]
-    #FollowMouseBehavior:
+      Position: [0, 0]
+      Scale: [1, 1]
+      Rotation: 0
+    CameraComponent:
+      Size: [1, 1]
+      Destination: [0, 0]
+      BackgroundColor: [120, 20, 100, 255]
+      ClearMode: solid color
+      Flip: [false, false]
+      Depth: 0
+      Layers: [0]
   - TransformComponent:
     SpriteRendererComponent:
     SpriteComponent:
-      Texture: _texture.png
+      Texture: assets/_texture.png
       Centered: true
       FramesNumber: [11, 1]
     FollowMouseBehavior:
