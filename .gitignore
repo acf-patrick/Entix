@@ -1,4 +1,6 @@
 .vs/
+.vscode/
 libraries/*
 x64/
 ECS.vcxproj.user
+build/
