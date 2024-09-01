@@ -8,7 +8,7 @@
 
 #include <unordered_map>
 #include <functional>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <vector>
 #include <string>
 #include <queue>

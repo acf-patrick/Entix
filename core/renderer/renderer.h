@@ -7,7 +7,7 @@
 #pragma once
 
 #include <functional>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <algorithm>
 #include <string>
 #include <queue>

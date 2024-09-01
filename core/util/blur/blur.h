@@ -7,7 +7,7 @@
 #pragma once
 
 #include <string>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     #define RMASK 0xff000000

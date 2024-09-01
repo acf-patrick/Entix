@@ -7,7 +7,7 @@
 #pragma once
 
 #include <map>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 #include "../util/geometry/vector.h"
 

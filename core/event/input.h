@@ -9,7 +9,7 @@
 #include "../util/geometry/vector.h"
 
 #include <map>
-#include <SDL2/SDL.h>
+#include <SDL.h>
 
 struct InputType 
 {

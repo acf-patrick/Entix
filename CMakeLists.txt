@@ -2,31 +2,48 @@ cmake_minimum_required(VERSION 3.10)
 
 project(ECS)
 
-include(FetchContent)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-FetchContent_Declare(
-    Box2D
-    GIT_REPOSITORY https://github.com/erincatto/box2d
-    GIT_TAG v2.4.2
-)
-
-FetchContent_Declare(
-    yaml-cpp
-    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
-    GIT_TAG 0.8.0
-)
-
-FetchContent_MakeAvailable(Box2D)
-FetchContent_MakeAvailable(yaml-cpp)
+# disable box2d tests building
+set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Disable Box2D Unit Tests build")
+set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "Disable Box2D Testbed build")
 
 # adding SDL libraries
 add_subdirectory(external/SDL)
 add_subdirectory(external/SDL_image)
 add_subdirectory(external/SDL_mixer)
 add_subdirectory(external/SDL_ttf)
+add_subdirectory(external/SDL2_gfx)
+
+add_subdirectory(external/box2d)
+add_subdirectory(external/tileson)
+add_subdirectory(external/yaml-cpp)
 
 add_subdirectory(core)
 
 add_executable(TestApplication test.cpp)
 
-target_link_libraries(TestApplication PRIVATE Core Box2D yaml-cpp SDL2::SDL2 SDL2_mixer SDL2_image SDL2_ttf)
+target_include_directories(TestApplication PRIVATE core)
+
+include_directories(
+    external/box2d/include
+    external/tileson/include
+    external/yaml-cpp/include
+    ${SDL2_INCLUDE_DIRS}
+    ${SDL2_IMAGE_INCLUDE_DIRS}
+    ${SDL2_TTF_INCLUDE_DIRS}
+    ${SDL2_MIXER_INCLUDE_DIRS}
+    ${SDL2_GFX_INCLUDE_DIRS}
+)
+
+target_link_libraries(TestApplication PRIVATE 
+    Core 
+    box2d
+    SDL2::SDL2 
+    SDL2_mixer 
+    SDL2_image 
+    SDL2_ttf
+    SDL2_gfx
+)

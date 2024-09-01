@@ -1,7 +1,7 @@
 #include "texture.h"
 #include "../renderer/renderer.h"
 
-#include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 
 std::map<std::string, SDL_Texture *> Texture::_loadedTextures;
 

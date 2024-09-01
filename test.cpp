@@ -1,9 +1,9 @@
 #include <core.h>
 #include <box2d/box2d.h>
-#include <SDL2/SDL2_framerate.h>
-#include <SDL2/SDL2_gfxPrimitives.h>
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL_image.h>
+#include <SDL2_framerate.h>
+#include <SDL2_gfxPrimitives.h>
+#include <SDL_ttf.h>
+#include <SDL_image.h>
 
 using Script = Component::script;
 

@@ -9,8 +9,8 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <SDL2/SDL.h>
-#include <tileson/tileson.h>
+#include <SDL.h>
+#include <tileson.h>
 
 #include "../util/geometry/vector.h"
 #include "../event/event.h"
