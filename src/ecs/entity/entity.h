@@ -1,29 +1,28 @@
 #pragma once
 
-#include <set>
-#include <list>
-#include <tuple>
-#include <memory>
 #include <algorithm>
 #include <functional>
+#include <list>
+#include <memory>
+#include <set>
+#include <tuple>
 #include <unordered_map>
 
-#include "../defs.h"
-#include "../baseScript.h"
 #include "../baseCamera.h"
+#include "../baseScript.h"
 #include "../component/manager.h"
+#include "../defs.h"
 
 class Group;
 class EventManagerType;
 
 /**
  * Create an Entity using Group::create method
-*/
-class Entity
-{
-public:
-using Script = BaseScript;
-using Camera = ICamera;
+ */
+class Entity {
+   public:
+    using Script = BaseScript;
+    using Camera = ICamera;
 
     // make sure to free memory
     static void Clean();
@@ -32,67 +31,65 @@ using Camera = ICamera;
     static Entity* Get(EntityID);
 
     /** construct entity using a template
-    * @param fileName
-    */
+     * @param fileName
+     */
     void useTemplate(const std::string&);
 
     // getter for index property
-    int  getIndex() const;
+    int getIndex() const;
 
     // setter for index property
     void setIndex(unsigned int);
 
-    template<typename T>
-    bool has() const
-    { return _signature[_manager.getComponentTypeID<T>()]; }
+    template <typename T>
+    bool has() const {
+        return _signature[_manager.getComponentTypeID<T>()];
+    }
 
-    template<typename... T>
-    bool all_of() const
-    { return (has<T>() &&...); }
+    template <typename... T>
+    bool all_of() const {
+        return (has<T>() && ...);
+    }
 
-    template<typename... T>
-    bool any_of() const
-    { return (has<T>() ||...); }
+    template <typename... T>
+    bool any_of() const {
+        return (has<T>() || ...);
+    }
 
-    template<typename... T>
-    bool none_of() const
-    { return (!has<T>() &&...); }
+    template <typename... T>
+    bool none_of() const {
+        return (!has<T>() && ...);
+    }
 
-    template<typename T>
-    T& get()
-    { 
+    template <typename T>
+    T& get() {
         auto tmp = _manager.getComponent<T>(_id);
         return *tmp;
     }
 
-    template<typename... T>
-    std::tuple<T&...> retrieve()
-    { return std::tuple<T&...>(get<T>()...); }
+    template <typename... T>
+    std::tuple<T&...> retrieve() {
+        return std::tuple<T&...>(get<T>()...);
+    }
 
-    template<typename T, typename... TArgs>
-    T& attach(TArgs&&... args)
-    {
+    template <typename T, typename... TArgs>
+    T& attach(TArgs&&... args) {
         T* ret = new T(std::forward<TArgs>(args)...);
-        
+
         _manager.addComponent<T>(_id, ret);
         _signature.set(_manager.getComponentTypeID<T>());
 
-    // Check if attaching script component
-        if (std::is_base_of<Script, T>::value)
-        {
+        // Check if attaching script component
+        if (std::is_base_of<Script, T>::value) {
             Script* s = (Script*)ret;
-            if (s)
-            {
+            if (s) {
                 s->entity = this;
                 s->onAttach();
                 _scripts.push_back(ret);
             }
-        }
-        else if (std::is_base_of<Camera, T>::value)
-        {
+        } else if (std::is_base_of<Camera, T>::value) {
             Camera* camera = (Camera*)ret;
-            if (camera)
-            {
+            if (camera) {
                 camera->entity = this;
                 camera->_attachTransform();
             }
@@ -100,39 +97,35 @@ using Camera = ICamera;
 
         return *ret;
     }
-    
-    // Attach component if entity doesn't have 
-    template<typename T, typename... TArgs>
-    T& attachIf(TArgs&&... args)
-    {
-        if (has<T>())
-            return get<T>();
+
+    // Attach component if entity doesn't have
+    template <typename T, typename... TArgs>
+    T& attachIf(TArgs&&... args) {
+        if (has<T>()) return get<T>();
         return attach<T>(args...);
     }
 
-    template<typename T>
-    void distach()
-    {
-        if (!has<T>())
-            return;
+    template <typename T>
+    void distach() {
+        if (!has<T>()) return;
 
-        if (std::is_base_of<Script, T>::value)
-        {
+        if (std::is_base_of<Script, T>::value) {
             auto& tmp = get<T>();
             auto script = static_cast<Script*>((void*)(&tmp));
             script->onDistach();
-            _scripts.erase(std::remove(_scripts.begin(), _scripts.end(), (void*)script));
+            _scripts.erase(
+                std::remove(_scripts.begin(), _scripts.end(), (void*)script));
         }
         _manager.removeComponent<T>(_id);
         _signature.set(_manager.getComponentTypeID<T>(), false);
     }
 
-    bool operator==  (const Entity&) const;
+    bool operator==(const Entity&) const;
 
     operator EntityID() const;
 
     EntityID id() const;
-    
+
     /**
      * @return string representation of entity's id
      */
@@ -140,11 +133,11 @@ using Camera = ICamera;
 
     void Update();
     void Render();
-    
-// all we're doing here is distach all of the scripts from this entity
+
+    // all we're doing here is distach all of the scripts from this entity
     void onDestroy();
 
-private:
+   private:
     Entity();
     Entity(EntityID);
     ~Entity();
@@ -152,7 +145,7 @@ private:
     void _init();
     EntityID _generateID(EntityID, bool g = false) const;
 
-private:
+   private:
     const EntityID _id;
     Signature _signature;
 
@@ -167,34 +160,29 @@ private:
     static std::unordered_map<EntityID, Entity*> instances;
     static bool _cleanFlag;
 
-friend class Group;
-friend class EventManagerType;
+    friend class Group;
+    friend class EventManagerType;
 };
 
 class Scene;
 
 // Entity Container
-class Group
-{
-public:
-
-using _process   = std::function<void(Entity&)>;
-using _predicate = std::function<bool(const Entity&)>;
-using _compare = std::function<bool(EntityID, EntityID)>;
+class Group {
+   public:
+    using _process = std::function<void(Entity&)>;
+    using _predicate = std::function<bool(const Entity&)>;
+    using _compare = std::function<bool(EntityID, EntityID)>;
 
     // return a list of entities having required components
     std::vector<Entity*> get(_predicate);
 
     // return a list of entites having required components
-    template<typename... TComponents>
-    std::vector<Entity*> view()
-    {
+    template <typename... TComponents>
+    std::vector<Entity*> view() {
         std::vector<Entity*> ret;
-        for (auto id : _ids)
-        {
+        for (auto id : _ids) {
             auto e = Entity::Get(id);
-            if (e->all_of<TComponents...>())
-                ret.push_back(e);
+            if (e->all_of<TComponents...>()) ret.push_back(e);
         }
         return ret;
     }
@@ -209,8 +197,8 @@ using _compare = std::function<bool(EntityID, EntityID)>;
 
     // apply a callback to entities in this group
     void for_each(_process);
-    
-    // apply a callback to entities of this group, respecting 
+
+    // apply a callback to entities of this group, respecting
     // condition defined by the predicate function
     void for_each(_process, _predicate);
 
@@ -232,11 +220,11 @@ using _compare = std::function<bool(EntityID, EntityID)>;
     // reorder entites according to the comparator passed as argument
     void reorder(_compare);
 
-private:
+   private:
     ~Group();
 
-private:
+   private:
     std::list<EntityID> _ids;
 
-friend class Scene;
+    friend class Scene;
 };

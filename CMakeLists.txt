@@ -31,12 +31,6 @@ add_subdirectory(external/box2d)
 add_subdirectory(external/tileson)
 add_subdirectory(external/yaml-cpp)
 
-add_subdirectory(core)
-
-add_executable(TestApplication test.cpp)
-
-target_include_directories(TestApplication PRIVATE core)
-
 include_directories(
     external/box2d/include
     external/tileson/include
@@ -48,12 +42,8 @@ include_directories(
     ${SDL2_GFX_INCLUDE_DIRS}
 )
 
-target_link_libraries(TestApplication PRIVATE 
-    Core 
-    box2d
-    SDL2::SDL2 
-    SDL2_mixer 
-    SDL2_image 
-    SDL2_ttf
-    SDL2_gfx
-)
+# include library
+add_subdirectory(src)
+
+# include tests
+add_subdirectory(tests)

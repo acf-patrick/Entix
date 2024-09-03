@@ -10,7 +10,7 @@ Entities:
   - TransformComponent:
     SpriteRendererComponent:
     SpriteComponent:
-      Texture: _texture.png
+      Texture: assets/_texture.png
       Centered: true
       FramesNumber: [11, 1]
     FollowMouseBehavior:

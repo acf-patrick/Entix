@@ -1,14 +1,14 @@
-#include <map>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 #include <yaml-cpp/yaml.h>
+
 #include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
 
 #include "../application/application.h"
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     std::cout << "Creating main application" << std::endl;
 
     std::string configFile((argc > 1) ? argv[1] : "app.cfg");
@@ -20,18 +20,16 @@ int main(int argc, char **argv)
         else
             std::cout << "Default configuration used" << std::endl;
     }
+
     YAML::Node node = YAML::Load(ss.str());
     std::string title = "Untitled";
-    if (node["Title"])
-        title = node["Title"].as<std::string>();
+    if (node["Title"]) title = node["Title"].as<std::string>();
 
     VectorI wSize(600, 400);
-    if (node["Size"])
-        wSize = node["Size"].as<VectorI>();
+    if (node["Size"]) wSize = node["Size"].as<VectorI>();
 
     int flag(0);
-    if (node["Flags"])
-    {
+    if (node["Flags"]) {
         std::map<std::string, SDL_WindowFlags> bind = {
             {"shown", SDL_WINDOW_SHOWN},
             {"resizable", SDL_WINDOW_RESIZABLE},
@@ -40,19 +38,17 @@ int main(int argc, char **argv)
             {"borderless", SDL_WINDOW_BORDERLESS},
             {"always on top", SDL_WINDOW_ALWAYS_ON_TOP},
             {"fullscreen", SDL_WINDOW_FULLSCREEN_DESKTOP}};
-        for (auto f : node["Flags"])
-            flag |= bind[f.as<std::string>()];
+        for (auto f : node["Flags"]) flag |= bind[f.as<std::string>()];
     }
 
     auto APP = new Application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
-    assert(APP->serializer && "No serializer declared. Create serializer in global scope!");
+    assert(APP->serializer &&
+           "No serializer declared. Create serializer in global scope!");
     auto &s = *APP->serializer;
 
-    if (node["Position"])
-    {
+    if (node["Position"]) {
         auto n = node["Position"];
-        if (n.IsSequence())
-        {
+        if (n.IsSequence()) {
             auto pos = n.as<VectorI>();
             SDL_SetWindowPosition(APP->_window, pos.x, pos.y);
         }
