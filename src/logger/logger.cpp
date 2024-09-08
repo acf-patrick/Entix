@@ -22,36 +22,6 @@ bool Logger::dump(const std::string& path) {
 }
 
 // static
-Logger::Stream& Logger::log(Logger::Status status) {
-    auto& self = Get();
-    self.curr_line_status = status;
-
-    switch (status) {
-        case Status::INFO:
-            self.stream << termcolor::green << "[INFO] " << termcolor::reset;
-            break;
-        case Status::WARN:
-            self.stream << termcolor::yellow << "[WARN] " << termcolor::reset;
-            break;
-        case Status::ERROR:
-            self.stream << termcolor::red << "[ERROR] " << termcolor::reset;
-            break;
-        default:;
-    }
-
-    return self.stream;
-}
-
-// static
-Logger::Stream& Logger::info() { return log(Logger::Status::INFO); }
-
-// static
-Logger::Stream& Logger::warn() { return log(Logger::Status::WARN); }
-
-// static
-Logger::Stream& Logger::error() { return log(Logger::Status::ERROR); }
-
-// static
 void Logger::endline() {
     auto& self = Get();
     self.stream << std::endl;

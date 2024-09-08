@@ -6,8 +6,8 @@
 #include <map>
 #include <sstream>
 
-#include "../logger/logger.h"
 #include "../application/application.h"
+#include "../logger/logger.h"
 
 int main(int argc, char **argv) {
     Logger::info() << "Creating main application";
@@ -20,8 +20,9 @@ int main(int argc, char **argv) {
         if (cfg) {
             ss << cfg.rdbuf();
         } else {
-            std::cerr << configFile << " was not found" << std::endl;
-            
+            Logger::error() << configFile << " was not found";
+            Logger::endline();
+
             Logger::info() << "Default configuration used";
             Logger::endline();
         }
@@ -78,7 +79,7 @@ int main(int argc, char **argv) {
 
     Logger::info() << "Exiting application";
     Logger::endline();
-    
+
     delete APP;
     return 0;
 }

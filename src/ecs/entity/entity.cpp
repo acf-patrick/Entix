@@ -29,7 +29,9 @@ Entity::Entity(EntityID id)
 
 void Entity::_init() {
     if ((EntityID)instances.size() >= MAX_ENTITIES) {
-        std::cerr << "Entity : Maximum instance number reached!" << std::endl;
+        Logger::error("Entity") << "Maximum instance number reached!";
+        Logger::endline();
+
         exit(1);
     }
     instances[_id] = this;
@@ -70,9 +72,12 @@ void Entity::Clean() {
 // static
 Entity* Entity::Get(EntityID id) {
     auto ret = instances[id];
-    if (!ret)
-        std::cerr << "There is no instance matching with the given ID"
-                  << std::endl;
+    if (!ret) {
+        Logger::error("Entity")
+            << "There is no instance matching with the given ID";
+        Logger::endline();
+    }
+
     return ret;
 }
 
@@ -122,16 +127,20 @@ void Entity::setIndex(unsigned int i) {
 void Entity::useTemplate(const std::string& fileName) {
     auto& s = *Application::serializer;
     std::ifstream file(fileName);
+    
     if (!file) {
-        std::cerr << "Failed to load template : " << fileName
-                  << " doesn't exist" << std::endl;
+        Logger::error("Entity")
+            << "Failed to load template : " << fileName << " doesn't exist";
+        Logger::endline();
+
         return;
     }
+
     std::ostringstream ss;
     ss << file.rdbuf();
     auto n = YAML::Load(ss.str());
     s.deserializeEntity(n, *this);
 
-    Logger::info() << fileName << " : Template loaded";
+    Logger::info("Entity") << fileName << " : Template loaded";
     Logger::endline();
 }

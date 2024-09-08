@@ -66,7 +66,8 @@ Application::~Application() {
 }
 
 void Application::log(const std::string& message) const {
-    std::cerr << message << std::endl << SDL_GetError() << std::endl;
+    Logger::error() << message << std::endl << SDL_GetError();
+    Logger::endline();
 }
 
 void Application::run() {

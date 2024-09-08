@@ -129,7 +129,8 @@ class FpsText : public Script {
         font = TTF_OpenFont(fontPath.c_str(), 24);
 
         if (!font) {
-            std::cerr << fontPath << std::endl;
+            Logger::error("FpsText") << "Unable to load " << fontPath;
+            Logger::endline();
         }
     }
 

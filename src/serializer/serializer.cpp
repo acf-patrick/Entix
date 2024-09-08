@@ -32,26 +32,33 @@ YAML::Emitter &operator<<(YAML::Emitter &out, const SDL_Color &color) {
 }
 
 Scene *Serializer::deserialize(const std::string &source) {
-    auto error = []() -> Scene * {
-        std::cerr << "Invalid file format!" << std::endl;
+    auto error = [](const std::string &message) -> Scene * {
+        Logger::error("Serializer") << "Invalid file format! " << message;
+        Logger::endline();
+
         return nullptr;
     };
+
     std::ifstream file(source);
     if (!file) {
-        std::cerr << "Scene file : " << source << " doesn't exist!"
-                  << std::endl;
+        Logger::error("Serializer")
+            << "Scene file : " << source << " doesn't exist!";
+        Logger::endline();
+
         return nullptr;
     }
+
     std::stringstream ss;
     ss << file.rdbuf();
     YAML::Node node = YAML::Load(ss.str());
 
     auto name = node["Name"];
-    if (!name) return error();
+    if (!name) return error("'Name' node was not found");
+
     Scene *scene = new Scene(name.as<std::string>());
 
     auto entities = node["Entities"];
-    if (!entities) return error();
+    if (!entities) return error("'Entities' node was not found");
 
     for (auto entity : entities)
         if (entity["ID"])
@@ -70,18 +77,20 @@ Scene *Serializer::deserialize(const std::string &source) {
             cameraEntity.attach<Component::camera>();
     }
 
-    if (scene) {
-        Logger::info() << source << " loaded";
-        Logger::endline();
-    } else
-        std::cerr << "Failed to load " << source << std::endl;
+    if (scene)
+        Logger::info("Serializer") << source << " loaded";
+    else
+        Logger::error("Serializer") << "Failed to load " << source;
+    Logger::endline();
 
     return scene;
 }
 
 void Serializer::serialize(Scene *scene, const std::string &fileName) {
     if (!scene) {
-        std::cerr << "NULL scene : Failed to serialize!" << std::endl;
+        Logger::error("Serializer") << "NULL scene : Failed to serialize!";
+        Logger::endline();
+
         return;
     }
 

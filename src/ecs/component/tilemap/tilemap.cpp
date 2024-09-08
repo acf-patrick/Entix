@@ -1,5 +1,6 @@
 #include <algorithm>
 
+#include "../../../logger/logger.h"
 #include "../../../renderer/renderer.h"
 #include "../../components.h"
 
@@ -9,10 +10,12 @@ tson::Tileson Tilemap::tileson;
 
 Tilemap::Tilemap(const std::string &rsc) : file(rsc) {
     _map = tileson.parse(fs::path(rsc));
-    if (_map->getStatus() == tson::ParseStatus::OK) {
-    } else
-        std::cerr << "Tilemap-error : " << _map->getStatusMessage()
-                  << std::endl;
+    if (_map->getStatus() == tson::ParseStatus::OK)
+        Logger::info("Component", "Tilemap") << rsc << " loaded";
+    else
+        Logger::error("Component", "Tilemap")
+            << "Tilemap-error : " << _map->getStatusMessage();
+    Logger::endline();
 }
 
 Tilemap::~Tilemap() {

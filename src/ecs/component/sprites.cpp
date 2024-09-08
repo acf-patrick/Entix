@@ -5,10 +5,11 @@ namespace Component {
 
 void spriteRenderer::Render() {
     if (!has<sprite>()) {
-        std::cerr
+        Logger::warn()
             << "SpriteRenderer-error : Entity must have a sprite component "
-               "to render!"
-            << std::endl;
+               "to render!";
+        Logger::endline();
+        
         return;
     }
 

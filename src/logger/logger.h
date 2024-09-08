@@ -34,14 +34,45 @@ class Logger {
     // dump log content to a file
     static bool dump(const std::string& path);
 
-    static Stream& log(Status);
+    template <typename... TArgs>
+    static Stream& log(Logger::Status status, TArgs... contexts) {
+        auto& self = Get();
+        self.curr_line_status = status;
+
+        switch (status) {
+            case Status::INFO:
+                self.stream << termcolor::green << "[INFO]";
+                break;
+            case Status::WARN:
+                self.stream << termcolor::yellow << "[WARN]";
+                break;
+            case Status::ERROR:
+                self.stream << termcolor::red << "[ERROR]";
+                break;
+            default:;
+        }
+
+        ((self.stream << '[' << contexts << ']'), ...);
+        self.stream << ' ' << termcolor::reset;
+
+        return self.stream;
+    }
 
     // helper for info message
-    static Stream& info();
+    template <typename... TArgs>
+    static Stream& info(TArgs... contexts) {
+        return log(Status::INFO, std::forward<TArgs>(contexts)...);
+    }
 
     // helper for warning message
-    static Stream& warn();
+    template <typename... TArgs>
+    static Stream& warn(TArgs... contexts) {
+        return log(Status::WARN, std::forward<TArgs>(contexts)...);
+    }
 
     // helper for error message
-    static Stream& error();
+    template <typename... TArgs>
+    static Stream& error(TArgs... contexts) {
+        return log(Status::ERROR, std::forward<TArgs>(contexts)...);
+    }
 };

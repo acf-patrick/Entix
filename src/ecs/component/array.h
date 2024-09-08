@@ -1,6 +1,6 @@
 /**
  * @author acf-patrick (miharisoap@gmail.com)
- * 
+ *
  * Internal class used for component management
  */
 
@@ -8,40 +8,40 @@
 
 #include <array>
 #include <cassert>
-#include <iostream>
 #include <functional>
+#include <iostream>
 #include <unordered_map>
+
+#include "../../logger/logger.h"
 #include "../defs.h"
 
-class IComponentArray
-{
-public:
+class IComponentArray {
+   public:
     virtual ~IComponentArray() = default;
     virtual void entityDestroyed(EntityID) = 0;
 };
 
-template<typename T>
-class ComponentArray : public IComponentArray
-{
+template <typename T>
+class ComponentArray : public IComponentArray {
     const std::string name = typeid(T).name();
-public:
 
+   public:
     ComponentArray() = default;
 
-    ~ComponentArray()
-    {
-        for (auto& component : _componentArray)
-        {
+    ~ComponentArray() {
+        for (auto& component : _componentArray) {
             delete component;
             component = nullptr;
         }
     }
 
-    void insertData(EntityID entity, T* component)
-    {
-        if (_entity_index.find(entity) != _entity_index.end())
-        {
-            std::cerr << name << ": Component added to the same entity more than once!" << std::endl;
+    void insertData(EntityID entity, T* component) {
+        if (_entity_index.find(entity) != _entity_index.end()) {
+            Logger::warn()
+                << name
+                << ": Component added to the same entity more than once!";
+            Logger::endline();
+
             return;
         }
 
@@ -52,17 +52,17 @@ public:
         ++_size;
     }
 
-    void removeData(EntityID entity)
-    {
-        if (_entity_index.find(entity) == _entity_index.end())
-        {
-            std::cerr << name << ": Removing non-existent Component!" << std::endl;
+    void removeData(EntityID entity) {
+        if (_entity_index.find(entity) == _entity_index.end()) {
+            Logger::warn() << name << ": Removing non-existent Component!";
+            Logger::endline();
+
             return;
-        } 
+        }
 
         size_t entityIndex = _entity_index[entity];
         size_t lastIndex = _size - 1;
-        
+
         delete _componentArray[entityIndex];
         _componentArray[entityIndex] = _componentArray[lastIndex];
         _componentArray[lastIndex] = nullptr;
@@ -77,21 +77,19 @@ public:
         --_size;
     }
 
-    T* getData(EntityID entity)
-    {
-        assert(_entity_index.find(entity) != _entity_index.end() && "Retrieving non-existent component");
+    T* getData(EntityID entity) {
+        assert(_entity_index.find(entity) != _entity_index.end() &&
+               "Retrieving non-existent component");
 
         return _componentArray[_entity_index[entity]];
     }
 
-    void entityDestroyed(EntityID entity)
-    {
+    void entityDestroyed(EntityID entity) {
         if (_entity_index.find(entity) != _entity_index.end())
             removeData(entity);
     }
 
-private:
-    
+   private:
     size_t _size = 0;
     std::array<T*, MAX_ENTITIES> _componentArray;
     std::unordered_map<EntityID, size_t> _entity_index;

@@ -27,7 +27,7 @@ void Texture::load(const std::string &file) {
     if (_loadedTextures[file]) {
         _file = file;
         _texture = _loadedTextures[file];
-        
+
         Logger::info() << file << " : texture loaded from cache";
         Logger::endline();
     } else {
@@ -37,8 +37,10 @@ void Texture::load(const std::string &file) {
         if (_texture) {
             _file = file;
             _loadedTextures[file] = _texture;
-        } else
-            std::cerr << "Failed to load " << file << std::endl;
+        } else {
+            Logger::error("Texture") << "Failed to load " << file;
+            Logger::endline();
+        }
     }
 }
 
