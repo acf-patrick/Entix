@@ -10,6 +10,7 @@
 #include <sstream>
 
 #include "../../application/application.h"
+#include "../../logger/logger.h"
 #include "../components.h"
 
 std::set<EntityID> Entity::takenID;
@@ -130,5 +131,7 @@ void Entity::useTemplate(const std::string& fileName) {
     ss << file.rdbuf();
     auto n = YAML::Load(ss.str());
     s.deserializeEntity(n, *this);
-    std::cout << fileName << " : Template loaded" << std::endl;
+
+    Logger::info() << fileName << " : Template loaded";
+    Logger::endline();
 }

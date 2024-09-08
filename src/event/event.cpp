@@ -82,12 +82,11 @@ Entity& EventManager::emit(const std::string& event_name) {
                                          Input.MOUSE_MOTION,
                                          Input.SCENE_LOADED,
                                          Input.SCENE_CHANGED};
-    if (std::find(reserved.begin(), reserved.end(), event_name) !=
-        reserved.end()) {
-        std::cerr << "You can not emit this event!" << std::endl;
-        if (!invalidEvent) invalidEvent = new Entity;
-        return *invalidEvent;
-    }
+
+    auto invalidEvent = std::find(reserved.begin(), reserved.end(),
+                                  event_name) != reserved.end();
+    auto message = "You can not emit event : " + event_name;
+    assert(invalidEvent && message.c_str());
 
     return _emit(event_name);
 }

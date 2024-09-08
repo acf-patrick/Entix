@@ -36,8 +36,6 @@ class EventManager: Manager<EventManager> {
     static std::shared_ptr<EventManager> Get();
 
    private:
-    Event invalidEvent = nullptr;
-
     Entity& _emit(const std::string&);
     void SDLEvents();
 

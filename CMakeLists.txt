@@ -37,6 +37,7 @@ include_directories(
     external/box2d/include
     external/tileson/include
     external/yaml-cpp/include
+    external/termcolor
     ${SDL2_INCLUDE_DIRS}
     ${SDL2_IMAGE_INCLUDE_DIRS}
     ${SDL2_TTF_INCLUDE_DIRS}

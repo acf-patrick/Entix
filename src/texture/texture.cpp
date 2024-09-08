@@ -2,6 +2,7 @@
 
 #include <SDL_image.h>
 
+#include "../logger/logger.h"
 #include "../renderer/renderer.h"
 
 std::map<std::string, SDL_Texture *> Texture::_loadedTextures;
@@ -26,7 +27,9 @@ void Texture::load(const std::string &file) {
     if (_loadedTextures[file]) {
         _file = file;
         _texture = _loadedTextures[file];
-        std::cout << file << " : texture loaded from cache" << std::endl;
+        
+        Logger::info() << file << " : texture loaded from cache";
+        Logger::endline();
     } else {
         _texture =
             IMG_LoadTexture(RenderManager::Get()->renderer, file.c_str());

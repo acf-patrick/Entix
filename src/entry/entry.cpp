@@ -6,10 +6,12 @@
 #include <map>
 #include <sstream>
 
+#include "../logger/logger.h"
 #include "../application/application.h"
 
 int main(int argc, char **argv) {
-    std::cout << "Creating main application" << std::endl;
+    Logger::info() << "Creating main application";
+    Logger::endline();
 
     std::string configFile((argc > 1) ? argv[1] : "app.cfg");
     std::ostringstream ss;
@@ -19,7 +21,9 @@ int main(int argc, char **argv) {
             ss << cfg.rdbuf();
         } else {
             std::cerr << configFile << " was not found" << std::endl;
-            std::cout << "Default configuration used" << std::endl;
+            
+            Logger::info() << "Default configuration used";
+            Logger::endline();
         }
     }
 
@@ -72,7 +76,9 @@ int main(int argc, char **argv) {
 
     APP->run();
 
-    std::cout << "Exiting application" << std::endl;
+    Logger::info() << "Exiting application";
+    Logger::endline();
+    
     delete APP;
     return 0;
 }

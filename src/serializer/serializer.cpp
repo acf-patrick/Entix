@@ -5,6 +5,7 @@
 #include <sstream>
 
 #include "../ecs/components.h"
+#include "../logger/logger.h"
 
 template <typename VType>
 YAML::Emitter &operator<<(YAML::Emitter &out, const Vector<VType> &v) {
@@ -51,7 +52,7 @@ Scene *Serializer::deserialize(const std::string &source) {
 
     auto entities = node["Entities"];
     if (!entities) return error();
-    
+
     for (auto entity : entities)
         if (entity["ID"])
             deserializeEntity(
@@ -69,9 +70,10 @@ Scene *Serializer::deserialize(const std::string &source) {
             cameraEntity.attach<Component::camera>();
     }
 
-    if (scene)
-        std::cout << source << " loaded" << std::endl;
-    else
+    if (scene) {
+        Logger::info() << source << " loaded";
+        Logger::endline();
+    } else
         std::cerr << "Failed to load " << source << std::endl;
 
     return scene;
@@ -105,7 +107,8 @@ void Serializer::serialize(Scene *scene, const std::string &fileName) {
     std::ofstream file(output);
     file << out.c_str();
 
-    std::cout << "Scene serialized to " << output << std::endl;
+    Logger::info() << "Scene serialized to " << output;
+    Logger::endline();
 }
 
 void Serializer::deserializeEntity(YAML::Node &node, Entity &entity) {

@@ -8,6 +8,7 @@
 #include "../event/event.h"
 #include "../event/input.h"
 #include "../scene/scene.h"
+#include "../logger/logger.h"
 
 InputType Input;
 
@@ -46,7 +47,9 @@ Application::Application(const std::string& title, int width, int height,
     }
 
     instance = this;
-    std::cout << "Application created" << std::endl;
+
+    Logger::info() << "Application created";
+    Logger::endline();
 }
 
 Application::~Application() {
@@ -58,6 +61,8 @@ Application::~Application() {
 
     TTF_Quit();
     SDL_Quit();
+
+    Logger::dump("/home/acf-patrick/ecs.log");
 }
 
 void Application::log(const std::string& message) const {

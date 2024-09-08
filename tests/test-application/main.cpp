@@ -4,6 +4,7 @@
 #include <SDL_ttf.h>
 #include <box2d/box2d.h>
 #include <core.h>
+#include <logger/logger.h>
 
 using Script = Component::script;
 
@@ -93,14 +94,18 @@ class Controller : public Script {
             .listen(Input.MOUSE_BUTTON_UP, [&](Entity& _) {
                 auto& e = get<Component::group>().content->create();
                 e.useTemplate("assets/prefabs/mob.entt");
-                std::cout << "id : " << e.idAsString() << std::endl;
+
+                Logger::info() << "id : " << e.idAsString();
+                Logger::endline();
 
                 auto mousePos = Input.mouse.getPosition();
                 if (e.has<Mob>()) {
                     auto& body = *e.get<Mob>().body;
                     body.SetTransform({mousePos.x / MtoPX, mousePos.y / MtoPX},
                                       0.0f);
-                    std::cout << "entity position set" << std::endl;
+
+                    Logger::info() << "entity position set";
+                    Logger::endline();
                 }
             });
     }
