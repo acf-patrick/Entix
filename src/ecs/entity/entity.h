@@ -64,8 +64,17 @@ class Entity {
 
     template <typename T>
     T& get() {
-        auto tmp = _manager.getComponent<T>(_id);
-        return *tmp;
+        auto component = _manager.getComponent<T>(_id);
+        if (!component) {
+            auto componentName = typeid(T).name();
+            Logger::error("Entity") << "Can not retrieve '" << componentName
+                                    << "' on " << idAsString();
+            Logger::endline();
+        }
+
+        assert(component && "Retrieving non-existent component");
+
+        return *component;
     }
 
     template <typename... T>

@@ -78,10 +78,9 @@ class ComponentArray : public IComponentArray {
     }
 
     T* getData(EntityID entity) {
-        assert(_entity_index.find(entity) != _entity_index.end() &&
-               "Retrieving non-existent component");
-
-        return _componentArray[_entity_index[entity]];
+        if (_entity_index.find(entity) != _entity_index.end())
+            return _componentArray[_entity_index[entity]];
+        return nullptr;
     }
 
     void entityDestroyed(EntityID entity) {
