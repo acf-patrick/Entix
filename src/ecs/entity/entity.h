@@ -14,7 +14,7 @@
 #include "../defs.h"
 
 class Group;
-class EventManagerType;
+class EventManager;
 
 /**
  * Create an Entity using Group::create method
@@ -161,7 +161,7 @@ class Entity {
     static bool _cleanFlag;
 
     friend class Group;
-    friend class EventManagerType;
+    friend class EventManager;
 };
 
 class Scene;

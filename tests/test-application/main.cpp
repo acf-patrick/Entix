@@ -76,7 +76,7 @@ class Controller : public Script {
     ~Controller() { delete World; }
 
     void Render() override {
-        Renderer->submit([&](SDL_Renderer* renderer) {
+        RenderManager::Get()->submit([&](SDL_Renderer* renderer) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
             SDL_Rect rect = {100, 390, 600, 20};
             SDL_RenderDrawRect(renderer, &rect);
@@ -134,7 +134,7 @@ class FpsText : public Script {
     }
 
     void Render() override {
-        Renderer->submit([&](SDL_Renderer* renderer) {
+        RenderManager::Get()->submit([&](SDL_Renderer* renderer) {
             auto currentTick = SDL_GetTicks();
             rates.push_back(1000.0 / (currentTick - latestTick));
             latestTick = currentTick;

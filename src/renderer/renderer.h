@@ -1,82 +1,81 @@
 /**
  * @author acf-patrick (miharisoap@gmail.com)
- * 
+ *
  * The rendering system
  */
 
 #pragma once
 
-#include <functional>
 #include <SDL.h>
-#include <algorithm>
-#include <string>
-#include <queue>
-#include <map>
 
+#include <algorithm>
+#include <functional>
+#include <map>
+#include <memory>
+#include <queue>
+#include <string>
+
+#include "../manager/manager.h"
 #include "../ecs/components.h"
 
 class Application;
-class RenderManager;
-extern RenderManager* Renderer;
 
 // Rendering System
-class RenderManager
-{
-public:
-using Camera = Component::camera;
-using Process = std::function<void(SDL_Renderer*)>;
-
-    struct Drawer
-    {
+class RenderManager: Manager<RenderManager> {
+   public:
+    using Camera = Component::camera;
+    using Process = std::function<void(SDL_Renderer*)>;
+    
+    struct Drawer {
+        std::shared_ptr<RenderManager> renderManager = RenderManager::Get();
         std::queue<Process> process;
         SDL_Texture* target = nullptr;
-        SDL_Renderer* renderer = Renderer->renderer;
+
+        SDL_Renderer* renderer = renderManager->renderer;
         int currentTarget = 0;
 
-        Drawer()
-        {
-            auto& r = *Renderer;
-            auto  s = r.getSize();
-            target = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, s.x, s.y);
+        Drawer() {
+            auto s = renderManager->getSize();
+            target = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+                                       SDL_TEXTUREACCESS_TARGET, s.x, s.y);
             assert(target && "Unable to create texture target for layer\n");
             SDL_SetTextureBlendMode(target, SDL_BLENDMODE_BLEND);
         }
-        ~Drawer()
-        {
+
+        ~Drawer() {
             SDL_SetRenderTarget(renderer, NULL);
             SDL_DestroyTexture(target);
         }
-        void add(const Process& p)
-        {
-            process.push(p);
-        }
-        void clear()
-        {
+
+        void add(const Process& p) { process.push(p); }
+
+        void clear() {
             std::queue<Process> empty;
             std::swap(empty, process);
         }
-        void prepare()
-        {
+
+        void prepare() {
             SDL_SetRenderTarget(renderer, target);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             SDL_RenderClear(renderer);
             SDL_SetRenderTarget(renderer, target);
         }
-        void operator()()
-        {
-            while (!process.empty())
-            {
+
+        void operator()() {
+            while (!process.empty()) {
                 process.front()(renderer);
                 process.pop();
             }
         }
     };
 
-    // clear a portion of the screen with the given color, default is black.
-    void clear(const SDL_Color& color = { 0, 0, 0, 255 });
+    static std::shared_ptr<RenderManager> Get();
 
     // clear a portion of the screen with the given color, default is black.
-    void clear(const SDL_Rect&, const SDL_Color& color = { 0, 0, 0, 255 });
+    void clear(const SDL_Color& color = {0, 0, 0, 255});
+
+    // clear a portion of the screen with the given color, default is black.
+    void clear(const SDL_Rect&, const SDL_Color& color = {0, 0, 0, 255});
 
     // perform drawing
     void draw();
@@ -97,7 +96,7 @@ using Process = std::function<void(SDL_Renderer*)>;
 
     SDL_Renderer* renderer;
 
-private:
+   private:
     // SDL_Texture* view;
 
     // There is always one layer remaining
@@ -106,5 +105,6 @@ private:
     RenderManager();
     ~RenderManager();
 
-friend class Application;
+    friend class Application;
+    friend class Manager<RenderManager>;
 };

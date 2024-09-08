@@ -15,10 +15,12 @@ int main(int argc, char **argv) {
     std::ostringstream ss;
     {
         std::ifstream cfg(configFile);
-        if (cfg)
+        if (cfg) {
             ss << cfg.rdbuf();
-        else
+        } else {
+            std::cerr << configFile << " was not found" << std::endl;
             std::cout << "Default configuration used" << std::endl;
+        }
     }
 
     YAML::Node node = YAML::Load(ss.str());

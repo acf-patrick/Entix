@@ -1,32 +1,27 @@
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
-#include "scene.h"
 #include "../application/application.h"
 #include "../ecs/components.h"
+#include "scene.h"
 
 using SceneRef = std::shared_ptr<Scene>;
 using Couple = std::pair<Scene*, Scene*>;
 
-void SceneManagerType::load(const std::string& fileName)
-{
+void SceneManager::load(const std::string& fileName) {
     auto scene = Application::serializer->deserialize(fileName);
-    EventManager->emit(Input.SCENE_LOADED).attach<Scene*>(scene);
+    EventManager::Get()->emit(Input.SCENE_LOADED).attach<Scene*>(scene);
 }
 
-Scene& SceneManagerType::getActive()
-{
-    return *scenes[0];
-}
+Scene& SceneManager::getActive() { return *scenes[0]; }
 
-void SceneManagerType::setActive(const std::string& tag)
-{
+void SceneManager::setActive(const std::string& tag) {
     auto prev = scenes[0];
-    auto it = std::find_if(scenes.begin(), scenes.end(), [&](Scene* s){ return s->tag == tag; });
+    auto it = std::find_if(scenes.begin(), scenes.end(),
+                           [&](Scene* s) { return s->tag == tag; });
 
     // there is no scene with such tag
-    if (it == scenes.end())
-        return;
+    if (it == scenes.end()) return;
 
     // remove and stack elements together
     scenes.erase(it);
@@ -34,75 +29,66 @@ void SceneManagerType::setActive(const std::string& tag)
     auto scene = *it;
     // puts the element at the end of the queue
     scenes.push_front(scene);
-    EventManager->emit(Input.SCENE_CHANGED);
+    EventManager::Get()->emit(Input.SCENE_CHANGED);
 }
 
-void SceneManagerType::setActive(std::size_t index)
-{
+void SceneManager::setActive(std::size_t index) {
     auto prev = scenes[0];
-    if (index >= scenes.size())
-        return;
+    if (index >= scenes.size()) return;
 
     auto scene = scenes[index];
     scenes.erase(scenes.begin() + index);
 
     scenes.push_front(scene);
-    EventManager->emit(Input.SCENE_CHANGED);
+    EventManager::Get()->emit(Input.SCENE_CHANGED);
 }
 
-void SceneManagerType::remove(const std::string& tag)
-{   
-    auto it = std::find_if(scenes.begin(), scenes.end(), [&](Scene* scene) { return scene->tag == tag; });
+void SceneManager::remove(const std::string& tag) {
+    auto it = std::find_if(scenes.begin(), scenes.end(),
+                           [&](Scene* scene) { return scene->tag == tag; });
     delete *it;
     scenes.erase(it);
 }
 
-void SceneManagerType::remove(std::size_t index)
-{
-    if (index >= scenes.size())
-        return;
+void SceneManager::remove(std::size_t index) {
+    if (index >= scenes.size()) return;
 
     auto it = scenes.begin() + index;
     delete *it;
     scenes.erase(it);
 }
 
-void SceneManagerType::push(Scene* scene)
-{
+void SceneManager::push(Scene* scene) {
     if (std::find(scenes.begin(), scenes.end(), scene) == scenes.end())
         scenes.push_back(scene);
 }
 
-void SceneManagerType::render()
-{
-    if (!scenes.empty())
-        scenes[0]->render();
+void SceneManager::render() {
+    if (!scenes.empty()) scenes[0]->render();
 }
 
-bool SceneManagerType::update()
-{
+bool SceneManager::update() {
     static bool last(true);
-    if (!last)
-        next();
-    if (scenes.empty())
-        return false;
+    if (!last) next();
+    if (scenes.empty()) return false;
     last = scenes[0]->update();
     return true;
 }
 
-void SceneManagerType::next()
-{
-    if (scenes.empty())
-        return;
+void SceneManager::next() {
+    if (scenes.empty()) return;
     auto scene = scenes[0];
     delete scene;
     scenes.pop_front();
-    EventManager->emit(Input.SCENE_CHANGED);
+    EventManager::Get()->emit(Input.SCENE_CHANGED);
 }
 
-SceneManagerType::~SceneManagerType()
-{
-    for (auto scene : scenes)
-        delete scene;
+SceneManager::~SceneManager() {
+    for (auto scene : scenes) delete scene;
     scenes.clear();
+}
+
+// static
+std::shared_ptr<SceneManager> SceneManager::Get() {
+    return createInstance();
 }

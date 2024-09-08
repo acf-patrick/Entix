@@ -1,40 +1,41 @@
 /**
  * @author acf-patrick (miharisoap@gmail.com)
- * 
+ *
  * Definition of Event listner and Event composer type
  */
 
 #pragma once
 
-#include <unordered_map>
-#include <functional>
 #include <SDL.h>
-#include <vector>
-#include <string>
-#include <queue>
+
+#include <functional>
 #include <list>
 #include <map>
+#include <memory>
+#include <queue>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "input.h"
-
-class Application;
+#include "../manager/manager.h"
 
 class Entity;
 class EventListner;
 
-class EventManagerType
-{
-public:
+class EventManager: Manager<EventManager> {
+   public:
     using Event = Entity*;
 
     void handle();
-    
+
     // Emit this message and attach as a tag to an entity
     // Use an EventListner instance to listent to this event anywhere
     Entity& emit(const std::string&);
 
-private:
-    
+    static std::shared_ptr<EventManager> Get();
+
+   private:
     Event invalidEvent = nullptr;
 
     Entity& _emit(const std::string&);
@@ -50,18 +51,17 @@ private:
     void listnerDestroyed(EventListner*);
     void newListner(EventListner*);
 
-    EventManagerType() = default;
-    ~EventManagerType();
+    EventManager() = default;
+    ~EventManager();
 
-friend class EventListner;
-friend class Application;
+    friend class EventListner;
+    friend class Manager<EventManager>;
 };
 
 // Use this class to handle specific event.
-class EventListner
-{
-public:
-using Callback = std::function<void(Entity&)>;
+class EventListner {
+   public:
+    using Callback = std::function<void(Entity&)>;
 
     EventListner();
     ~EventListner();
@@ -81,12 +81,10 @@ using Callback = std::function<void(Entity&)>;
     // stop listening temporarily
     void disable();
 
-private:
-    EventManagerType& manager;
+   private:
+    std::shared_ptr<EventManager> manager;
     std::map<std::string, Callback> callbacks;
     bool enabled = true;
 
-friend class EventManagerType;
+    friend class EventManager;
 };
-
-extern EventManagerType* EventManager;

@@ -1,31 +1,31 @@
 /**
  * @author acf-patrick (miharisoap@gmail.com)
- * 
+ *
  * Definition of Texture
  */
 
 #pragma once
 
-#include <map>
 #include <SDL.h>
+
+#include <map>
 
 #include "../util/geometry/vector.h"
 
 /**
- * Texture 
+ * Texture
  *
  * Prevent memory leak and ensure texture reusability
  * by avoid multiple loading of the same texture
  */
-class Texture
-{
-private:
+class Texture {
+   private:
     std::string _file = "";
     SDL_Texture* _texture = nullptr;
 
     static std::map<std::string, SDL_Texture*> _loadedTextures;
 
-public:
+   public:
     Texture() = default;
     Texture(const std::string&);
 
@@ -53,8 +53,14 @@ public:
     operator bool() const;
 
     void draw(const VectorI& dst);
-    void draw(const VectorI& dst, const Vector<bool>& flip, const VectorF& scale);
-    void draw(const SDL_Rect& src, const VectorI& dst, const Vector<bool>& flip, const VectorF& scale);
-    void draw(const VectorI& dst, const VectorI& center, float rotation, const Vector<bool>& flip = { false, false }, const VectorF& scale = { 1.0f, 1.0f });
-    void draw(const SDL_Rect& src, const VectorI& dst, const VectorI& center, float rotation, const Vector<bool>& flip = { false, false }, const VectorF& scale = { 1.0f, 1.0f });
+    void draw(const VectorI& dst, const Vector<bool>& flip,
+              const VectorF& scale);
+    void draw(const SDL_Rect& src, const VectorI& dst, const Vector<bool>& flip,
+              const VectorF& scale);
+    void draw(const VectorI& dst, const VectorI& center, float rotation,
+              const Vector<bool>& flip = {false, false},
+              const VectorF& scale = {1.0f, 1.0f});
+    void draw(const SDL_Rect& src, const VectorI& dst, const VectorI& center,
+              float rotation, const Vector<bool>& flip = {false, false},
+              const VectorF& scale = {1.0f, 1.0f});
 };

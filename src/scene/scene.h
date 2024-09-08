@@ -1,26 +1,25 @@
 /**
  * @author acf-patrick (miharisoap@gmail.com)
- * 
+ *
  * Contains classes for Scene management
  */
 
 #pragma once
 
+#include <deque>
 #include <memory>
 #include <string>
-#include <deque>
 
 #include "../ecs/entity/entity.h"
 #include "../event/event.h"
+#include "../manager/manager.h"
 
 class Application;
-class SceneManagerType;
 class Serializer;
 
 // Scene Interface
-class Scene
-{
-public:
+class Scene {
+   public:
     // Save to file
     void save(const std::string& fileName = "");
 
@@ -30,10 +29,10 @@ public:
     // Set this scene to be active
     void setActive();
 
-protected:
+   protected:
     Scene(const std::string&);
     virtual ~Scene() = default;
-    
+
     // pop the scene from manager if this method return false
     virtual bool update();
 
@@ -46,13 +45,12 @@ protected:
 
     bool active = true;
 
-friend class Serializer;
-friend class SceneManagerType;
+    friend class Serializer;
+    friend class SceneManager;
 };
 
-class SceneManagerType
-{
-public:
+class SceneManager : Manager<SceneManager> {
+   public:
     // Load Scene from file
     void load(const std::string&);
 
@@ -64,7 +62,7 @@ public:
 
     // Set scene with the given name to be active
     void setActive(const std::string&);
-    
+
     // Remove scene at index
     void remove(std::size_t);
 
@@ -80,16 +78,17 @@ public:
     // Render active scene
     void render();
 
-private:
+    static std::shared_ptr<SceneManager> Get();
+
+   private:
     std::deque<Scene*> scenes;
 
-    SceneManagerType() = default;
-    ~SceneManagerType();
+    SceneManager() = default;
+    ~SceneManager();
 
     void push(Scene*);
 
-friend class Application;
-friend class Scene;
+    friend class Application;
+    friend class Manager<SceneManager>;
+    friend class Scene;
 };
-
-extern SceneManagerType* SceneManager;

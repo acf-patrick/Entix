@@ -1,13 +1,14 @@
 #include "event.h"
 
-EventListner::EventListner() : manager(*EventManager)
+EventListner::EventListner()
 {
-    manager.newListner(this);
+    manager = EventManager::Get();
+    manager->newListner(this);
 }
 
 EventListner::~EventListner()
 {
-    manager.listnerDestroyed(this);
+    manager->listnerDestroyed(this);
 }
 
 EventListner& EventListner::listen(const std::string& event, const Callback& callback)

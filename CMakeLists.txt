@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-option(BUILD_TESTS "Build test and test project" ON)
+option(ECS_BUILD_TESTS "Build test and test project" ON)
 
 # disable box2d tests build
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Disable Box2D Unit Tests build" FORCE)
@@ -48,6 +48,6 @@ include_directories(
 add_subdirectory(src)
 
 # include tests
-if (BUILD_TESTS)
+if (ECS_BUILD_TESTS)
     add_subdirectory(tests)
 endif()
