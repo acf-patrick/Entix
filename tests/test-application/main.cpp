@@ -95,9 +95,6 @@ class Controller : public Script {
                 auto& e = get<Component::group>().content->create();
                 e.useTemplate("prefabs/mob.entt");
 
-                Logger::info("Controller") << "id : " << e.idAsString();
-                Logger::endline();
-
                 auto mousePos = Input.mouse.getPosition();
                 if (e.has<Mob>()) {
                     auto& body = *e.get<Mob>().body;

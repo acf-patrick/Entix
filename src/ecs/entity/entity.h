@@ -191,12 +191,12 @@ class Group {
     // return a list of entites having required components
     template <typename... TComponents>
     std::vector<Entity*> view() {
-        std::vector<Entity*> ret;
+        std::vector<Entity*> filtered;
         for (auto id : _ids) {
-            auto e = Entity::Get(id);
-            if (e->all_of<TComponents...>()) ret.push_back(e);
+            auto entity = Entity::Get(id);
+            if (entity->all_of<TComponents...>()) filtered.push_back(entity);
         }
-        return ret;
+        return filtered;
     }
 
     // retrieve by tag

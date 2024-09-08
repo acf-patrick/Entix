@@ -1,6 +1,6 @@
 /**
  * @author acf-patrick (miharisoap@gmail.com)
- * 
+ *
  * Interface for the camera
  */
 
@@ -8,13 +8,12 @@
 
 class Entity;
 
-class ICamera
-{
-public:
+class ICamera {
+   public:
     Entity* entity;
     virtual ~ICamera() = default;
 
-protected:
+   protected:
     virtual void _attachTransform() = 0;
-friend class Entity;
+    friend class Entity;
 };
