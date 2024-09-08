@@ -341,7 +341,7 @@ class Tilemap : public script {
     ~Tilemap();
 
     // Retrieve map data
-    tson::Map &getMap();
+    // tson::Map &getMap();
 
     /**
      * Apply operation on each layers

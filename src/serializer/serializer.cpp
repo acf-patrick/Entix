@@ -33,7 +33,7 @@ YAML::Emitter &operator<<(YAML::Emitter &out, const SDL_Color &color) {
 
 Scene *Serializer::deserialize(const std::string &source) {
     auto error = [](const std::string &message) -> Scene * {
-        Logger::error("Serializer") << "Invalid file format! " << message;
+        Logger::error("Deserializer") << "Invalid file format! " << message;
         Logger::endline();
 
         return nullptr;
@@ -41,7 +41,7 @@ Scene *Serializer::deserialize(const std::string &source) {
 
     std::ifstream file(source);
     if (!file) {
-        Logger::error("Serializer")
+        Logger::error("Deserializer")
             << "Scene file : " << source << " doesn't exist!";
         Logger::endline();
 
@@ -78,9 +78,9 @@ Scene *Serializer::deserialize(const std::string &source) {
     }
 
     if (scene)
-        Logger::info("Serializer") << source << " loaded";
+        Logger::info("Deserializer") << source << " loaded";
     else
-        Logger::error("Serializer") << "Failed to load " << source;
+        Logger::error("Deserializer") << "Failed to load " << source;
     Logger::endline();
 
     return scene;
@@ -116,7 +116,7 @@ void Serializer::serialize(Scene *scene, const std::string &fileName) {
     std::ofstream file(output);
     file << out.c_str();
 
-    Logger::info() << "Scene serialized to " << output;
+    Logger::info("Serializer") << "Scene serialized to " << output;
     Logger::endline();
 }
 

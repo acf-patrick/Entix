@@ -7,12 +7,13 @@
 #include "../ecs/entity/entity.h"
 #include "../event/event.h"
 #include "../event/input.h"
-#include "../scene/scene.h"
 #include "../logger/logger.h"
+#include "../scene/scene.h"
 
 InputType Input;
 
 Application* Application::instance = nullptr;
+std::string Application::configPath;
 
 Application::Application(const std::string& title, int width, int height,
                          SDL_WindowFlags windowFlag)
@@ -48,11 +49,13 @@ Application::Application(const std::string& title, int width, int height,
 
     instance = this;
 
-    Logger::info() << "Application created";
+    Logger::info("App") << "Application created";
     Logger::endline();
 }
 
 Application::~Application() {
+    IManager::DestroyInstances();
+
     // Make sure to free memory
     Entity::Clean();
 
@@ -62,7 +65,9 @@ Application::~Application() {
     TTF_Quit();
     SDL_Quit();
 
-    Logger::dump("/home/acf-patrick/ecs.log");
+    delete serializer;
+    
+    Logger::dumpStatus(Logger::Status::ERROR, "error.log");
 }
 
 void Application::log(const std::string& message) const {
@@ -86,4 +91,12 @@ void Application::run() {
 
 void Application::quit() { _running = false; }
 
+void Application::setWindowPosition(int x, int y) {
+    SDL_SetWindowPosition(_window, x, y);
+}
+
+// static
 Application& Application::Get() { return *instance; }
+
+// static
+std::filesystem::path Application::GetConfigPath() { return configPath; }

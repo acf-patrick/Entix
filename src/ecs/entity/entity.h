@@ -8,6 +8,7 @@
 #include <tuple>
 #include <unordered_map>
 
+#include "../../path/path.h"
 #include "../baseCamera.h"
 #include "../baseScript.h"
 #include "../component/manager.h"
@@ -33,7 +34,7 @@ class Entity {
     /** construct entity using a template
      * @param fileName
      */
-    void useTemplate(const std::string&);
+    void useTemplate(const Path&);
 
     // getter for index property
     int getIndex() const;
@@ -130,6 +131,8 @@ class Entity {
      * @return string representation of entity's id
      */
     std::string idAsString() const;
+
+    static std::string idToString(EntityID);
 
     void Update();
     void Render();

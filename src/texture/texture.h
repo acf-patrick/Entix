@@ -10,6 +10,7 @@
 
 #include <map>
 
+#include "../path/path.h"
 #include "../util/geometry/vector.h"
 
 /**
@@ -27,14 +28,14 @@ class Texture {
 
    public:
     Texture() = default;
-    Texture(const std::string&);
+    Texture(const Path&);
 
     ~Texture();
 
     // Make sure to unload left textures
     static void unload();
 
-    void load(const std::string&);
+    bool load(const Path&);
 
     // Get filename used to load the texture
     std::string getName() const;

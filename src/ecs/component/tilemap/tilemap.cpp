@@ -28,10 +28,11 @@ Tilemap::~Tilemap() {
 void Tilemap::Render() {
     // Creating default Drawer if no Tilemap::Drawer component added
     auto eID = entity->id();
-    _drawer = Drawer::instances[eID];
-    if (!_drawer) {
+    if (auto drawer = Drawer::instances[eID]; drawer) {
+        _drawer = drawer;
+    } else {
         _defaultDrawer = true;
-        _drawer = new Drawer;
+        if (!_drawer) _drawer = new Drawer;
     }
 
     RenderManager::Get()->submit([&](SDL_Renderer *renderer) {

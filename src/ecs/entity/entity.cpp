@@ -73,8 +73,8 @@ void Entity::Clean() {
 Entity* Entity::Get(EntityID id) {
     auto ret = instances[id];
     if (!ret) {
-        Logger::error("Entity")
-            << "There is no instance matching with the given ID";
+        Logger::warn("Entity")
+            << "There is no instance matching ID : " << idToString(id);
         Logger::endline();
     }
 
@@ -85,11 +85,14 @@ Entity::operator EntityID() const { return _id; }
 
 EntityID Entity::id() const { return _id; }
 
-std::string Entity::idAsString() const {
+// static
+std::string Entity::idToString(EntityID id) {
     std::stringstream ss;
-    ss << std::hex << _id;
+    ss << std::hex << id;
     return ss.str();
 }
+
+std::string Entity::idAsString() const { return idToString(_id); }
 
 bool Entity::operator==(const Entity& entity) const {
     return _id == entity._id;
@@ -124,13 +127,13 @@ void Entity::setIndex(unsigned int i) {
     if (has<Component::group>()) get<Component::group>().content->reorder();
 }
 
-void Entity::useTemplate(const std::string& fileName) {
+void Entity::useTemplate(const Path& path) {
     auto& s = *Application::serializer;
-    std::ifstream file(fileName);
-    
+    std::ifstream file(path);
+
     if (!file) {
         Logger::error("Entity")
-            << "Failed to load template : " << fileName << " doesn't exist";
+            << "Failed to load template : '" << path << "' doesn't exist";
         Logger::endline();
 
         return;
@@ -141,6 +144,6 @@ void Entity::useTemplate(const std::string& fileName) {
     auto n = YAML::Load(ss.str());
     s.deserializeEntity(n, *this);
 
-    Logger::info("Entity") << fileName << " : Template loaded";
+    Logger::info("Entity") << path << " : Template loaded";
     Logger::endline();
 }

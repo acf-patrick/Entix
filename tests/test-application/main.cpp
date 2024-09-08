@@ -93,9 +93,9 @@ class Controller : public Script {
         event.listen(Input.QUIT, [](Entity& _) { Application::Get().quit(); })
             .listen(Input.MOUSE_BUTTON_UP, [&](Entity& _) {
                 auto& e = get<Component::group>().content->create();
-                e.useTemplate("assets/prefabs/mob.entt");
+                e.useTemplate("prefabs/mob.entt");
 
-                Logger::info() << "id : " << e.idAsString();
+                Logger::info("Controller") << "id : " << e.idAsString();
                 Logger::endline();
 
                 auto mousePos = Input.mouse.getPosition();
@@ -104,7 +104,7 @@ class Controller : public Script {
                     body.SetTransform({mousePos.x / MtoPX, mousePos.y / MtoPX},
                                       0.0f);
 
-                    Logger::info() << "entity position set";
+                    Logger::info("Controller") << "entity position set";
                     Logger::endline();
                 }
             });
@@ -230,4 +230,4 @@ class CustomSerializer : public Serializer {
     }
 };
 
-Serializer* Application::serializer = new CustomSerializer;
+USE_SERIALIZER(CustomSerializer)

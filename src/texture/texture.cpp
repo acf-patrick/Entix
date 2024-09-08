@@ -7,7 +7,7 @@
 
 std::map<std::string, SDL_Texture *> Texture::_loadedTextures;
 
-Texture::Texture(const std::string &file) { load(file); }
+Texture::Texture(const Path &file) { load(file); }
 
 Texture::~Texture() {
     if (_texture) {
@@ -21,14 +21,21 @@ void Texture::unload() {
     _loadedTextures.clear();
 }
 
-void Texture::load(const std::string &file) {
-    if (file.empty()) return;
+bool Texture::load(const Path &filePath) {
+    if (!filePath.exists()) {
+        Logger::error("Texture") << filePath << " does not exist";
+        Logger::endline();
+
+        return false;
+    }
+
+    std::string file(filePath);
 
     if (_loadedTextures[file]) {
         _file = file;
         _texture = _loadedTextures[file];
 
-        Logger::info() << file << " : texture loaded from cache";
+        Logger::info("Texture") << file << " : texture loaded from cache";
         Logger::endline();
     } else {
         _texture =
@@ -38,10 +45,14 @@ void Texture::load(const std::string &file) {
             _file = file;
             _loadedTextures[file] = _texture;
         } else {
-            Logger::error("Texture") << "Failed to load " << file;
+            Logger::error("Texture") << "Failed to load '" << file << "'";
             Logger::endline();
+
+            return false;
         }
     }
+
+    return true;
 }
 
 std::string Texture::getName() const { return _file; }

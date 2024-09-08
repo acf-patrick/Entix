@@ -14,12 +14,15 @@ int main(int argc, char **argv) {
     Logger::endline();
 
     std::string configFile((argc > 1) ? argv[1] : "app.cfg");
+    auto usingDefaultConfig = false;
     std::ostringstream ss;
     {
         std::ifstream cfg(configFile);
         if (cfg) {
             ss << cfg.rdbuf();
         } else {
+            usingDefaultConfig = true;
+
             Logger::error() << configFile << " was not found";
             Logger::endline();
 
@@ -51,26 +54,28 @@ int main(int argc, char **argv) {
     auto APP = new Application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
     assert(APP->serializer &&
            "No serializer declared. Create serializer in global scope!");
+
+    auto configPath = std::filesystem::path(configFile).parent_path();
+    Application::configPath = configPath.string();
     auto &s = *APP->serializer;
 
     if (node["Position"]) {
         auto n = node["Position"];
         if (n.IsSequence()) {
             auto pos = n.as<VectorI>();
-            SDL_SetWindowPosition(APP->_window, pos.x, pos.y);
+            APP->setWindowPosition(pos.x, pos.y);
         }
     }
 
+    auto scenesPath = configPath / "scenes";
+    if (!std::filesystem::exists(scenesPath) && !usingDefaultConfig) {
+        Logger::warn() << "'scenes' folder not found in '" << configPath;
+        Logger::endline();
+    }
+
     if (node["Scenes"]) {
-        using Path = std::filesystem::path;
-        Path configPath(configFile);
-
-        // configPath.parent_path()
         for (auto scene : node["Scenes"]) {
-            Path scenePath("scenes");
-            scenePath /= scene.as<std::string>() + ".scn";
-            scenePath = configPath.parent_path() / scenePath;
-
+            auto scenePath = scenesPath / (scene.as<std::string>() + ".scn");
             s.deserialize(scenePath.string());
         }
     }

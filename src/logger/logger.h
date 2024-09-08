@@ -11,6 +11,8 @@
 #include <memory>
 #include <sstream>
 
+#include "../path/path.h"
+
 // Interfaces are designed through static methods
 class Logger {
    public:
@@ -18,6 +20,7 @@ class Logger {
 
    private:
     using Stream = std::ostringstream;
+
     static std::shared_ptr<Logger> instance;
     static Logger& Get();
 
@@ -31,8 +34,11 @@ class Logger {
     // print messages and end current line
     static void endline();
 
+    // dump log with given status to file
+    static bool dumpStatus(Status, const Path&);
+
     // dump log content to a file
-    static bool dump(const std::string& path);
+    static bool dump(const Path&);
 
     template <typename... TArgs>
     static Stream& log(Logger::Status status, TArgs... contexts) {
@@ -41,10 +47,10 @@ class Logger {
 
         switch (status) {
             case Status::INFO:
-                self.stream << termcolor::green << "[INFO]";
+                self.stream << termcolor::green << "[INFO] ";
                 break;
             case Status::WARN:
-                self.stream << termcolor::yellow << "[WARN]";
+                self.stream << termcolor::yellow << "[WARN] ";
                 break;
             case Status::ERROR:
                 self.stream << termcolor::red << "[ERROR]";

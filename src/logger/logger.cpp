@@ -10,7 +10,7 @@ Logger& Logger::Get() {
 }
 
 // static
-bool Logger::dump(const std::string& path) {
+bool Logger::dump(const Path& path) {
     auto& self = Get();
 
     std::ofstream file(path);
@@ -42,4 +42,38 @@ void Logger::endline() {
     // clear stream
     self.stream.str("");
     self.stream.clear();
+}
+
+// static
+bool Logger::dumpStatus(Status status, const Path& path) {
+    auto& self = Get();
+
+    std::ofstream file(path);
+    if (!file) return false;
+
+    std::stringstream ss;
+    ss << self.track.str() << self.stream.str();
+
+    std::string line;
+    while (std::getline(ss, line)) {
+        if (line.empty()) continue;
+
+        auto statusTag = line.substr(1, 4);
+        auto lineWithoutStatus = line.substr(7);
+
+        switch (status) {
+            case Status::INFO:
+                if (statusTag == "INFO") file << lineWithoutStatus << std::endl;
+                break;
+            case Status::WARN:
+                if (statusTag == "WARN") file << lineWithoutStatus << std::endl;
+                break;
+            case Status::ERROR:
+                if (statusTag == "ERRO") file << lineWithoutStatus << std::endl;
+                break;
+            default:;
+        }
+    }
+
+    return true;
 }
