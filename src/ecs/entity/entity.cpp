@@ -128,7 +128,7 @@ void Entity::setIndex(unsigned int i) {
 }
 
 void Entity::useTemplate(const Path& path) {
-    auto& s = *Application::serializer;
+    auto& serializer = Application::Get().getSerializer();
     std::ifstream file(path);
 
     if (!file) {
@@ -142,7 +142,7 @@ void Entity::useTemplate(const Path& path) {
     std::ostringstream ss;
     ss << file.rdbuf();
     auto n = YAML::Load(ss.str());
-    s.deserializeEntity(n, *this);
+    serializer.deserializeEntity(n, *this);
 
     Logger::info("Entity") << path << " : Template loaded";
     Logger::endline();

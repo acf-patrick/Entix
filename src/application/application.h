@@ -11,11 +11,11 @@
 #include <filesystem>
 #include <string>
 
+#include "../ecs/system/system.h"
 #include "../renderer/renderer.h"
 #include "../serializer/serializer.h"
 
-#define USE_SERIALIZER(CustomSerializer) \
-    Serializer* Application::serializer = new CustomSerializer;
+class ApplicationHook;
 
 class Application final {
    public:
@@ -26,11 +26,24 @@ class Application final {
     void quit();
     void log(const std::string&) const;
 
+    template <typename TSerializer>
+    void setSerializer() {
+        _serializer = new TSerializer;
+    }
+
+    template <typename TSystem>
+    void addSystem() {
+        auto manager = SystemManager::Get();
+        manager->addSystem<TSystem>();
+    }
+
+    std::filesystem::path getConfigPath();
+
+    Serializer& getSerializer();
+
     static Application& Get();
 
-    static Serializer* serializer;
-
-    static std::filesystem::path GetConfigPath();
+    static ApplicationHook* hook;
 
    private:
     Application(const std::string&, int, int,
@@ -40,9 +53,15 @@ class Application final {
 
     bool _running = true;
     SDL_Window* _window;
+    std::string _configPath;
+    Serializer* _serializer = nullptr;
 
     static Application* instance;
-    static std::string configPath;
 
     friend int main(int, char**);
 };
+
+#define HOOK_APPLICATION(CustomHook) \
+    ApplicationHook* Application::hook = new CustomHook;
+
+#define RUN_APPLICATION ApplicationHook* Application::hook = nullptr;

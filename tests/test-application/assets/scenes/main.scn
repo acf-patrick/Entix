@@ -25,4 +25,4 @@ Entities:
       Frame: 0
     SpriteRendererComponent:
     FollowMouseBehavior:
-    Controller:
+  - Ground:

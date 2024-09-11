@@ -9,7 +9,7 @@
 #include "../application/application.h"
 #include "../logger/logger.h"
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     Logger::info() << "Creating main application";
     Logger::endline();
 
@@ -51,19 +51,20 @@ int main(int argc, char **argv) {
         for (auto f : node["Flags"]) flag |= bind[f.as<std::string>()];
     }
 
-    auto APP = new Application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
-    assert(APP->serializer &&
-           "No serializer declared. Create serializer in global scope!");
+    auto application =
+        new Application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
+    assert(application->_serializer &&
+           "Setup your custom serializer inside ApplicationHook");
 
     auto configPath = std::filesystem::path(configFile).parent_path();
-    Application::configPath = configPath.string();
-    auto &s = *APP->serializer;
+    application->_configPath = configPath.string();
+    auto& serializer = application->getSerializer();
 
     if (node["Position"]) {
         auto n = node["Position"];
         if (n.IsSequence()) {
             auto pos = n.as<VectorI>();
-            APP->setWindowPosition(pos.x, pos.y);
+            application->setWindowPosition(pos.x, pos.y);
         }
     }
 
@@ -76,15 +77,15 @@ int main(int argc, char **argv) {
     if (node["Scenes"]) {
         for (auto scene : node["Scenes"]) {
             auto scenePath = scenesPath / (scene.as<std::string>() + ".scn");
-            s.deserialize(scenePath.string());
+            serializer.deserialize(scenePath.string());
         }
     }
 
-    APP->run();
+    application->run();
 
     Logger::info() << "Exiting application";
     Logger::endline();
 
-    delete APP;
+    delete application;
     return 0;
 }

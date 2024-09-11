@@ -63,16 +63,16 @@ Scene *Serializer::deserialize(const std::string &source) {
     for (auto entity : entities)
         if (entity["ID"])
             deserializeEntity(
-                entity, scene->entities.create(entity["ID"].as<EntityID>()));
+                entity, scene->_entities.create(entity["ID"].as<EntityID>()));
         else
             // Let Entity class create an ID if there's no ID node
-            deserializeEntity(entity, scene->entities.create());
+            deserializeEntity(entity, scene->_entities.create());
 
     // Make sure scene has at least one camera
-    if (!scene->entities["main camera"])
-        scene->entities.create("main camera").attach<Component::camera>();
+    if (!scene->_entities["main camera"])
+        scene->_entities.create("main camera").attach<Component::camera>();
     else {
-        auto &cameraEntity = *scene->entities["main camera"];
+        auto &cameraEntity = *scene->_entities["main camera"];
         if (!cameraEntity.has<Component::camera>())
             cameraEntity.attach<Component::camera>();
     }
@@ -101,7 +101,7 @@ void Serializer::serialize(Scene *scene, const std::string &fileName) {
     out << YAML::Key << "Entities" << YAML::Value;
 
     out << YAML::BeginSeq;
-    scene->entities.for_each([&](Entity &entity) {
+    scene->_entities.for_each([&](Entity &entity) {
         out << YAML::BeginMap;
         serializeEntity(out, entity);
         out << YAML::EndMap;

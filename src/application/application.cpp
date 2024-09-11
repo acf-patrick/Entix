@@ -5,15 +5,16 @@
 #include <cassert>
 
 #include "../ecs/entity/entity.h"
+#include "../ecs/system/system.h"
 #include "../event/event.h"
 #include "../event/input.h"
 #include "../logger/logger.h"
 #include "../scene/scene.h"
+#include "hook.h"
 
 InputType Input;
 
 Application* Application::instance = nullptr;
-std::string Application::configPath;
 
 Application::Application(const std::string& title, int width, int height,
                          SDL_WindowFlags windowFlag)
@@ -51,9 +52,15 @@ Application::Application(const std::string& title, int width, int height,
 
     Logger::info("App") << "Application created";
     Logger::endline();
+    
+    // running hook
+    if (hook) hook->startup();
 }
 
 Application::~Application() {
+    // running hook
+    if (hook) hook->cleanup();
+
     IManager::DestroyInstances();
 
     // Make sure to free memory
@@ -65,8 +72,8 @@ Application::~Application() {
     TTF_Quit();
     SDL_Quit();
 
-    delete serializer;
-    
+    delete _serializer;
+
     Logger::dumpStatus(Logger::Status::ERROR, "error.log");
 }
 
@@ -78,8 +85,9 @@ void Application::log(const std::string& message) const {
 void Application::run() {
     while (_running) {
         EventManager::Get()->handle();
-        auto sceneManager = SceneManager::Get();
+        SystemManager::Get()->run();
 
+        auto sceneManager = SceneManager::Get();
         if (!sceneManager->update())
             quit();  // No more scene left
         else
@@ -95,8 +103,12 @@ void Application::setWindowPosition(int x, int y) {
     SDL_SetWindowPosition(_window, x, y);
 }
 
-// static
-Application& Application::Get() { return *instance; }
+std::filesystem::path Application::getConfigPath() { return _configPath; }
+
+Serializer& Application::getSerializer() {
+    if (!_serializer) _serializer = new Serializer;
+    return *_serializer;
+}
 
 // static
-std::filesystem::path Application::GetConfigPath() { return configPath; }
+Application& Application::Get() { return *instance; }

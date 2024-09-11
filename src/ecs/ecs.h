@@ -1,6 +1,6 @@
 /**
  * @author acf-patrick (miharisoap@gmail.com)
- * 
+ *
  * Includes headers used for Entity-Component-System logic
  */
 
@@ -11,5 +11,7 @@
 #include "component/manager.h"
 #include "components.h"
 #include "entity/entity.h"
+#include "group/group.h"
+#include "system/system.h"
 
 #endif

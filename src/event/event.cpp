@@ -23,10 +23,19 @@ void EventManager::handle() {
         auto tag = event->get<Component::tag>().content;
 
         for (int i = 0; i < (int)listners.size(); ++i) {
-            auto& l = *listners[i];
-            if (l.enabled) {
-                auto& c = l.callbacks;
-                if (c.find(tag) != c.end()) c[tag](*event);
+            auto& listener = *listners[i];
+            if (listener.enabled) {
+                auto& callbacks = listener.callbacks;
+                if (callbacks.find(tag) != callbacks.end()) {
+                    auto& callback = callbacks[tag];
+                    if (callback.withParameter) {
+                        auto& function = *callback.function;
+                        function(*event);
+                    } else {
+                        auto& function = *callback.noParamFunction;
+                        function();
+                    }
+                }
             }
         }
 

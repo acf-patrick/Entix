@@ -7,16 +7,18 @@ Scene::Scene(const std::string& _tag) : tag(_tag) {
 }
 
 bool Scene::update() {
-    entities.for_each([](Entity& entity) { entity.Update(); });
+    _entities.for_each([](Entity& entity) { entity.Update(); });
     return active;
 }
 
 void Scene::render() {
-    entities.for_each([](Entity& entity) { entity.Render(); });
+    _entities.for_each([](Entity& entity) { entity.Render(); });
 }
 
 void Scene::save(const std::string& fileName) {
-    Application::serializer->serialize(this, fileName);
+    Application::Get().getSerializer().serialize(this, fileName);
 }
 
 void Scene::setActive() { SceneManager::Get()->setActive(tag); }
+
+Group& Scene::getEntities() { return _entities; }

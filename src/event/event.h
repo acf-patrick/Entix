@@ -8,6 +8,7 @@
 
 #include <SDL.h>
 
+#include <optional>
 #include <functional>
 #include <list>
 #include <map>
@@ -17,13 +18,13 @@
 #include <unordered_map>
 #include <vector>
 
-#include "input.h"
 #include "../manager/manager.h"
+#include "input.h"
 
 class Entity;
 class EventListner;
 
-class EventManager: Manager<EventManager> {
+class EventManager : Manager<EventManager> {
    public:
     using Event = Entity*;
 
@@ -58,14 +59,24 @@ class EventManager: Manager<EventManager> {
 
 // Use this class to handle specific event.
 class EventListner {
-   public:
-    using Callback = std::function<void(Entity&)>;
+    using WithParameter = std::function<void(Entity&)>;
+    using WithoutParameter = std::function<void()>;
 
+    struct Callback {
+        bool withParameter = true;
+        std::optional<WithParameter> function;
+        std::optional<WithoutParameter> noParamFunction;
+    };
+
+   public:
     EventListner();
     ~EventListner();
 
     // provide event's tag and function callback
-    EventListner& listen(const std::string&, const Callback&);
+    EventListner& listen(const std::string&, const WithParameter&);
+
+    // provide event's tag and function callback
+    EventListner& listen(const std::string&, const WithoutParameter&);
 
     // stop listening to the event with the given tag
     void stopListening(const std::string&);

@@ -10,7 +10,7 @@
 #include <memory>
 #include <string>
 
-#include "../ecs/entity/entity.h"
+#include "../ecs/group/group.h"
 #include "../event/event.h"
 #include "../manager/manager.h"
 
@@ -29,6 +29,8 @@ class Scene {
     // Set this scene to be active
     void setActive();
 
+    Group& getEntities();
+
    protected:
     Scene(const std::string&);
     virtual ~Scene() = default;
@@ -41,7 +43,7 @@ class Scene {
     std::string tag = "Scene";
 
     // used to manage entities
-    Group entities;
+    Group _entities;
 
     bool active = true;
 

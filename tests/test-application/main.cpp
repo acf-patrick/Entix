@@ -55,14 +55,9 @@ class FollowMouseBehavior : public Script {
     }
 };
 
-class Controller : public Script {
-    FPSmanager fpsManager;
-
+class Ground : public Script {
    public:
-    Controller() {
-        SDL_initFramerate(&fpsManager);
-        SDL_setFramerate(&fpsManager, 60);
-
+    Ground() {
         // create ground
         b2BodyDef groundBodyDef;
         groundBodyDef.position.Set(400 / MtoPX, 400 / MtoPX);
@@ -74,37 +69,12 @@ class Controller : public Script {
         ground->CreateFixture(&groundShape, 0.0f);
     }
 
-    ~Controller() { delete World; }
-
     void Render() override {
         RenderManager::Get()->submit([&](SDL_Renderer* renderer) {
             SDL_SetRenderDrawColor(renderer, 255, 255, 0, 255);
             SDL_Rect rect = {100, 390, 600, 20};
             SDL_RenderDrawRect(renderer, &rect);
         });
-    }
-
-    void Update() override {
-        SDL_framerateDelay(&fpsManager);
-        World->Step(timeStep, 6, 2);
-    }
-
-    void onAttach() override {
-        event.listen(Input.QUIT, [](Entity& _) { Application::Get().quit(); })
-            .listen(Input.MOUSE_BUTTON_UP, [&](Entity& _) {
-                auto& e = get<Component::group>().content->create();
-                e.useTemplate("prefabs/mob.entt");
-
-                auto mousePos = Input.mouse.getPosition();
-                if (e.has<Mob>()) {
-                    auto& body = *e.get<Mob>().body;
-                    body.SetTransform({mousePos.x / MtoPX, mousePos.y / MtoPX},
-                                      0.0f);
-
-                    Logger::info("Controller") << "entity position set";
-                    Logger::endline();
-                }
-            });
     }
 };
 
@@ -210,8 +180,8 @@ class CustomSerializer : public Serializer {
         auto c = node["Mob"];
         if (c) entity.attach<Mob>();
 
-        c = node["Controller"];
-        if (c) entity.attach<Controller>();
+        c = node["Ground"];
+        if (c) entity.attach<Ground>();
 
         c = node["FollowMouseBehavior"];
         if (c) entity.attach<FollowMouseBehavior>();
@@ -227,4 +197,64 @@ class CustomSerializer : public Serializer {
     }
 };
 
-USE_SERIALIZER(CustomSerializer)
+class WorldSystem : public ISystem {
+    FPSmanager fpsManager;
+    EventListner eventListener;
+
+    class QueryCamera : public IFilter {
+        bool filter(EntityID id) const override {
+            auto entity = Entity::Get(id);
+            if (!entity) return false;
+
+            if (entity->has<Component::tag>()) {
+                auto tag = entity->get<Component::tag>();
+                return tag.content == "main camera";
+            }
+
+            return false;
+        }
+    };
+
+   public:
+    WorldSystem() : ISystem("CustomSystem", new QueryCamera) {
+        SDL_initFramerate(&fpsManager);
+        SDL_setFramerate(&fpsManager, 60);
+    }
+
+    ~WorldSystem() { delete World; }
+
+    bool run() override {
+        SDL_framerateDelay(&fpsManager);
+        World->Step(timeStep, 6, 2);
+        return true;
+    }
+};
+
+class CustomHook : public ApplicationHook {
+    EventListner eventListener;
+
+   public:
+    void startup() override {
+        application.setSerializer<CustomSerializer>();
+        // application.addSystem<WorldSystem>();
+
+        eventListener.listen(Input.QUIT, []() { Application::Get().quit(); })
+            .listen(Input.MOUSE_BUTTON_UP, [&]() {
+                auto& entity =
+                    SceneManager::Get()->getActive().getEntities().create();
+                entity.useTemplate("prefabs/mob.entt");
+
+                auto mousePos = Input.mouse.getPosition();
+                if (entity.has<Mob>()) {
+                    auto& body = *entity.get<Mob>().body;
+                    body.SetTransform({mousePos.x / MtoPX, mousePos.y / MtoPX},
+                                      0.0f);
+
+                    Logger::info("Controller") << "entity position set";
+                    Logger::endline();
+                }
+            });
+    }
+};
+
+HOOK_APPLICATION(CustomHook)

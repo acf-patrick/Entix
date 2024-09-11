@@ -9,7 +9,7 @@ using SceneRef = std::shared_ptr<Scene>;
 using Couple = std::pair<Scene*, Scene*>;
 
 void SceneManager::load(const std::string& fileName) {
-    auto scene = Application::serializer->deserialize(fileName);
+    auto scene = Application::Get().getSerializer().deserialize(fileName);
     EventManager::Get()->emit(Input.SCENE_LOADED).attach<Scene*>(scene);
 }
 
@@ -89,6 +89,4 @@ SceneManager::~SceneManager() {
 }
 
 // static
-std::shared_ptr<SceneManager> SceneManager::Get() {
-    return createInstance();
-}
+std::shared_ptr<SceneManager> SceneManager::Get() { return createInstance(); }
