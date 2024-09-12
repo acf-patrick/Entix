@@ -1,0 +1,28 @@
+Name: main
+Entities:
+  - TagComponent:
+      Tag: main camera
+    TransformComponent:
+      Position: [0, 0]
+      Scale: [1, 1]
+      Rotation: 0
+    CameraComponent:
+      Size: [1, 1]
+      Destination: [0, 0]
+      BackgroundColor: [120, 20, 100, 255]
+      # BackgroundImage: ""
+      ClearMode: solid color
+      Flip: [false, false]
+      Depth: 0
+      Layers: [0]
+  - TagComponent:
+      Tag: sprite
+    TransformComponent:
+      Position: [0, 0]
+    SpriteComponent:
+      Texture: spritesheet.png
+      FramesNumber: [11, 1]
+      Frame: 0
+    SpriteRendererComponent:
+    FollowMouseBehavior:
+  - Ground:

@@ -1,0 +1,44 @@
+name: Build library
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  build: 
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Get submodules
+        run: git submodule update --init --recursive
+
+      - name: Setup linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install \
+            libflac-dev \
+            libfluidsynth-dev \
+            libgme-dev \
+            libmpg123-dev \
+            libopusfile-dev \
+            libvorbis-dev \
+            libxmp-dev \
+            libwavpack-dev \
+            libavif-dev \
+            libjpeg-dev \
+            libpng-dev \
+            libtiff-dev \
+            libwebp-dev \
+            zlib1g-dev \
+            file \
+            fonts-dejavu-core \
+            libfreetype-dev \
+            libharfbuzz-dev \
+
+      - name: Build
+        uses: threeal/cmake-action@v2.0.0

@@ -1,0 +1,7 @@
+Mob:
+TransformComponent:
+SpriteRendererComponent:
+SpriteComponent:
+  Texture: spritesheet.png
+  Centered: true
+  FramesNumber: [11, 1]

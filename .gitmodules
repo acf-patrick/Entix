@@ -1,3 +1,24 @@
 [submodule "libraries"]
 	path = libraries
 	url = https://github.com/acf-patrick/cpp-game-libraries.git
+[submodule "external/SDL"]
+	path = external/SDL
+	url = https://github.com/libsdl-org/SDL.git
+[submodule "external/SDL_image"]
+	path = external/SDL_image
+	url = https://github.com/libsdl-org/SDL_image.git
+[submodule "external/SDL_mixer"]
+	path = external/SDL_mixer
+	url = https://github.com/libsdl-org/SDL_mixer.git
+[submodule "external/SDL_ttf"]
+	path = external/SDL_ttf
+	url = https://github.com/libsdl-org/SDL_ttf.git
+[submodule "external/box2d"]
+	path = external/box2d
+	url = https://github.com/erincatto/box2d
+[submodule "external/tileson"]
+	path = external/tileson
+	url = https://github.com/SSBMTonberry/tileson
+[submodule "external/yaml-cpp"]
+	path = external/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
