@@ -52,7 +52,7 @@ Application::Application(const std::string& title, int width, int height,
 
     Logger::info("App") << "Application created";
     Logger::endline();
-    
+
     // running hook
     if (hook) hook->startup();
 }
@@ -71,8 +71,6 @@ Application::~Application() {
 
     TTF_Quit();
     SDL_Quit();
-
-    delete _serializer;
 
     Logger::dumpStatus(Logger::Status::ERROR, "error.log");
 }
@@ -106,7 +104,7 @@ void Application::setWindowPosition(int x, int y) {
 std::filesystem::path Application::getConfigPath() { return _configPath; }
 
 Serializer& Application::getSerializer() {
-    if (!_serializer) _serializer = new Serializer;
+    if (!_serializer) _serializer = std::make_shared<Serializer>();
     return *_serializer;
 }
 

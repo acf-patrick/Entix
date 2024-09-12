@@ -235,10 +235,12 @@ class CustomHook : public ApplicationHook {
 
    public:
     void startup() override {
+        auto& application = Application::Get();
         application.setSerializer<CustomSerializer>();
-        // application.addSystem<WorldSystem>();
+        SystemManager::Get()->add<WorldSystem>();
 
-        eventListener.listen(Input.QUIT, []() { Application::Get().quit(); })
+        eventListener
+            .listen(Input.QUIT, [&]() { application.quit(); })
             .listen(Input.MOUSE_BUTTON_UP, [&]() {
                 auto& entity =
                     SceneManager::Get()->getActive().getEntities().create();
@@ -258,3 +260,4 @@ class CustomHook : public ApplicationHook {
 };
 
 HOOK_APPLICATION(CustomHook)
+// RUN_APPLICATION()

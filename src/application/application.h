@@ -9,6 +9,7 @@
 #include <SDL.h>
 
 #include <filesystem>
+#include <memory>
 #include <string>
 
 #include "../ecs/system/system.h"
@@ -26,18 +27,12 @@ class Application final {
     void quit();
     void log(const std::string&) const;
 
+    std::filesystem::path getConfigPath();
+
     template <typename TSerializer>
     void setSerializer() {
-        _serializer = new TSerializer;
+        _serializer = std::make_shared<TSerializer>();
     }
-
-    template <typename TSystem>
-    void addSystem() {
-        auto manager = SystemManager::Get();
-        manager->addSystem<TSystem>();
-    }
-
-    std::filesystem::path getConfigPath();
 
     Serializer& getSerializer();
 
@@ -54,7 +49,7 @@ class Application final {
     bool _running = true;
     SDL_Window* _window;
     std::string _configPath;
-    Serializer* _serializer = nullptr;
+    std::shared_ptr<Serializer> _serializer;
 
     static Application* instance;
 
@@ -64,4 +59,4 @@ class Application final {
 #define HOOK_APPLICATION(CustomHook) \
     ApplicationHook* Application::hook = new CustomHook;
 
-#define RUN_APPLICATION ApplicationHook* Application::hook = nullptr;
+#define RUN_APPLICATION() ApplicationHook* Application::hook = nullptr;

@@ -51,6 +51,8 @@ class Scene {
     friend class SceneManager;
 };
 
+class EmptyScene : public Scene {};
+
 class SceneManager : Manager<SceneManager> {
    public:
     // Load Scene from file

@@ -10,8 +10,6 @@
 
 class ApplicationHook {
    protected:
-    Application& application;
-    ApplicationHook() : application(Application::Get()) {}
     virtual ~ApplicationHook() = default;
 
    public:

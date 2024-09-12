@@ -37,7 +37,6 @@ class ISystem {
 class SystemManager : Manager<SystemManager> {
     std::map<std::string, std::shared_ptr<ISystem>> _systems;
 
-   public:
     template <typename TSystem>
     void addSystem() {
         auto system = std::make_shared<TSystem>();
@@ -46,6 +45,12 @@ class SystemManager : Manager<SystemManager> {
         assert(_systems.find(system->_name) == _systems.end() &&
                message.c_str());
         _systems[system->_name] = system;
+    }
+
+   public:
+    template <typename... TSystems>
+    void add() {
+        (addSystem<TSystems>(), ...);
     }
 
     // run systems (TODO : in parallel)

@@ -53,8 +53,6 @@ int main(int argc, char** argv) {
 
     auto application =
         new Application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
-    assert(application->_serializer &&
-           "Setup your custom serializer inside ApplicationHook");
 
     auto configPath = std::filesystem::path(configFile).parent_path();
     application->_configPath = configPath.string();
@@ -74,11 +72,22 @@ int main(int argc, char** argv) {
         Logger::endline();
     }
 
+    auto oneSceneDeserialized = false;
     if (node["Scenes"]) {
         for (auto scene : node["Scenes"]) {
             auto scenePath = scenesPath / (scene.as<std::string>() + ".scn");
-            serializer.deserialize(scenePath.string());
+            if (serializer.deserialize(scenePath.string()))
+                oneSceneDeserialized = true;
         }
+    }
+
+    if (!oneSceneDeserialized) {
+        Logger::error() << "No scene to run";
+        Logger::endline();
+
+        delete application;
+
+        return 1;
     }
 
     application->run();

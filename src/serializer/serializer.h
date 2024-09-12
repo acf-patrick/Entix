@@ -33,6 +33,8 @@ class Serializer {
    public:
     Serializer();
 
+    virtual ~Serializer() = default;
+
     virtual void serialize(Scene*, const std::string& fileName = "");
     virtual Scene* deserialize(const std::string&);
 
@@ -41,9 +43,6 @@ class Serializer {
 
     // Deserialize entity
     virtual void deserializeEntity(YAML::Node&, Entity&);
-
-   protected:
-    virtual ~Serializer() = default;
 
     friend class Application;
 };
