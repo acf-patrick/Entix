@@ -12,8 +12,6 @@
 #include "../scene/scene.h"
 #include "hook.h"
 
-InputType Input;
-
 Application* Application::instance = nullptr;
 
 Application::Application(const std::string& title, int width, int height,

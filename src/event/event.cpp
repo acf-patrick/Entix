@@ -46,34 +46,36 @@ void EventManager::handle() {
 }
 
 void EventManager::SDLEvents() {
+    auto& input = Input::Get();
     SDL_Event event;
+
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_QUIT:
-                _emit(Input.QUIT);
+                _emit(input.QUIT);
                 break;
             case SDL_KEYDOWN:
-                _emit(Input.KEY_DOWN).attachIf<SDL_KeyboardEvent>(event.key);
-                Input.keys[event.key.keysym.scancode] = true;
+                _emit(input.KEY_DOWN).attachIf<SDL_KeyboardEvent>(event.key);
+                input._keys[event.key.keysym.scancode] = true;
                 break;
             case SDL_KEYUP:
-                _emit(Input.KEY_UP).attachIf<SDL_KeyboardEvent>(event.key);
-                Input.keys[event.key.keysym.scancode] = false;
+                _emit(input.KEY_UP).attachIf<SDL_KeyboardEvent>(event.key);
+                input._keys[event.key.keysym.scancode] = false;
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                _emit(Input.MOUSE_BUTTON_DOWN)
+                _emit(input.MOUSE_BUTTON_DOWN)
                     .attachIf<SDL_MouseButtonEvent>(event.button);
                 break;
             case SDL_MOUSEBUTTONUP:
-                _emit(Input.MOUSE_BUTTON_UP)
+                _emit(input.MOUSE_BUTTON_UP)
                     .attachIf<SDL_MouseButtonEvent>(event.button);
                 break;
             case SDL_MOUSEMOTION:
-                _emit(Input.MOUSE_MOTION)
+                _emit(input.MOUSE_MOTION)
                     .attachIf<SDL_MouseMotionEvent>(event.motion);
                 break;
             case SDL_MOUSEWHEEL:
-                _emit(Input.MOUSE_WHEEL)
+                _emit(input.MOUSE_WHEEL)
                     .attachIf<SDL_MouseWheelEvent>(event.wheel);
                 break;
             default:;
@@ -82,15 +84,16 @@ void EventManager::SDLEvents() {
 }
 
 Entity& EventManager::emit(const std::string& event_name) {
-    std::vector<std::string> reserved = {Input.QUIT,
-                                         Input.KEY_DOWN,
-                                         Input.KEY_UP,
-                                         Input.MOUSE_BUTTON_DOWN,
-                                         Input.MOUSE_BUTTON_UP,
-                                         Input.MOUSE_WHEEL,
-                                         Input.MOUSE_MOTION,
-                                         Input.SCENE_LOADED,
-                                         Input.SCENE_CHANGED};
+    auto& input = Input::Get();
+    std::vector<std::string> reserved = {input.QUIT,
+                                         input.KEY_DOWN,
+                                         input.KEY_UP,
+                                         input.MOUSE_BUTTON_DOWN,
+                                         input.MOUSE_BUTTON_UP,
+                                         input.MOUSE_WHEEL,
+                                         input.MOUSE_MOTION,
+                                         input.SCENE_LOADED,
+                                         input.SCENE_CHANGED};
 
     auto invalidEvent = std::find(reserved.begin(), reserved.end(),
                                   event_name) != reserved.end();

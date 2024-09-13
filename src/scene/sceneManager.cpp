@@ -10,7 +10,7 @@ using Couple = std::pair<Scene*, Scene*>;
 
 void SceneManager::load(const std::string& fileName) {
     auto scene = Application::Get().getSerializer().deserialize(fileName);
-    EventManager::Get()->emit(Input.SCENE_LOADED).attach<Scene*>(scene);
+    EventManager::Get()->emit(Input::Get().SCENE_LOADED).attach<Scene*>(scene);
 }
 
 Scene& SceneManager::getActive() { return *scenes[0]; }
@@ -29,7 +29,7 @@ void SceneManager::setActive(const std::string& tag) {
     auto scene = *it;
     // puts the element at the end of the queue
     scenes.push_front(scene);
-    EventManager::Get()->emit(Input.SCENE_CHANGED);
+    EventManager::Get()->emit(Input::Get().SCENE_CHANGED);
 }
 
 void SceneManager::setActive(std::size_t index) {
@@ -40,7 +40,7 @@ void SceneManager::setActive(std::size_t index) {
     scenes.erase(scenes.begin() + index);
 
     scenes.push_front(scene);
-    EventManager::Get()->emit(Input.SCENE_CHANGED);
+    EventManager::Get()->emit(Input::Get().SCENE_CHANGED);
 }
 
 void SceneManager::remove(const std::string& tag) {
@@ -80,7 +80,7 @@ void SceneManager::next() {
     auto scene = scenes[0];
     delete scene;
     scenes.pop_front();
-    EventManager::Get()->emit(Input.SCENE_CHANGED);
+    EventManager::Get()->emit(Input::Get().SCENE_CHANGED);
 }
 
 SceneManager::~SceneManager() {
