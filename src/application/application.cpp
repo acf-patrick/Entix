@@ -102,7 +102,12 @@ void Application::setWindowPosition(int x, int y) {
 std::filesystem::path Application::getConfigPath() { return _configPath; }
 
 Serializer& Application::getSerializer() {
-    if (!_serializer) _serializer = std::make_shared<Serializer>();
+    if (!_serializer) {
+        Logger::warn() << "No custom serializer set. Using default serializer.";
+        Logger::endline();
+
+        _serializer = std::make_shared<Serializer>();
+    }
     return *_serializer;
 }
 
