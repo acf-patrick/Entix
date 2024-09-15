@@ -23,6 +23,9 @@ class Group {
     // return a list of entites having required components
     std::vector<Entity*> view(const IFilter& filter);
 
+    // return all entities from this group
+    std::vector<Entity*> getEntities();
+
     // retrieve by tag
     // return null pointer if not found
     Entity* operator[](const std::string&);

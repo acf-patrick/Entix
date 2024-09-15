@@ -92,3 +92,9 @@ std::vector<Entity*> Group::view(const IFilter& filter) {
 
     return filtered;
 }
+
+std::vector<Entity*> Group::getEntities() {
+    std::vector<Entity*> entities;
+    for (auto id : _ids) entities.push_back(Entity::Get(id));
+    return entities;
+}

@@ -237,7 +237,9 @@ class CustomHook : public ApplicationHook {
     void startup() override {
         auto& application = Application::Get();
         application.setSerializer<CustomSerializer>();
-        SystemManager::Get()->add<WorldSystem>();
+
+        auto systemManager = SystemManager::Get();
+        systemManager->add<WorldSystem>();
 
         auto& input = Input::Get();
         eventListener.listen(input.QUIT, [&]() { application.quit(); })
