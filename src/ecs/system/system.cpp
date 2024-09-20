@@ -60,13 +60,16 @@ void SystemManager::run() {
     std::vector<std::thread> handles;
 
     auto systemThread = [&](std::shared_ptr<ISystem> system) {
-        std::lock_guard lock_(mutex);
-        runSystem(entities, system);
+        if (system->_active) {
+            std::lock_guard lock_(mutex);
+            runSystem(entities, system);
+        }
     };
 
     auto systemGroupThread = [&](const std::vector<std::string>& systemNames) {
         std::lock_guard lock_(mutex);
-        for (auto& name : systemNames) runSystem(entities, _systems[name]);
+        for (auto& name : systemNames)
+            if (_systems[name]->_active) runSystem(entities, _systems[name]);
     };
 
     for (auto& name : _parallelSystems)
@@ -86,6 +89,13 @@ void SystemManager::setThreadName(std::thread& handle,
     setThreadDescription(handle.native_handle(),
                          std::wstring(name.begin(), name.end()));
 #endif
+}
+
+void SystemManager::useSystems(const std::vector<std::string>& systemNames) {
+    for (auto& [name, system] : _systems) {
+        system->_active = std::find(systemNames.begin(), systemNames.end(),
+                                    name) != systemNames.end();
+    }
 }
 
 // static

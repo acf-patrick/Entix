@@ -16,10 +16,13 @@
 #include "../group/group.h"
 
 class SystemManager;
+class SceneManager;
 class Entity;
 class IFilter;
 
+// Systems are not activated by default and only activated if specified in Scene configuration
 class ISystem {
+    bool _active = false;
     bool _runOnlyOnce;
 
    protected:
@@ -68,30 +71,20 @@ class SystemManager : Manager<SystemManager> {
     void setThreadName(std::thread&, const std::string&) const;
 
    public:
-    // Systems registered with this method will be ran in parallel
+    // Register system types
     template <typename... TSystems>
-    void add() {
-        _lastNamesAdded.clear();
+    void registerTypes() {
         (addSystem<TSystems>(), ...);
-
-        _parallelSystems.insert(_parallelSystems.end(), _lastNamesAdded.begin(),
-                                _lastNamesAdded.end());
-    }
-
-    // Systems register with this method will be ran sequentially 
-    template <typename... TSystems>
-    void addSequence() {
-        _lastNamesAdded.clear();
-        (addSystem<TSystems>(), ...);
-
-        // create new group
-        _systemGroups.push_back(_lastNamesAdded);
     }
 
     // Run systems (TODO : in parallel)
     void run();
 
+    // Activate systems with given names
+    void useSystems(const std::vector<std::string>& systemNames);
+
     static std::shared_ptr<SystemManager> Get();
 
+    friend class SceneManager;
     friend class Manager<SystemManager>;
 };

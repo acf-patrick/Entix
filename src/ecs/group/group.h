@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 
+#include "../component/manager.h"
 #include "../filter/filter.h"
 #include "../defs.h"
 
@@ -60,10 +61,12 @@ class Group {
     void reorder(_compare);
 
    private:
+    Group();
     ~Group();
 
    private:
     std::list<EntityID> _ids;
+    ComponentManager& _componentManager;
 
     friend class Scene;
 };

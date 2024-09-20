@@ -239,13 +239,12 @@ class CustomHook : public ApplicationHook {
         application.setSerializer<CustomSerializer>();
 
         auto systemManager = SystemManager::Get();
-        systemManager->add<WorldSystem>();
+        systemManager->registerTypes<WorldSystem>();
 
         auto& input = Input::Get();
         eventListener.listen(input.QUIT, [&]() { application.quit(); })
             .listen(input.MOUSE_BUTTON_UP, [&]() {
-                auto& entity =
-                    SceneManager::Get()->getActive().getEntities().create();
+                auto& entity = SceneManager::Get()->getActive().createEntity();
                 entity.useTemplate("prefabs/mob.entt");
 
                 auto mousePos = input.getMousePosition();

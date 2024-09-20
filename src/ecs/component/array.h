@@ -88,6 +88,12 @@ class ComponentArray : public IComponentArray {
             removeData(entity);
     }
 
+    std::vector<EntityID> getAssociatedEntities() const {
+        std::vector<EntityID> entities;
+        for (auto& [entity, _] : _entity_index) entities.push_back(entity);
+        return entities;
+    }
+
    private:
     size_t _size = 0;
     std::array<T*, MAX_ENTITIES> _componentArray;

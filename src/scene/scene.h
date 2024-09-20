@@ -16,6 +16,7 @@
 
 class Application;
 class Serializer;
+class Entity;
 
 // Scene Interface
 class Scene {
@@ -28,6 +29,8 @@ class Scene {
 
     // Set this scene to be active
     void setActive();
+
+    Entity& createEntity();
 
     Group& getEntities();
 
@@ -44,6 +47,8 @@ class Scene {
 
     // used to manage entities
     Group _entities;
+
+    std::vector<std::string> _systemNames;
 
     bool active = true;
 

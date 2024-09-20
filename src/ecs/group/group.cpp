@@ -5,6 +5,10 @@
 #include "../components.h"
 #include "../entity/entity.h"
 
+Group::Group() 
+    : _componentManager(ComponentManager::Get())
+{}
+
 Group::~Group() {
     for (auto id : _ids) delete Entity::Get(id);
     _ids.clear();
@@ -86,9 +90,17 @@ void Group::reorder() {
 void Group::reorder(_compare comparator) { _ids.sort(comparator); }
 
 std::vector<Entity*> Group::view(const IFilter& filter) {
+    if (_ids.size() < _componentManager.registeredComponentCount()) {
+
+    } else {
+        
+    }
+
     std::vector<Entity*> filtered;
     for (auto id : _ids)
         if (filter.filter(id)) filtered.push_back(Entity::Get(id));
+
+    
 
     return filtered;
 }

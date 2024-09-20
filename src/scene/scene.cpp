@@ -22,3 +22,5 @@ void Scene::save(const std::string& fileName) {
 void Scene::setActive() { SceneManager::Get()->setActive(tag); }
 
 Group& Scene::getEntities() { return _entities; }
+
+Entity& Scene::createEntity() { return _entities.create(); }

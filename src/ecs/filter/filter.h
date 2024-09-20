@@ -30,7 +30,10 @@ template <typename... TComponents>
 class NoneOf : public IFilter {
    public:
     NoneOf() = default;
-    bool filter(EntityID id) const override {
+
+    
+
+    bool filterEntity(EntityID id) const override {
         auto entity = Entity::Get(id);
         if (entity) return entity->none_of<TComponents...>();
         return false;
