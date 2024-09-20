@@ -239,7 +239,7 @@ class CustomHook : public ApplicationHook {
         application.setSerializer<CustomSerializer>();
 
         auto systemManager = SystemManager::Get();
-        systemManager->add<WorldSystem>();
+        systemManager->registerTypes<WorldSystem>();
 
         auto& input = Input::Get();
         eventListener.listen(input.QUIT, [&]() { application.quit(); })

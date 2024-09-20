@@ -45,6 +45,8 @@ class Scene {
     // used to manage entities
     Group _entities;
 
+    std::vector<std::string> _systemNames;
+
     bool active = true;
 
     friend class Serializer;

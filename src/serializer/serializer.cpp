@@ -77,6 +77,14 @@ Scene *Serializer::deserialize(const std::string &source) {
             cameraEntity.attach<Component::camera>();
     }
 
+    // activate systems
+    auto systemNames = node["Systems"];
+    if (!systemNames) {
+        Logger::warn("Deserializer") << "no system found";
+        Logger::endline();
+    } else
+        scene->_systemNames = systemNames.as<std::vector<std::string>>();
+
     if (scene)
         Logger::info("Deserializer") << source << " loaded";
     else
