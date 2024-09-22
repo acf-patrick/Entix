@@ -5,7 +5,8 @@
 
 #include "../application/application.h"
 #include "../ecs/ecs.h"
-#include "input.h"
+#include "../scene/scene.h"
+#include "./input.h"
 
 EventManager::~EventManager() {
     while (!events.empty()) {
@@ -46,36 +47,37 @@ void EventManager::handle() {
 }
 
 void EventManager::SDLEvents() {
-    auto& input = Input::Get();
     SDL_Event event;
 
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_QUIT:
-                _emit(input.QUIT);
+                _emit(Input::Event::QUIT);
                 break;
             case SDL_KEYDOWN:
-                _emit(input.KEY_DOWN).attachIf<SDL_KeyboardEvent>(event.key);
-                input._keys[event.key.keysym.scancode] = true;
+                _emit(Input::Event::KEY_DOWN)
+                    .attachIf<SDL_KeyboardEvent>(event.key);
+                Input::_keys[event.key.keysym.scancode] = true;
                 break;
             case SDL_KEYUP:
-                _emit(input.KEY_UP).attachIf<SDL_KeyboardEvent>(event.key);
-                input._keys[event.key.keysym.scancode] = false;
+                _emit(Input::Event::KEY_UP)
+                    .attachIf<SDL_KeyboardEvent>(event.key);
+                Input::_keys[event.key.keysym.scancode] = false;
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                _emit(input.MOUSE_BUTTON_DOWN)
+                _emit(Input::Event::MOUSE_BUTTON_DOWN)
                     .attachIf<SDL_MouseButtonEvent>(event.button);
                 break;
             case SDL_MOUSEBUTTONUP:
-                _emit(input.MOUSE_BUTTON_UP)
+                _emit(Input::Event::MOUSE_BUTTON_UP)
                     .attachIf<SDL_MouseButtonEvent>(event.button);
                 break;
             case SDL_MOUSEMOTION:
-                _emit(input.MOUSE_MOTION)
+                _emit(Input::Event::MOUSE_MOTION)
                     .attachIf<SDL_MouseMotionEvent>(event.motion);
                 break;
             case SDL_MOUSEWHEEL:
-                _emit(input.MOUSE_WHEEL)
+                _emit(Input::Event::MOUSE_WHEEL)
                     .attachIf<SDL_MouseWheelEvent>(event.wheel);
                 break;
             default:;
@@ -84,16 +86,19 @@ void EventManager::SDLEvents() {
 }
 
 Entity& EventManager::emit(const std::string& event_name) {
-    auto& input = Input::Get();
-    std::vector<std::string> reserved = {input.QUIT,
-                                         input.KEY_DOWN,
-                                         input.KEY_UP,
-                                         input.MOUSE_BUTTON_DOWN,
-                                         input.MOUSE_BUTTON_UP,
-                                         input.MOUSE_WHEEL,
-                                         input.MOUSE_MOTION,
-                                         input.SCENE_LOADED,
-                                         input.SCENE_CHANGED};
+    std::vector<std::string> reserved = {
+        Input::Event::QUIT,
+        Input::Event::KEY_DOWN,
+        Input::Event::KEY_UP,
+        Input::Event::MOUSE_BUTTON_DOWN,
+        Input::Event::MOUSE_BUTTON_UP,
+        Input::Event::MOUSE_WHEEL,
+        Input::Event::MOUSE_MOTION,
+        Scene::Event::LOADED,
+        Scene::Event::CHANGED,
+        SystemManager::Event::SYSTEM_ACTIVATED,
+        SystemManager::Event::SYSTEM_DEACTIVATED,
+    };
 
     auto invalidEvent = std::find(reserved.begin(), reserved.end(),
                                   event_name) != reserved.end();

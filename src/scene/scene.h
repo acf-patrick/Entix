@@ -17,9 +17,22 @@
 class Application;
 class Serializer;
 
+struct SceneChange {
+    std::string from;
+    std::string to;
+
+    SceneChange(const std::string& from, const std::string& to) :
+        from(from), to(to) {}
+};
+
 // Scene Interface
 class Scene {
    public:
+    struct Event {
+        static const std::string LOADED;
+        static const std::string CHANGED;
+    };
+
     // Save to file
     void save(const std::string& fileName = "");
 

@@ -10,7 +10,9 @@ using Couple = std::pair<Scene*, Scene*>;
 
 void SceneManager::load(const std::string& fileName) {
     auto scene = Application::Get().getSerializer().deserialize(fileName);
-    EventManager::Get()->emit(Input::Get().SCENE_LOADED).attach<Scene*>(scene);
+    EventManager::Get()
+        ->emit(Scene::Event::LOADED)
+        .attach<Component::tag>(scene->tag);
 }
 
 Scene& SceneManager::getActive() { return *scenes[0]; }
@@ -27,9 +29,14 @@ void SceneManager::setActive(const std::string& tag) {
     scenes.erase(it);
 
     auto scene = *it;
-    // puts the element at the end of the queue
+
+    // puts the element at ontop of the queue
+    auto prevScene = scenes.front();
     scenes.push_front(scene);
-    EventManager::Get()->emit(Input::Get().SCENE_CHANGED);
+
+    EventManager::Get()
+        ->emit(Scene::Event::CHANGED)
+        .attach<SceneChange>(prevScene->tag, scene->tag);
 }
 
 void SceneManager::setActive(std::size_t index) {
@@ -39,8 +46,12 @@ void SceneManager::setActive(std::size_t index) {
     auto scene = scenes[index];
     scenes.erase(scenes.begin() + index);
 
+    auto prevScene = scenes.front();
     scenes.push_front(scene);
-    EventManager::Get()->emit(Input::Get().SCENE_CHANGED);
+
+    EventManager::Get()
+        ->emit(Scene::Event::CHANGED)
+        .attach<SceneChange>(prevScene->tag, scene->tag);
 }
 
 void SceneManager::remove(const std::string& tag) {
@@ -78,9 +89,15 @@ bool SceneManager::update() {
 void SceneManager::next() {
     if (scenes.empty()) return;
     auto scene = scenes[0];
+
+    auto prevScene = scene->tag;
     delete scene;
     scenes.pop_front();
-    EventManager::Get()->emit(Input::Get().SCENE_CHANGED);
+
+    if (!scenes.empty())
+        EventManager::Get()
+            ->emit(Scene::Event::CHANGED)
+            .attach<SceneChange>(prevScene, scenes.front()->tag);
 }
 
 SceneManager::~SceneManager() {

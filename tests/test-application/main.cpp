@@ -46,7 +46,7 @@ class Mob : public Script {
 class FollowMouseBehavior : public Script {
    public:
     FollowMouseBehavior() {
-        event.listen(Input::Get().MOUSE_MOTION, [&](Entity& entity) {
+        event.listen(Input::Event::MOUSE_MOTION, [&](Entity& entity) {
             auto& position = get<Component::transform>().position;
             auto event = entity.get<SDL_MouseMotionEvent>();
             position.set(event.x, event.y);
@@ -235,14 +235,13 @@ class CustomHook : public ApplicationHook {
         auto systemManager = SystemManager::Get();
         systemManager->add<WorldSystem>();
 
-        auto& input = Input::Get();
-        eventListener.listen(input.QUIT, [&]() { application.quit(); })
-            .listen(input.MOUSE_BUTTON_UP, [&]() {
+        eventListener.listen(Input::Event::QUIT, [&]() { application.quit(); })
+            .listen(Input::Event::MOUSE_BUTTON_UP, [&]() {
                 auto& entity =
                     SceneManager::Get()->getActive().getEntities().create();
                 entity.useTemplate("prefabs/mob.entt");
 
-                auto mousePos = input.getMousePosition();
+                auto mousePos = Input::getMousePosition();
                 if (entity.has<Mob>()) {
                     auto& body = *entity.get<Mob>().body;
                     body.SetTransform({mousePos.x / MtoPX, mousePos.y / MtoPX},

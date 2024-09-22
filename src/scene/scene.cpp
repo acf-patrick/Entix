@@ -3,6 +3,9 @@
 #include "../application/application.h"
 #include "../ecs/system/system.h"
 
+const std::string Scene::Event::LOADED = "scene loaded";
+const std::string Scene::Event::CHANGED = "scene changed";
+
 Scene::Scene(const std::string& _tag) : tag(_tag) {
     SceneManager::Get()->push(this);
 }
