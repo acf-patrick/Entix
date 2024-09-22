@@ -199,22 +199,8 @@ class CustomSerializer : public Serializer {
 class WorldSystem : public ISystem {
     EventListner eventListener;
 
-    class QueryCamera : public IFilter {
-        bool filter(EntityID id) const override {
-            auto entity = Entity::Get(id);
-            if (!entity) return false;
-
-            if (entity->has<Component::tag>()) {
-                auto tag = entity->get<Component::tag>();
-                return tag.content == "main camera";
-            }
-
-            return false;
-        }
-    };
-
    public:
-    WorldSystem() : ISystem("WorldSystem", new QueryCamera) {}
+    WorldSystem() : ISystem("WorldSystem") {}
 
     ~WorldSystem() { delete World; }
 
