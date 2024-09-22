@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 
+#include "../application/application.h"
 #include "../ecs/components.h"
 #include "../logger/logger.h"
 
@@ -31,9 +32,10 @@ YAML::Emitter &operator<<(YAML::Emitter &out, const SDL_Color &color) {
     return out;
 }
 
-Scene *Serializer::deserialize(const std::string &source) {
+Scene *Serializer::deserialize(const std::string &source) try {
     auto error = [](const std::string &message) -> Scene * {
-        Logger::error("Deserializer") << "Invalid file format! " << message;
+        Logger::error("Deserializer")
+            << "Invalid file format! Cause: " << message;
         Logger::endline();
 
         return nullptr;
@@ -77,13 +79,15 @@ Scene *Serializer::deserialize(const std::string &source) {
             cameraEntity.attach<Component::camera>();
     }
 
-    // activate systems
-    auto systemNames = node["Systems"];
-    if (!systemNames) {
-        Logger::warn("Deserializer") << "no system found";
-        Logger::endline();
-    } else
-        scene->_systemNames = systemNames.as<std::vector<std::string>>();
+    // fetch systems
+    if (node["Systems"]) {
+        auto systems = node["Systems"];
+        if (!deserializeSystems(systems, *scene)) {
+            Logger::error("Deserializer")
+                << "Unable to deserialize systems for scene '" << scene->tag;
+            Logger::endline();
+        }
+    }
 
     if (scene)
         Logger::info("Deserializer") << source << " loaded";
@@ -92,6 +96,11 @@ Scene *Serializer::deserialize(const std::string &source) {
     Logger::endline();
 
     return scene;
+} catch (std::exception &e) {
+    Logger::error("Deserializer")
+        << "Unable to deserialize scene. Cause: " << e.what();
+    Logger::endline();
+    return nullptr;
 }
 
 void Serializer::serialize(Scene *scene, const std::string &fileName) {
@@ -118,14 +127,59 @@ void Serializer::serialize(Scene *scene, const std::string &fileName) {
 
     out << YAML::EndMap;
 
-    std::string output = "scenes/";
-    output += (fileName.empty() ? (scene->tag + ".scn") : fileName);
-    system("mkdir -p scenes");
-    std::ofstream file(output);
-    file << out.c_str();
+    auto outputFilename = (fileName.empty() ? (scene->tag + ".scn") : fileName);
+    auto sceneFolderPath = Application::Get().getConfigPath() / "scenes";
+    auto folderCreationOk = false;
 
-    Logger::info("Serializer") << "Scene serialized to " << output;
-    Logger::endline();
+    try {
+        if (!fs::create_directories(sceneFolderPath)) {
+            Logger::warn("Serializer")
+                << "Unable to create scene folder. Path : '" << sceneFolderPath
+                << "'";
+            Logger::endline();
+        } else
+            folderCreationOk = true;
+    } catch (std::exception &e) {
+        Logger::error("Serializer")
+            << "Unable to serialize scene. Cause: " << e.what();
+        Logger::endline();
+    }
+
+    if (folderCreationOk) {
+        std::ofstream file(sceneFolderPath);
+        file << out.c_str();
+
+        Logger::info("Serializer")
+            << "Scene serialized to '" << sceneFolderPath << "'";
+        Logger::endline();
+    }
+}
+
+bool Serializer::deserializeSystems(YAML::Node &node, Scene &scene) {
+    if (!node.IsSequence()) {
+        Logger::error("Deserializer")
+            << "'Systems' should be a list of system names";
+        Logger::endline();
+        return false;
+    }
+
+    auto i = 0;
+    for (auto systems : node) {
+        if (systems.IsScalar()) {
+            scene._freeSystems.push_back(systems.as<std::string>());
+        } else if (systems.IsSequence()) {
+            scene._systemGroups.push_back(
+                systems.as<std::vector<std::string>>());
+        } else {
+            Logger::warn("Deserializer") << "Invalid system node at index " << i
+                                         << ". System node should be a string "
+                                            "or sequence of system names";
+            Logger::endline();
+        }
+        i++;
+    }
+
+    return true;
 }
 
 void Serializer::deserializeEntity(YAML::Node &node, Entity &entity) {

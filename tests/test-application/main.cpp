@@ -1,4 +1,3 @@
-#include <SDL2_framerate.h>
 #include <SDL2_gfxPrimitives.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -198,7 +197,6 @@ class CustomSerializer : public Serializer {
 };
 
 class WorldSystem : public ISystem {
-    FPSmanager fpsManager;
     EventListner eventListener;
 
     class QueryCamera : public IFilter {
@@ -216,15 +214,11 @@ class WorldSystem : public ISystem {
     };
 
    public:
-    WorldSystem() : ISystem("CustomSystem", new QueryCamera) {
-        SDL_initFramerate(&fpsManager);
-        SDL_setFramerate(&fpsManager, 60);
-    }
+    WorldSystem() : ISystem("WorldSystem", new QueryCamera) {}
 
     ~WorldSystem() { delete World; }
 
     bool run() override {
-        SDL_framerateDelay(&fpsManager);
         World->Step(timeStep, 6, 2);
         return true;
     }
@@ -239,7 +233,7 @@ class CustomHook : public ApplicationHook {
         application.setSerializer<CustomSerializer>();
 
         auto systemManager = SystemManager::Get();
-        systemManager->registerTypes<WorldSystem>();
+        systemManager->add<WorldSystem>();
 
         auto& input = Input::Get();
         eventListener.listen(input.QUIT, [&]() { application.quit(); })

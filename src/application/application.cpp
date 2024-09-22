@@ -46,6 +46,9 @@ Application::Application(const std::string& title, int width, int height,
         exit(EXIT_FAILURE);
     }
 
+    SDL_initFramerate(&_fpsManager);
+    setFramerate(60);
+
     instance = this;
 
     Logger::info("App") << "Application created";
@@ -90,6 +93,7 @@ void Application::run() {
             sceneManager->render();
 
         RenderManager::Get()->draw();
+        SDL_framerateDelay(&_fpsManager);
     }
 }
 
@@ -109,6 +113,13 @@ Serializer& Application::getSerializer() {
         _serializer = std::make_shared<Serializer>();
     }
     return *_serializer;
+}
+
+void Application::setFramerate(unsigned int framerate) {
+    if (SDL_setFramerate(&_fpsManager, framerate) < 0) {
+        Logger::warn("App") << "Unable to set framerate to " << framerate;
+        Logger::endline();
+    }
 }
 
 // static

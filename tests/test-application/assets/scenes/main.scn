@@ -1,4 +1,6 @@
 Name: main
+Systems:
+  - WorldSystem
 Entities:
   - TagComponent:
       Tag: main camera

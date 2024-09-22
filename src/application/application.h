@@ -7,6 +7,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <SDL2_framerate.h>
 
 #include <filesystem>
 #include <memory>
@@ -46,10 +47,13 @@ class Application final {
 
     void setWindowPosition(int, int);
 
+    void setFramerate(unsigned int);
+
     bool _running = true;
     SDL_Window* _window;
     std::string _configPath;
     std::shared_ptr<Serializer> _serializer;
+    FPSmanager _fpsManager;
 
     static Application* instance;
 

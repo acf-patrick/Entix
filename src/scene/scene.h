@@ -45,7 +45,10 @@ class Scene {
     // used to manage entities
     Group _entities;
 
-    std::vector<std::string> _systemNames;
+    std::vector<std::string> _freeSystems;
+    std::vector<std::vector<std::string>> _systemGroups;
+
+    bool _systemsActivated = false;
 
     bool active = true;
 

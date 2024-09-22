@@ -41,6 +41,9 @@ class Serializer {
     // Serialize entity
     virtual void serializeEntity(YAML::Emitter&, Entity&);
 
+    // Fetch system names
+    bool deserializeSystems(YAML::Node&, Scene&);
+
     // Deserialize entity
     virtual void deserializeEntity(YAML::Node&, Entity&);
 
