@@ -30,31 +30,27 @@ class Input {
         }
     };
 
-    Mouse _mouse;
+    static Mouse _mouse;
 
-    std::map<SDL_Scancode, bool> _keys;
-
-    static Input* instance;
-
-    Input();
+    static std::map<SDL_Scancode, bool> _keys;
 
    public:
-    const std::string QUIT = "SDL quit", KEY_UP = "SDL key up",
-                      KEY_DOWN = "SDL key down",
-                      MOUSE_WHEEL = "SDL mouse wheel",
-                      MOUSE_MOTION = "SDL mouse motion",
-                      MOUSE_BUTTON_UP = "SDL mouse button up",
-                      MOUSE_BUTTON_DOWN = "SDL mouse button down",
-                      SCENE_LOADED = "Scene loaded",
-                      SCENE_CHANGED = "Scene changed";
+    struct Event {
+#define PROP(property) static const std::string property;
+        PROP(QUIT)
+        PROP(KEY_UP)
+        PROP(KEY_DOWN)
+        PROP(MOUSE_MOTION)
+        PROP(MOUSE_WHEEL)
+        PROP(MOUSE_BUTTON_UP)
+        PROP(MOUSE_BUTTON_DOWN)
+    };
 
-    static Input& Get();
+    static bool isMousePressed(const std::string&);
 
-    bool isMousePressed(const std::string&) const;
+    static VectorI getMousePosition();
 
-    VectorI getMousePosition() const;
-
-    bool isKeyPressed(SDL_Scancode) const;
+    static bool isKeyPressed(SDL_Scancode);
 
     friend class EventManager;
 };

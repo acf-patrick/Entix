@@ -1,4 +1,3 @@
-#include <SDL2_framerate.h>
 #include <SDL2_gfxPrimitives.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -47,7 +46,7 @@ class Mob : public Script {
 class FollowMouseBehavior : public Script {
    public:
     FollowMouseBehavior() {
-        event.listen(Input::Get().MOUSE_MOTION, [&](Entity& entity) {
+        event.listen(Input::Event::MOUSE_MOTION, [&](Entity& entity) {
             auto& position = get<Component::transform>().position;
             auto event = entity.get<SDL_MouseMotionEvent>();
             position.set(event.x, event.y);
@@ -198,33 +197,14 @@ class CustomSerializer : public Serializer {
 };
 
 class WorldSystem : public ISystem {
-    FPSmanager fpsManager;
     EventListner eventListener;
 
-    class QueryCamera : public IFilter {
-        bool filter(EntityID id) const override {
-            auto entity = Entity::Get(id);
-            if (!entity) return false;
-
-            if (entity->has<Component::tag>()) {
-                auto tag = entity->get<Component::tag>();
-                return tag.content == "main camera";
-            }
-
-            return false;
-        }
-    };
-
    public:
-    WorldSystem() : ISystem("CustomSystem", new QueryCamera) {
-        SDL_initFramerate(&fpsManager);
-        SDL_setFramerate(&fpsManager, 60);
-    }
+    WorldSystem() : ISystem("WorldSystem") {}
 
     ~WorldSystem() { delete World; }
 
     bool run() override {
-        SDL_framerateDelay(&fpsManager);
         World->Step(timeStep, 6, 2);
         return true;
     }
@@ -239,15 +219,15 @@ class CustomHook : public ApplicationHook {
         application.setSerializer<CustomSerializer>();
 
         auto systemManager = SystemManager::Get();
-        systemManager->registerTypes<WorldSystem>();
+        systemManager->add<WorldSystem>();
 
-        auto& input = Input::Get();
-        eventListener.listen(input.QUIT, [&]() { application.quit(); })
-            .listen(input.MOUSE_BUTTON_UP, [&]() {
-                auto& entity = SceneManager::Get()->getActive().createEntity();
+        eventListener.listen(Input::Event::QUIT, [&]() { application.quit(); })
+            .listen(Input::Event::MOUSE_BUTTON_UP, [&]() {
+                auto& entity =
+                    SceneManager::Get()->getActive().getEntities().create();
                 entity.useTemplate("prefabs/mob.entt");
 
-                auto mousePos = input.getMousePosition();
+                auto mousePos = Input::getMousePosition();
                 if (entity.has<Mob>()) {
                     auto& body = *entity.get<Mob>().body;
                     body.SetTransform({mousePos.x / MtoPX, mousePos.y / MtoPX},

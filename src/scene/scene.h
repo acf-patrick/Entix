@@ -18,9 +18,22 @@ class Application;
 class Serializer;
 class Entity;
 
+struct SceneChange {
+    std::string from;
+    std::string to;
+
+    SceneChange(const std::string& from, const std::string& to) :
+        from(from), to(to) {}
+};
+
 // Scene Interface
 class Scene {
    public:
+    struct Event {
+        static const std::string LOADED;
+        static const std::string CHANGED;
+    };
+
     // Save to file
     void save(const std::string& fileName = "");
 
@@ -48,7 +61,10 @@ class Scene {
     // used to manage entities
     Group _entities;
 
-    std::vector<std::string> _systemNames;
+    std::vector<std::string> _freeSystems;
+    std::vector<std::vector<std::string>> _systemGroups;
+
+    bool _systemsActivated = false;
 
     bool active = true;
 

@@ -7,6 +7,7 @@
 #pragma once
 
 #include <bitset>
+#include <cstdint>
 
 using EntityID = std::uint32_t;
 using ComponentTypeID = std::uint32_t;
