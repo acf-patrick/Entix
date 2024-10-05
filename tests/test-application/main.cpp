@@ -8,7 +8,7 @@
 using Script = Component::script;
 
 const float MtoPX = 80.0f;
-const float timeStep = 1 / 60.0f;
+const float timeStep = 1 / 30.0f;
 b2World* World = new b2World({0.0f, 10.0f});
 
 class Mob : public Script {
@@ -197,8 +197,6 @@ class CustomSerializer : public Serializer {
 };
 
 class WorldSystem : public ISystem {
-    EventListner eventListener;
-
    public:
     WorldSystem() : ISystem("WorldSystem") {}
 

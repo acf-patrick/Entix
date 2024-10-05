@@ -22,6 +22,8 @@ class ComponentManager {
    private:
     static ComponentManager& Get();
 
+    void entityDestroyed(EntityID);
+
     template <typename T>
     ComponentTypeID getComponentTypeID() {
         const char* typeName = typeid(T).name();
@@ -46,8 +48,6 @@ class ComponentManager {
     T* getComponent(EntityID e) {
         return getComponentArray<T>()->getData(e);
     }
-
-    void entityDestroyed(EntityID);
 
     template <typename T>
     void registerComponent() {
@@ -79,14 +79,6 @@ class ComponentManager {
         return getComponentArray<T>()->getAssociatedEntities();
     }
 
-    template <typename T>
-    void cumulateEntitiesWithGivenComponentTypeIntoList(
-        std::set<EntityID>& entities) const {
-        auto entitiesWithComponent = getEntitiesWith<T>();
-        std::copy(entitiesWithComponent.begin(), entitiesWithComponent.end(),
-                  std::inserter(entities, entities.end()));
-    }
-
     template <typename... Components>
     std::vector<EntityID> getEntitiesWithAnyOf() {
         std::set<EntityID> entities;
@@ -96,12 +88,33 @@ class ComponentManager {
     }
 
     template <typename... Components>
-    std::vector<EntityID> getEntitiesWithNoneOf() {
-        // TODO
+    std::vector<EntityID> getEntitiesWithAllOf() {
+        std::set<EntityID> entities;
+        (cumulateEntitiesWithGivenComponentTypeIntoListIfHas<Components>(
+             entities),
+         ...);
+        return std::vector<EntityID>(entities.begin(), entities.end());
     }
 
-    ComponentTypeID registeredComponentCount() const {
-        return _nextComponentTypeID;
+    template <typename T>
+    void cumulateEntitiesWithGivenComponentTypeIntoList(
+        std::set<EntityID>& entities) const {
+        auto entitiesWithComponent = getEntitiesWith<T>();
+        std::copy(entitiesWithComponent.begin(), entitiesWithComponent.end(),
+                  std::inserter(entities, entities.end()));
+    }
+
+    template <typename T>
+    void cumulateEntitiesWithGivenComponentTypeIntoListIfHas(
+        std::set<EntityID>& entities) const {
+        auto entitiesWithComponent = getEntitiesWith<T>();
+        std::shared_ptr<IComponentArray> componentArray =
+            getComponentArray<T>();
+
+        std::copy_if(entitiesWithComponent.begin(), entitiesWithComponent.end(),
+                     std::inserter(entities, entities.end()), [&](EntityID id) {
+                         return componentArray->hasRecordAttachedTo(id);
+                     });
     }
 
    private:

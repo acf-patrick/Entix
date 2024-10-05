@@ -8,56 +8,50 @@
 
 #include "../defs.h"
 #include "../entity/entity.h"
+#include "../group/group.h"
 
 class IFilter {
    public:
     virtual ~IFilter() = default;
-    virtual bool filter(EntityID) const = 0;
+    virtual std::vector<Entity*> filter(Group&) const = 0;
 };
 
-template <typename... TComponents>
+namespace Filter {
+
+template <typename... Components>
 class AllOf : public IFilter {
    public:
     AllOf() = default;
-    bool filter(EntityID id) const override {
-        auto entity = Entity::Get(id);
-        if (entity) return entity->all_of<TComponents...>();
-        return false;
+    std::vector<Entity*> filter(Group& group) const override {
+        return group.getEntitiesWithAllOf<Components...>();
     }
 };
 
-template <typename... TComponents>
-class NoneOf : public IFilter {
-   public:
-    NoneOf() = default;
-
-    
-
-    bool filterEntity(EntityID id) const override {
-        auto entity = Entity::Get(id);
-        if (entity) return entity->none_of<TComponents...>();
-        return false;
-    }
-};
-
-template <typename... TComponents>
+template <typename... Components>
 class AnyOf : public IFilter {
    public:
     AnyOf() = default;
-    bool filter(EntityID id) const override {
-        auto entity = Entity::Get(id);
-        if (entity) return entity->any_of<TComponents...>();
-        return false;
+    std::vector<Entity*> filter(Group& group) const override {
+        return group.getEntitiesWithAnyOf<Components...>();
     }
 };
 
-template <typename T>
-class Has : public IFilter {
+template <typename... Components>
+class NoneOf : public IFilter {
    public:
-    Has() = default;
-    bool filter(EntityID id) const override {
-        auto entity = Entity::Get(id);
-        if (entity) return entity->has<T>();
-        return false;
+    NoneOf() = default;
+    std::vector<Entity*> filter(Group& group) const override {
+        return group.getEntitiesWithNoneOf<Components...>();
     }
 };
+
+template <typename Component>
+class With : public IFilter {
+   public:
+    With() = default;
+    std::vector<Entity*> filter(Group& group) const override {
+        return group.getEntitiesWith<Component>();
+    }
+};
+
+}

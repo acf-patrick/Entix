@@ -40,9 +40,9 @@ class EventManager : Manager<EventManager> {
     Entity& _emit(const std::string&);
     void SDLEvents();
 
-    std::queue<Event> events;
-    std::vector<EventListner*> listners;
-    std::unordered_map<std::string, Event> bind;
+    std::queue<Event> _events;
+    std::vector<EventListner*> _listners;
+    std::unordered_map<std::string, Event> _bind;
 
     // std::vector<EventListner*> toAdd;
     // std::vector<EventListner*> toRemove;

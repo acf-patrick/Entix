@@ -4,10 +4,9 @@
 
 #include "../components.h"
 #include "../entity/entity.h"
+#include "../filter/filter.h"
 
-Group::Group() 
-    : _componentManager(ComponentManager::Get())
-{}
+Group::Group() : _componentManager(ComponentManager::Get()) {}
 
 Group::~Group() {
     for (auto id : _ids) delete Entity::Get(id);
@@ -90,23 +89,47 @@ void Group::reorder() {
 void Group::reorder(_compare comparator) { _ids.sort(comparator); }
 
 std::vector<Entity*> Group::view(const IFilter& filter) {
-    if (_ids.size() < _componentManager.registeredComponentCount()) {
-
-    } else {
-        
-    }
-
-    std::vector<Entity*> filtered;
-    for (auto id : _ids)
-        if (filter.filter(id)) filtered.push_back(Entity::Get(id));
-
-    
-
-    return filtered;
+    return filter.filter(*this);
 }
 
 std::vector<Entity*> Group::getEntities() {
     std::vector<Entity*> entities;
     for (auto id : _ids) entities.push_back(Entity::Get(id));
     return entities;
+}
+
+template <typename T>
+std::vector<Entity*> Group::getEntitiesWith() {
+    auto ids = _componentManager.getEntitiesWith<T>();
+    std::vector<Entity*> entities(ids.size());
+
+    for (size_t i = 0; i < ids.size(); ++i) entities[i] = Entity::Get(ids[i]);
+
+    return entities;
+}
+
+template <typename... Components>
+std::vector<Entity*> Group::getEntitiesWithAnyOf() {
+    auto ids = _componentManager.getEntitiesWithAnyOf<Components...>();
+    std::vector<Entity*> entities(ids.size());
+
+    for (size_t i = 0; i < ids.size(); ++i) entities[i] = Entity::Get(ids[i]);
+
+    return entities;
+}
+
+template <typename... Components>
+std::vector<Entity*> Group::getEntitiesWithAllOf() {
+    auto ids = _componentManager.getEntitiesWithAllOf<Components...>();
+    std::vector<Entity*> entities(ids.size());
+
+    for (size_t i = 0; i < ids.size(); ++i) entities[i] = Entity::Get(ids[i]);
+
+    return entities;
+}
+
+template <typename... Components>
+std::vector<Entity*> Group::getEntitiesWithNoneOf() {
+    return get(
+        [](const Entity& entity) { return entity.none_of<Components...>(); });
 }

@@ -11,6 +11,7 @@
 #include "component/manager.h"
 #include "components.h"
 #include "entity/entity.h"
+#include "filter/filter.h"
 #include "group/group.h"
 #include "system/system.h"
 

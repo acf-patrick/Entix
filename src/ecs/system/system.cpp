@@ -14,7 +14,8 @@
 #include "../entity/entity.h"
 #include "../filter/filter.h"
 
-const std::string SystemManager::Event::SYSTEM_DEACTIVATED = "system deactivated";
+const std::string SystemManager::Event::SYSTEM_DEACTIVATED =
+    "system deactivated";
 const std::string SystemManager::Event::SYSTEM_ACTIVATED = "system activated";
 
 ISystem::ISystem(const std::string& name, bool runOnlyOnce)
@@ -23,22 +24,30 @@ ISystem::ISystem(const std::string& name, bool runOnlyOnce)
 ISystem::ISystem(const std::string& name, IFilter* filter, bool runOnlyOnce)
     : _filter(filter), _name(name), _runOnlyOnce(runOnlyOnce) {}
 
+ISystem::ISystem(const std::string& name, EntityPredicate&& predicate,
+                 bool runOnlyOnce)
+    : _name(name), _entityPredicate(predicate), _runOnlyOnce(runOnlyOnce) {}
+
 ISystem::~ISystem() { delete _filter; }
 
 bool ISystem::performOnEntities(Group& entities) {
-    _entities = _filter ? entities.view(*_filter) : entities.getEntities();
+    _entities = _filter ? entities.view(*_filter)
+                        : (_entityPredicate ? entities.get(*_entityPredicate)
+                                            : entities.getEntities());
     return run();
 }
 
 void ISystem::activate() {
     _active = true;
-    auto& event = EventManager::Get()->emit(SystemManager::Event::SYSTEM_ACTIVATED);
+    auto& event =
+        EventManager::Get()->emit(SystemManager::Event::SYSTEM_ACTIVATED);
     event.attach<SystemName>(_name);
 }
 
 void ISystem::deactivate() {
     _active = false;
-    auto& event = EventManager::Get()->emit(SystemManager::Event::SYSTEM_DEACTIVATED);
+    auto& event =
+        EventManager::Get()->emit(SystemManager::Event::SYSTEM_DEACTIVATED);
     event.attach<SystemName>(_name);
 }
 
@@ -146,7 +155,6 @@ bool SystemManager::isSystemUsed(const std::string& systemName) const {
     for (auto& group : _systemGroups)
         if (std::find(group.begin(), group.end(), systemName) != group.end())
             return true;
-
     return false;
 }
 

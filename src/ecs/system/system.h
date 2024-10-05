@@ -6,10 +6,12 @@
 
 #pragma once
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <thread>
 #include <vector>
+#include <optional>
 
 #include "../../logger/logger.h"
 #include "../../manager/manager.h"
@@ -26,15 +28,16 @@ struct SystemName {
     SystemName(const std::string& name) : name(name) {}
 };
 
-// Systems are not activated by default and only activated if specified in Scene
-// configuration
 class ISystem {
+    using EntityPredicate = std::function<bool(const Entity&)>;
+
     bool _active = true;
     bool _runOnlyOnce;
 
    protected:
     IFilter* _filter = nullptr;
     std::string _name;
+    std::optional<EntityPredicate> _entityPredicate;
     std::vector<Entity*> _entities;
 
     bool performOnEntities(Group& entities);
@@ -42,6 +45,8 @@ class ISystem {
    public:
     ISystem(const std::string& name, bool runOnlyOnce = false);
     ISystem(const std::string& name, IFilter* filter, bool runOnlyOnce = false);
+    ISystem(const std::string& name, EntityPredicate&& predicate,
+            bool runOnlyOnce = false);
 
     virtual ~ISystem();
 

@@ -9,22 +9,23 @@
 #include "./input.h"
 
 EventManager::~EventManager() {
-    while (!events.empty()) {
-        delete events.front();
-        events.pop();
+    while (!_events.empty()) {
+        delete _events.front();
+        _events.pop();
     }
-    bind.clear();
-    listners.clear();
+
+    _bind.clear();
+    _listners.clear();
 }
 
 void EventManager::handle() {
     SDLEvents();
-    while (!events.empty()) {
-        Event& event = events.front();
+    while (!_events.empty()) {
+        Event& event = _events.front();
         auto tag = event->get<Component::tag>().content;
 
-        for (int i = 0; i < (int)listners.size(); ++i) {
-            auto& listener = *listners[i];
+        for (int i = 0; i < (int)_listners.size(); ++i) {
+            auto& listener = *_listners[i];
             if (listener.enabled) {
                 auto& callbacks = listener.callbacks;
                 if (callbacks.find(tag) != callbacks.end()) {
@@ -41,8 +42,8 @@ void EventManager::handle() {
         }
 
         delete event;
-        events.pop();
-        bind.erase(tag);
+        _events.pop();
+        _bind.erase(tag);
     }
 }
 
@@ -109,23 +110,38 @@ Entity& EventManager::emit(const std::string& event_name) {
 }
 
 Entity& EventManager::_emit(const std::string& event_name) {
-    if (bind.find(event_name) != bind.end()) return *bind[event_name];
+    if (_bind.find(event_name) != _bind.end()) return *_bind[event_name];
 
     Event event = new Entity;
     event->attach<Component::tag>(event_name);
 
-    bind[event_name] = event;
-    events.push(event);
+    _bind[event_name] = event;
+    _events.push(event);
+
+    std::vector<std::string> ignored = {
+        Input::Event::QUIT,
+        Input::Event::KEY_DOWN,
+        Input::Event::KEY_UP,
+        Input::Event::MOUSE_BUTTON_DOWN,
+        Input::Event::MOUSE_BUTTON_UP,
+        Input::Event::MOUSE_WHEEL,
+        Input::Event::MOUSE_MOTION,
+    };
+
+    if (std::find(ignored.begin(), ignored.end(), event_name) == ignored.end()) {
+        Logger::info("Event") << event_name;
+        Logger::endline();
+    }
 
     return *event;
 }
 
 void EventManager::newListner(EventListner* listner) {
-    listners.push_back(listner);
+    _listners.push_back(listner);
 }
 
 void EventManager::listnerDestroyed(EventListner* listner) {
-    listners.erase(std::remove(listners.begin(), listners.end(), listner));
+    _listners.erase(std::remove(_listners.begin(), _listners.end(), listner));
 }
 
 // static

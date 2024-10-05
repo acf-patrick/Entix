@@ -159,7 +159,7 @@ class Entity {
 
    private:
     const EntityID _id;
-    Signature _signature;
+    ComponentSignature _signature;
 
     ComponentManager& _manager;
 

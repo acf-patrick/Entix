@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    if (node["FPS"]) application->setFramerate(node["FPS"].as<int>());
+    if (node["FPS"]) application.setFramerate(node["FPS"].as<int>());
 
     auto scenesPath = configPath / "scenes";
     if (!std::filesystem::exists(scenesPath) && !usingDefaultConfig) {

@@ -18,6 +18,9 @@
 class IComponentArray {
    public:
     virtual ~IComponentArray() = default;
+
+    virtual bool hasRecordAttachedTo(EntityID) const = 0;
+    virtual std::vector<EntityID> getAssociatedEntities() const = 0;
     virtual void entityDestroyed(EntityID) = 0;
 };
 
@@ -83,12 +86,16 @@ class ComponentArray : public IComponentArray {
         return nullptr;
     }
 
-    void entityDestroyed(EntityID entity) {
+    bool hasRecordAttachedTo(EntityID entity) const override {
+        return _entity_index.find(entity) != _entity_index.end();
+    }
+
+    void entityDestroyed(EntityID entity) override {
         if (_entity_index.find(entity) != _entity_index.end())
             removeData(entity);
     }
 
-    std::vector<EntityID> getAssociatedEntities() const {
+    std::vector<EntityID> getAssociatedEntities() const override {
         std::vector<EntityID> entities;
         for (auto& [entity, _] : _entity_index) entities.push_back(entity);
         return entities;

@@ -5,10 +5,10 @@
 #include <vector>
 
 #include "../component/manager.h"
-#include "../filter/filter.h"
 #include "../defs.h"
 
 class Scene;
+class IFilter;
 class Entity;
 
 // Entity Container
@@ -59,6 +59,18 @@ class Group {
 
     // reorder entites according to the comparator passed as argument
     void reorder(_compare);
+
+    template <typename T>
+    std::vector<Entity*> getEntitiesWith();
+
+    template <typename... Components>
+    std::vector<Entity*> getEntitiesWithAnyOf();
+
+    template <typename... Components>
+    std::vector<Entity*> getEntitiesWithAllOf();
+
+    template <typename... Components>
+    std::vector<Entity*> getEntitiesWithNoneOf();
 
    private:
     Group();
