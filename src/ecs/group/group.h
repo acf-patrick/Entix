@@ -7,7 +7,14 @@
 #include "../component/manager.h"
 #include "../defs.h"
 
+namespace entix {
+
+namespace core {
 class Scene;
+}
+
+namespace ecs {
+
 class IFilter;
 class Entity;
 
@@ -80,5 +87,8 @@ class Group {
     std::list<EntityID> _ids;
     ComponentManager& _componentManager;
 
-    friend class Scene;
+    friend class core::Scene;
 };
+
+}  // namespace ecs
+}  // namespace entix

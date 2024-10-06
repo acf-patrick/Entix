@@ -20,23 +20,26 @@
 #include "baseScript.h"
 #include "entity/entity.h"
 
+namespace entix {
+namespace ecs {
+
 class Group;
 
 // Data structure in this namespace are fully maintained by the library
-namespace Component {
+namespace component {
 
 // Identify entities with tag and IDs
-struct tag {
-    std::string content = "";
-    bool operator==(const std::string &str) const { return content == str; }
+struct Tag {
+    std::string tag = "";
+    bool operator==(const std::string &str) const { return tag == str; }
 
-    tag(const std::string &str) : content(str) {}
+    Tag(const std::string &str) : tag(str) {}
 
-    tag() {}
+    Tag() {}
 };
 
 // Space specs
-struct transform {
+struct Transform {
     // top-left, SDL coordinates system
     Vector<double> position = {0.0f, 0.0f};
 
@@ -47,22 +50,22 @@ struct transform {
     // Rotation angle in degrees
     double rotation = 0.0f;
 
-    transform(const VectorD &_position, const VectorF &_scale, double _rotation)
+    Transform(const VectorD &_position, const VectorF &_scale, double _rotation)
         : position(_position), scale(_scale), rotation(_rotation) {}
 
-    transform() {}
+    Transform() {}
 };
 
 // Entity Container
 // Component containing the group that created the entity
-struct group {
-    Group *content;
+struct Group {
+    ecs::Group *group;
 
-    group(Group *g) : content(g) {}
+    Group(ecs::Group *g) : group(g) {}
 };
 
 // Sprite renderer component
-struct sprite {
+struct Sprite {
     // the texture
     Texture texture;
 
@@ -106,7 +109,7 @@ struct sprite {
     SDL_Rect region = {0, 0, 0, 0};
 };
 
-class camera : public ICamera {
+class Camera : public ICamera {
     void _attachTransform() override;
 
    public:
@@ -156,22 +159,22 @@ class camera : public ICamera {
     std::vector<int> layers = {0};
 
     struct _compare {
-        bool operator()(camera *c1, camera *c2) const {
+        bool operator()(Camera *c1, Camera *c2) const {
             return c1->depth < c2->depth;
         }
     };
 
     // Instances sorted by depth value
-    static std::set<camera *, _compare> instances;
+    static std::set<Camera *, _compare> instances;
 
-    camera();
-    ~camera();
+    Camera();
+    ~Camera();
 };
 
 // Script Component
-class script : public BaseScript {
+class Script : public BaseScript {
    protected:
-    EventListner event;
+    core::EventListner event;
 
    public:
     template <typename T>
@@ -215,7 +218,7 @@ class script : public BaseScript {
     }
 };
 
-class spriteRenderer : public script {
+class SpriteRenderer : public Script {
    public:
     virtual void Render() override;
 };
@@ -227,10 +230,10 @@ class spriteRenderer : public script {
  * - Make Tilemap use your custom drawer by attaching your Tilemap::Drawer
  *  component to the entity.
  */
-class Tilemap : public script {
+class Tilemap : public Script {
     // Component rendering object in a tilemap
    public:
-    class Drawer : public script {
+    class Drawer : public Script {
         static std::map<EntityID, Drawer *> instances;
 
        public:
@@ -356,4 +359,6 @@ class Tilemap : public script {
     void Render() override;
 };
 
-};  // namespace Component
+}  // namespace component
+}  // namespace ecs
+}  // namespace entix

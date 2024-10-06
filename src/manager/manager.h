@@ -9,7 +9,11 @@
 #include <memory>
 #include <vector>
 
+namespace entix {
+
+namespace core {
 class Application;
+}
 
 class IManager {
    protected:
@@ -21,7 +25,7 @@ class IManager {
 
     static std::vector<IManager*> instances;
 
-    friend class Application;
+    friend class core::Application;
 };
 
 template <typename T>
@@ -41,3 +45,5 @@ class Manager : IManager {
         return self;
     }
 };
+
+}  // namespace entix

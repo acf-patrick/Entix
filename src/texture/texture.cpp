@@ -5,6 +5,8 @@
 #include "../logger/logger.h"
 #include "../renderer/renderer.h"
 
+namespace entix {
+
 std::map<std::string, SDL_Texture *> Texture::_loadedTextures;
 
 Texture::Texture(const Path &file) { load(file); }
@@ -39,7 +41,7 @@ bool Texture::load(const Path &filePath) {
         Logger::endline();
     } else {
         _texture =
-            IMG_LoadTexture(RenderManager::Get()->renderer, file.c_str());
+            IMG_LoadTexture(core::RenderManager::Get()->renderer, file.c_str());
 
         if (_texture) {
             _file = file;
@@ -98,6 +100,8 @@ void Texture::draw(const SDL_Rect &src, const VectorI &dst,
                    const Vector<bool> &flip, const VectorF &scale) {
     SDL_Rect d = {dst.x, dst.y, int(src.w * scale.x), int(src.h * scale.y)};
     SDL_Point c = {center.x, center.y};
-    SDL_RenderCopyEx(RenderManager::Get()->renderer, _texture, &src, &d,
+    SDL_RenderCopyEx(core::RenderManager::Get()->renderer, _texture, &src, &d,
                      rotation, &c, SDL_RendererFlip((flip.y << 1) | flip.x));
+}
+
 }

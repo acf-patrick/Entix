@@ -14,16 +14,23 @@
 #include "../event/event.h"
 #include "../manager/manager.h"
 
+namespace entix {
+
+namespace ecs {
+class Entity;
+}
+
+namespace core {
+
 class Application;
 class Serializer;
-class Entity;
 
 struct SceneChange {
     std::string from;
     std::string to;
 
-    SceneChange(const std::string& from, const std::string& to) :
-        from(from), to(to) {}
+    SceneChange(const std::string& from, const std::string& to)
+        : from(from), to(to) {}
 };
 
 // Scene Interface
@@ -43,9 +50,9 @@ class Scene {
     // Set this scene to be active
     void setActive();
 
-    Entity& createEntity();
+    ecs::Entity& createEntity();
 
-    Group& getEntities();
+    ecs::Group& getEntities();
 
    protected:
     Scene(const std::string&);
@@ -59,7 +66,7 @@ class Scene {
     std::string tag = "Scene";
 
     // used to manage entities
-    Group _entities;
+    ecs::Group _entities;
 
     std::vector<std::string> _freeSystems;
     std::vector<std::vector<std::string>> _systemGroups;
@@ -117,3 +124,6 @@ class SceneManager : Manager<SceneManager> {
     friend class Manager<SceneManager>;
     friend class Scene;
 };
+
+}  // namespace core
+}  // namespace entix

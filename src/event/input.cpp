@@ -2,6 +2,9 @@
 
 #define EVENT_PROP(property) const std::string Input::Event::property
 
+namespace entix {
+namespace core {
+
 EVENT_PROP(QUIT) = "SDL quit";
 EVENT_PROP(KEY_DOWN) = "SDL key down";
 EVENT_PROP(KEY_UP) = "SDL key up";
@@ -26,3 +29,6 @@ bool Input::isMousePressed(const std::string& button) {
 }
 
 VectorI Input::getMousePosition() { return _mouse.getPosition(); }
+
+}  // namespace core
+}  // namespace entix

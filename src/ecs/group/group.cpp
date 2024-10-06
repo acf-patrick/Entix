@@ -6,6 +6,9 @@
 #include "../entity/entity.h"
 #include "../filter/filter.h"
 
+namespace entix {
+namespace ecs {
+
 Group::Group() : _componentManager(ComponentManager::Get()) {}
 
 Group::~Group() {
@@ -16,20 +19,20 @@ Group::~Group() {
 Entity& Group::create() {
     auto ret = new Entity;
     _ids.push_back(*ret);
-    ret->attach<Component::group>(this);
+    ret->attach<component::Group>(this);
     return *ret;
 }
 
 Entity& Group::create(EntityID ID) {
     auto ret = new Entity(ID);
     _ids.push_back(ID);
-    ret->attach<Component::group>(this);
+    ret->attach<component::Group>(this);
     return *ret;
 }
 
 Entity& Group::create(const std::string& tag) {
     auto& e = create();
-    e.attach<Component::tag>(tag);
+    e.attach<component::Tag>(tag);
     return e;
 }
 
@@ -63,8 +66,8 @@ std::vector<Entity*> Group::get(_predicate predicate) {
 Entity* Group::operator[](const std::string& tag) {
     for (auto id : _ids) {
         if (auto entity = Entity::Get(id); entity)
-            if (entity->has<Component::tag>())
-                if (entity->get<Component::tag>() == tag) return entity;
+            if (entity->has<component::Tag>())
+                if (entity->get<component::Tag>() == tag) return entity;
     }
     return nullptr;
 }
@@ -133,3 +136,6 @@ std::vector<Entity*> Group::getEntitiesWithNoneOf() {
     return get(
         [](const Entity& entity) { return entity.none_of<Components...>(); });
 }
+
+}  // namespace ecs
+}  // namespace entix

@@ -6,6 +6,9 @@
 
 #pragma once
 
+namespace entix {
+namespace ecs {
+
 class Entity;
 
 // Interface for all scripts
@@ -52,3 +55,6 @@ class BaseScript {
    protected:
     bool enabled = true;
 };
+
+}  // namespace ecs
+}  // namespace entix

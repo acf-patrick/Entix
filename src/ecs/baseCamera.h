@@ -6,6 +6,9 @@
 
 #pragma once
 
+namespace entix {
+namespace ecs {
+
 class Entity;
 
 class ICamera {
@@ -17,3 +20,6 @@ class ICamera {
     virtual void _attachTransform() = 0;
     friend class Entity;
 };
+
+}  // namespace ecs
+}  // namespace entix

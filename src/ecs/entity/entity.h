@@ -14,8 +14,15 @@
 #include "../component/manager.h"
 #include "../defs.h"
 
-class Group;
+namespace entix {
+
+namespace core {
 class EventManager;
+}
+
+namespace ecs {
+
+class Group;
 
 /**
  * Create an Entity using Group::create method
@@ -173,5 +180,8 @@ class Entity {
     static bool _cleanFlag;
 
     friend class Group;
-    friend class EventManager;
+    friend class core::EventManager;
 };
+
+}  // namespace ecs
+}  // namespace entix

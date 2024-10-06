@@ -1,4 +1,6 @@
-add_executable(TestApplication main.cpp)
+file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
+
+add_executable(TestApplication ${SOURCES})
 
 target_include_directories(TestApplication PRIVATE
     ${PROJECT_SOURCE_DIR}/src
@@ -13,7 +15,7 @@ target_include_directories(TestApplication PRIVATE
 )
 
 target_link_libraries(TestApplication PRIVATE 
-    ECS
+    entix
     box2d
     SDL2::SDL2 
     SDL2_mixer 

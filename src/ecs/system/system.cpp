@@ -14,6 +14,9 @@
 #include "../entity/entity.h"
 #include "../filter/filter.h"
 
+namespace entix {
+namespace ecs {
+
 const std::string SystemManager::Event::SYSTEM_DEACTIVATED =
     "system deactivated";
 const std::string SystemManager::Event::SYSTEM_ACTIVATED = "system activated";
@@ -40,14 +43,14 @@ bool ISystem::performOnEntities(Group& entities) {
 void ISystem::activate() {
     _active = true;
     auto& event =
-        EventManager::Get()->emit(SystemManager::Event::SYSTEM_ACTIVATED);
+        core::EventManager::Get()->emit(SystemManager::Event::SYSTEM_ACTIVATED);
     event.attach<SystemName>(_name);
 }
 
 void ISystem::deactivate() {
     _active = false;
     auto& event =
-        EventManager::Get()->emit(SystemManager::Event::SYSTEM_DEACTIVATED);
+        core::EventManager::Get()->emit(SystemManager::Event::SYSTEM_DEACTIVATED);
     event.attach<SystemName>(_name);
 }
 
@@ -81,7 +84,7 @@ void SystemManager::runSystem(Group& entities,
 
 void SystemManager::run() {
     std::mutex mutex;
-    auto& entities = SceneManager::Get()->getActive().getEntities();
+    auto& entities = core::SceneManager::Get()->getActive().getEntities();
     std::vector<std::thread> handles;
 
     auto systemThread = [&](std::shared_ptr<ISystem> system) {
@@ -160,3 +163,6 @@ bool SystemManager::isSystemUsed(const std::string& systemName) const {
 
 // static
 std::shared_ptr<SystemManager> SystemManager::Get() { return createInstance(); }
+
+}  // namespace ecs
+}  // namespace entix

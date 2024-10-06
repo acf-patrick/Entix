@@ -9,18 +9,25 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <thread>
 #include <vector>
-#include <optional>
 
 #include "../../logger/logger.h"
 #include "../../manager/manager.h"
 #include "../group/group.h"
 
-class SystemManager;
+namespace entix {
+
+namespace core {
 class SceneManager;
-class Entity;
+}
+
+namespace ecs {
+
 class IFilter;
+class SystemManager;
+class Entity;
 
 struct SystemName {
     std::string name;
@@ -106,6 +113,9 @@ class SystemManager : Manager<SystemManager> {
 
     static std::shared_ptr<SystemManager> Get();
 
-    friend class SceneManager;
+    friend class core::SceneManager;
     friend class Manager<SystemManager>;
 };
+
+}  // namespace ecs
+}  // namespace entix

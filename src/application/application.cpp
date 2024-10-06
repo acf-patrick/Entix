@@ -12,7 +12,12 @@
 #include "../scene/scene.h"
 #include "hook.h"
 
+namespace entix {
+namespace core {
+
 Application* Application::instance = nullptr;
+std::shared_ptr<Serializer> Application::_serializer;
+std::shared_ptr<ApplicationHook> Application::_hook;
 
 Application::Application(const std::string& title, int width, int height,
                          SDL_WindowFlags windowFlag)
@@ -55,17 +60,17 @@ Application::Application(const std::string& title, int width, int height,
     Logger::endline();
 
     // running hook
-    if (hook) hook->startup();
+    if (_hook) _hook->startup();
 }
 
 Application::~Application() {
     // running hook
-    if (hook) hook->cleanup();
+    if (_hook) _hook->cleanup();
 
     IManager::DestroyInstances();
 
     // Make sure to free memory
-    Entity::Clean();
+    ecs::Entity::Clean();
 
     SDL_DestroyWindow(_window);
     _window = nullptr;
@@ -84,7 +89,7 @@ void Application::log(const std::string& message) const {
 void Application::run() {
     while (_running) {
         EventManager::Get()->handle();
-        SystemManager::Get()->run();
+        ecs::SystemManager::Get()->run();
 
         auto sceneManager = SceneManager::Get();
         if (!sceneManager->update())
@@ -123,4 +128,10 @@ void Application::setFramerate(unsigned int framerate) {
 }
 
 // static
-Application& Application::Get() { return *instance; }
+Application& Application::Get() {
+    assert(instance && "Application has not been initialized yet");
+    return *instance;
+}
+
+}  // namespace core
+}  // namespace entix

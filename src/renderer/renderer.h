@@ -15,17 +15,20 @@
 #include <queue>
 #include <string>
 
-#include "../manager/manager.h"
 #include "../ecs/components.h"
+#include "../manager/manager.h"
+
+namespace entix {
+namespace core {
 
 class Application;
 
 // Rendering System
-class RenderManager: Manager<RenderManager> {
+class RenderManager : Manager<RenderManager> {
    public:
-    using Camera = Component::camera;
+    using Camera = ecs::component::Camera;
     using Process = std::function<void(SDL_Renderer*)>;
-    
+
     struct Drawer {
         std::shared_ptr<RenderManager> renderManager = RenderManager::Get();
         std::queue<Process> process;
@@ -108,3 +111,6 @@ class RenderManager: Manager<RenderManager> {
     friend class Application;
     friend class Manager<RenderManager>;
 };
+
+}  // namespace core
+}  // namespace entix

@@ -1,25 +1,27 @@
 #include "../../renderer/renderer.h"
 #include "../components.h"
 
-namespace Component {
+namespace entix {
+namespace ecs {
+namespace component {
 
-void spriteRenderer::Render() {
-    if (!has<sprite>()) {
+void SpriteRenderer::Render() {
+    if (!has<Sprite>()) {
         Logger::warn()
             << "SpriteRenderer-error : Entity must have a sprite component "
                "to render!";
         Logger::endline();
-        
+
         return;
     }
 
-    auto& spriteComponent = get<sprite>();
+    auto& spriteComponent = get<Sprite>();
     if (!spriteComponent.texture) return;  // no texture to draw
 
-    RenderManager::Get()->submit([&](SDL_Renderer* renderer) {
-        if (!has<transform>())
-            attach<transform>();  // default position, rotation and scale factor
-        auto& t = get<transform>();
+    core::RenderManager::Get()->submit([&](SDL_Renderer* renderer) {
+        if (!has<Transform>())
+            attach<Transform>();  // default position, rotation and scale factor
+        auto& t = get<Transform>();
         auto& texture = spriteComponent.texture;
         auto pos = t.position;
         auto scale = t.scale;
@@ -74,11 +76,13 @@ void spriteRenderer::Render() {
     });
 }
 
-void sprite::setTexture(const std::string& fileName) { texture.load(fileName); }
+void Sprite::setTexture(const std::string& fileName) { texture.load(fileName); }
 
-void sprite::setFrame(int x, int y) {
+void Sprite::setFrame(int x, int y) {
     if (x >= framesNumber.x || y >= framesNumber.y) return;
     frame = x * framesNumber.x + y;
 }
 
-}  // namespace Component
+}  // namespace component
+}  // namespace ecs
+}  // namespace entix

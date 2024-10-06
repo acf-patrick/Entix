@@ -3,6 +3,9 @@
 #include "../application/application.h"
 #include "../ecs/system/system.h"
 
+namespace entix {
+namespace core {
+
 const std::string Scene::Event::LOADED = "scene loaded";
 const std::string Scene::Event::CHANGED = "scene changed";
 
@@ -12,7 +15,7 @@ Scene::Scene(const std::string& _tag) : tag(_tag) {
 
 bool Scene::update() {
     if (!_systemsActivated) {
-        auto systemManager = SystemManager::Get();
+        auto systemManager = ecs::SystemManager::Get();
 
         for (auto& system : _freeSystems) systemManager->useFreeSystem(system);
 
@@ -22,12 +25,12 @@ bool Scene::update() {
         _systemsActivated = true;
     }
 
-    _entities.for_each([](Entity& entity) { entity.Update(); });
+    _entities.for_each([](ecs::Entity& entity) { entity.Update(); });
     return active;
 }
 
 void Scene::render() {
-    _entities.for_each([](Entity& entity) { entity.Render(); });
+    _entities.for_each([](ecs::Entity& entity) { entity.Render(); });
 }
 
 void Scene::save(const std::string& fileName) {
@@ -36,6 +39,9 @@ void Scene::save(const std::string& fileName) {
 
 void Scene::setActive() { SceneManager::Get()->setActive(tag); }
 
-Group& Scene::getEntities() { return _entities; }
+ecs::Group& Scene::getEntities() { return _entities; }
 
-Entity& Scene::createEntity() { return _entities.create(); }
+ecs::Entity& Scene::createEntity() { return _entities.create(); }
+
+}  // namespace core
+}  // namespace entix

@@ -15,6 +15,9 @@
 #include "../../logger/logger.h"
 #include "../defs.h"
 
+namespace entix {
+namespace ecs {
+
 class IComponentArray {
    public:
     virtual ~IComponentArray() = default;
@@ -107,3 +110,6 @@ class ComponentArray : public IComponentArray {
     std::unordered_map<EntityID, size_t> _entity_index;
     std::unordered_map<size_t, EntityID> _index_entity;
 };
+
+}  // namespace ecs
+}  // namespace entix

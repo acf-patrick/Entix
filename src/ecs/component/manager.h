@@ -15,6 +15,9 @@
 #include "../defs.h"
 #include "array.h"
 
+namespace entix {
+namespace ecs {
+
 class Entity;
 class Group;
 
@@ -130,3 +133,6 @@ class ComponentManager {
     friend class Entity;
     friend class Group;
 };
+
+}  // namespace ecs
+}  // namespace entix

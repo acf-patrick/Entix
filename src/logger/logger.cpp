@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+namespace entix {    
+
 std::shared_ptr<Logger> Logger::instance;
 
 Logger& Logger::Get() {
@@ -76,4 +78,6 @@ bool Logger::dumpStatus(Status status, const Path& path) {
     }
 
     return true;
+}
+
 }

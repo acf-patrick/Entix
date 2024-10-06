@@ -8,13 +8,17 @@
 
 #include "application.h"
 
+namespace entix {
+namespace core {
+
 class ApplicationHook {
    protected:
     virtual ~ApplicationHook() = default;
 
    public:
-    virtual void startup() { /* override */
-    }
-    virtual void cleanup() { /* override */
-    }
+    virtual void startup() { /* override */ }
+    virtual void cleanup() { /* override */ }
 };
+
+}  // namespace application
+}  // namespace entix

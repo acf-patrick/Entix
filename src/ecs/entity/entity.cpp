@@ -13,6 +13,9 @@
 #include "../../logger/logger.h"
 #include "../components.h"
 
+namespace entix {
+namespace ecs {
+
 std::set<EntityID> Entity::takenID;
 std::unordered_map<EntityID, Entity*> Entity::instances;
 bool Entity::_cleanFlag = false;
@@ -124,11 +127,11 @@ int Entity::getIndex() const { return index; }
 
 void Entity::setIndex(unsigned int i) {
     index = i;
-    if (has<Component::group>()) get<Component::group>().content->reorder();
+    if (has<component::Group>()) get<component::Group>().group->reorder();
 }
 
 void Entity::useTemplate(const Path& path) {
-    auto& serializer = Application::Get().getSerializer();
+    auto& serializer = core::Application::Get().getSerializer();
     std::ifstream file(path);
 
     if (!file) {
@@ -147,3 +150,6 @@ void Entity::useTemplate(const Path& path) {
     Logger::info("Entity") << path << " : Template loaded";
     Logger::endline();
 }
+
+}  // namespace ecs
+}  // namespace entix

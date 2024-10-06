@@ -66,6 +66,9 @@ void setPixel(int x, int y, Uint32 pixel, SDL_Surface* surface) {
     }
 }
 
+namespace entix {
+namespace util {
+
 SDL_Surface* boxBlur(const std::string& file_name, int extent) {
     return boxBlur(IMG_Load(file_name.c_str()), extent);
 }
@@ -177,3 +180,6 @@ SDL_Surface* gaussianBlur(SDL_Surface* surface, int extent) {
     SDL_UnlockSurface(surface);
     return ret;
 }
+
+}  // namespace util
+}  // namespace entix

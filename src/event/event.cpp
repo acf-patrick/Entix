@@ -8,6 +8,9 @@
 #include "../scene/scene.h"
 #include "./input.h"
 
+namespace entix {
+namespace core {
+
 EventManager::~EventManager() {
     while (!_events.empty()) {
         delete _events.front();
@@ -22,7 +25,7 @@ void EventManager::handle() {
     SDLEvents();
     while (!_events.empty()) {
         Event& event = _events.front();
-        auto tag = event->get<Component::tag>().content;
+        auto tag = event->get<ecs::component::Tag>().tag;
 
         for (int i = 0; i < (int)_listners.size(); ++i) {
             auto& listener = *_listners[i];
@@ -86,7 +89,7 @@ void EventManager::SDLEvents() {
     }
 }
 
-Entity& EventManager::emit(const std::string& event_name) {
+ecs::Entity& EventManager::emit(const std::string& event_name) {
     std::vector<std::string> reserved = {
         Input::Event::QUIT,
         Input::Event::KEY_DOWN,
@@ -97,8 +100,8 @@ Entity& EventManager::emit(const std::string& event_name) {
         Input::Event::MOUSE_MOTION,
         Scene::Event::LOADED,
         Scene::Event::CHANGED,
-        SystemManager::Event::SYSTEM_ACTIVATED,
-        SystemManager::Event::SYSTEM_DEACTIVATED,
+        ecs::SystemManager::Event::SYSTEM_ACTIVATED,
+        ecs::SystemManager::Event::SYSTEM_DEACTIVATED,
     };
 
     auto invalidEvent = std::find(reserved.begin(), reserved.end(),
@@ -109,11 +112,11 @@ Entity& EventManager::emit(const std::string& event_name) {
     return _emit(event_name);
 }
 
-Entity& EventManager::_emit(const std::string& event_name) {
+ecs::Entity& EventManager::_emit(const std::string& event_name) {
     if (_bind.find(event_name) != _bind.end()) return *_bind[event_name];
 
-    Event event = new Entity;
-    event->attach<Component::tag>(event_name);
+    Event event = new ecs::Entity;
+    event->attach<ecs::component::Tag>(event_name);
 
     _bind[event_name] = event;
     _events.push(event);
@@ -128,7 +131,8 @@ Entity& EventManager::_emit(const std::string& event_name) {
         Input::Event::MOUSE_MOTION,
     };
 
-    if (std::find(ignored.begin(), ignored.end(), event_name) == ignored.end()) {
+    if (std::find(ignored.begin(), ignored.end(), event_name) ==
+        ignored.end()) {
         Logger::info("Event") << event_name;
         Logger::endline();
     }
@@ -146,3 +150,6 @@ void EventManager::listnerDestroyed(EventListner* listner) {
 
 // static
 std::shared_ptr<EventManager> EventManager::Get() { return createInstance(); }
+
+}  // namespace core
+}  // namespace entix

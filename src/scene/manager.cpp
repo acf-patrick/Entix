@@ -5,6 +5,9 @@
 #include "../ecs/components.h"
 #include "scene.h"
 
+namespace entix {
+namespace core {
+
 using SceneRef = std::shared_ptr<Scene>;
 using Couple = std::pair<Scene*, Scene*>;
 
@@ -12,7 +15,7 @@ void SceneManager::load(const std::string& fileName) {
     auto scene = Application::Get().getSerializer().deserialize(fileName);
     EventManager::Get()
         ->emit(Scene::Event::LOADED)
-        .attach<Component::tag>(scene->tag);
+        .attach<ecs::component::Tag>(scene->tag);
 }
 
 Scene& SceneManager::getActive() { return *scenes[0]; }
@@ -107,3 +110,6 @@ SceneManager::~SceneManager() {
 
 // static
 std::shared_ptr<SceneManager> SceneManager::Get() { return createInstance(); }
+
+}  // namespace core
+}  // namespace entix

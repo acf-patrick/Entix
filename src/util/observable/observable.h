@@ -12,6 +12,9 @@
 #include <string>
 #include <utility>
 
+namespace entix {
+namespace util {
+
 /**
  * The Observable class
  *
@@ -141,3 +144,6 @@ class Subject : public Observable<T> {
         callback(*this->_raw);
     }
 };
+
+}  // namespace util
+}  // namespace entix

@@ -10,13 +10,16 @@
 #include "../entity/entity.h"
 #include "../group/group.h"
 
+namespace entix {
+namespace ecs {
+
 class IFilter {
    public:
     virtual ~IFilter() = default;
     virtual std::vector<Entity*> filter(Group&) const = 0;
 };
 
-namespace Filter {
+namespace filter {
 
 template <typename... Components>
 class AllOf : public IFilter {
@@ -54,4 +57,6 @@ class With : public IFilter {
     }
 };
 
-}
+}  // namespace filter
+}  // namespace ecs
+}  // namespace entix

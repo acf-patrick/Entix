@@ -9,6 +9,8 @@
 #include "../application/application.h"
 #include "../logger/logger.h"
 
+namespace entix {
+
 int main(int argc, char** argv) {
     Logger::info() << "Creating main application";
     Logger::endline();
@@ -51,7 +53,7 @@ int main(int argc, char** argv) {
         for (auto f : node["Flags"]) flag |= bind[f.as<std::string>()];
     }
 
-    Application application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
+    core::Application application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
 
     auto configPath = std::filesystem::path(configFile).parent_path();
     application._configPath = configPath.string();
@@ -96,3 +98,5 @@ int main(int argc, char** argv) {
 
     return 0;
 }
+
+}  // namespace entix

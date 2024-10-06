@@ -12,6 +12,9 @@
 
 #include "../util/geometry/vector.h"
 
+namespace entix {
+namespace core {
+
 class EventManager;
 
 class Input {
@@ -54,3 +57,6 @@ class Input {
 
     friend class EventManager;
 };
+
+}  // namespace core
+}  // namespace entix

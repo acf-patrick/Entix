@@ -1,24 +1,24 @@
 #include "../components.h"
 
-namespace Component {
+namespace entix {
+namespace ecs {
+namespace component {
 
-    std::set<camera*, camera::_compare> camera::instances;
+std::set<Camera*, Camera::_compare> Camera::instances;
 
-    camera::camera()
-    {
-        instances.emplace(this);
-    }
+Camera::Camera() { instances.emplace(this); }
 
-    camera::~camera()
-    {
-        instances.erase(this);
-        SDL_DestroyTexture(_colorTexture);
-        _colorTexture = nullptr;
-    }
-
-    void camera::_attachTransform()
-    {
-        if (!entity->has<Component::transform>())
-            entity->attach<Component::transform>();
-    }
+Camera::~Camera() {
+    instances.erase(this);
+    SDL_DestroyTexture(_colorTexture);
+    _colorTexture = nullptr;
 }
+
+void Camera::_attachTransform() {
+    if (!entity->has<component::Transform>())
+        entity->attach<component::Transform>();
+}
+
+}  // namespace component
+}  // namespace ecs
+}  // namespace entix

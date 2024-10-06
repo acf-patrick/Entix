@@ -13,6 +13,8 @@
 #include "../path/path.h"
 #include "../util/geometry/vector.h"
 
+namespace entix {
+
 /**
  * Texture
  *
@@ -65,3 +67,5 @@ class Texture {
               float rotation, const Vector<bool>& flip = {false, false},
               const VectorF& scale = {1.0f, 1.0f});
 };
+
+}

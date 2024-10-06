@@ -4,7 +4,9 @@
 #include "../../../renderer/renderer.h"
 #include "../../components.h"
 
-namespace Component {
+namespace entix {
+namespace ecs {
+namespace component {
 
 tson::Tileson Tilemap::tileson;
 
@@ -35,7 +37,7 @@ void Tilemap::Render() {
         if (!_drawer) _drawer = new Drawer;
     }
 
-    RenderManager::Get()->submit([&](SDL_Renderer *renderer) {
+    core::RenderManager::Get()->submit([&](SDL_Renderer *renderer) {
         eachLayer([&](tson::Layer &layer) { _drawLayer(layer, renderer); });
     });
 }
@@ -102,4 +104,6 @@ void Tilemap::_drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
     }
 }
 
-};  // namespace Component
+}   // namespace component
+}  // namespace ecs
+}  // namespace entix

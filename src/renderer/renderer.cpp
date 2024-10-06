@@ -4,6 +4,9 @@
 
 #include "../application/application.h"
 
+namespace entix {
+namespace core {
+
 RenderManager::RenderManager() {}
 RenderManager::~RenderManager() { SDL_DestroyRenderer(renderer); }
 
@@ -28,7 +31,7 @@ void RenderManager::draw() {
     }
     SDL_SetRenderTarget(renderer, NULL);
     for (auto c : Camera::instances) {
-        auto& t = c->entity->get<Component::transform>();
+        auto& t = c->entity->get<ecs::component::Transform>();
         auto scale = t.scale;
         auto position = t.position;
         auto rotation = t.rotation;
@@ -102,6 +105,7 @@ VectorI RenderManager::getSize() const {
 }
 
 // static
-std::shared_ptr<RenderManager> RenderManager::Get() {
-    return createInstance();
-}
+std::shared_ptr<RenderManager> RenderManager::Get() { return createInstance(); }
+
+}  // namespace core
+}  // namespace entix
