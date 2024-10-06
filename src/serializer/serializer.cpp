@@ -111,7 +111,8 @@ void Serializer::serialize(Scene *scene, const std::string &fileName) {
     auto folderCreationOk = false;
 
     try {
-        if (!fs::create_directories(sceneFolderPath)) {
+        if (!fs::exists(sceneFolderPath) &&
+            !fs::create_directories(sceneFolderPath)) {
             Logger::warn("Serializer")
                 << "Unable to create scene folder. Path : '" << sceneFolderPath
                 << "'";
@@ -125,11 +126,12 @@ void Serializer::serialize(Scene *scene, const std::string &fileName) {
     }
 
     if (folderCreationOk) {
-        std::ofstream file(sceneFolderPath);
+        auto filename = sceneFolderPath / outputFilename;
+        std::ofstream file(filename);
         file << out.c_str();
 
         Logger::info("Serializer")
-            << "Scene serialized to '" << sceneFolderPath << "'";
+            << "Scene serialized to '" << filename << "'";
         Logger::endline();
     }
 }

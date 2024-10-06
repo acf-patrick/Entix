@@ -123,6 +123,8 @@ class ComponentManager {
    private:
     ComponentManager() : _nextComponentTypeID(0) { instance = this; }
 
+    void onGroupDestroyed();
+
     static ComponentManager* instance;
 
     std::unordered_map<const char*, ComponentTypeID> _componentTypeID;

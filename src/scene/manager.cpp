@@ -82,10 +82,10 @@ void SceneManager::render() {
 }
 
 bool SceneManager::update() {
-    static bool last(true);
-    if (!last) next();
+    static bool lastUpdateForCurrentScene(true);
+    if (!lastUpdateForCurrentScene) next();
     if (scenes.empty()) return false;
-    last = scenes[0]->update();
+    lastUpdateForCurrentScene = scenes[0]->update();
     return true;
 }
 

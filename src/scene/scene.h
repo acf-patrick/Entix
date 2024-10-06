@@ -65,7 +65,7 @@ class Scene {
 
     std::string tag = "Scene";
 
-    // used to manage entities
+    // manages entities
     ecs::Group _entities;
 
     std::vector<std::string> _freeSystems;
@@ -79,7 +79,10 @@ class Scene {
     friend class SceneManager;
 };
 
-class EmptyScene : public Scene {};
+class EmptyScene : public Scene {
+   public:
+    EmptyScene() = default;
+};
 
 class SceneManager : Manager<SceneManager> {
    public:

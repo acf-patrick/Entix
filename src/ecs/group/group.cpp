@@ -14,6 +14,8 @@ Group::Group() : _componentManager(ComponentManager::Get()) {}
 Group::~Group() {
     for (auto id : _ids) delete Entity::Get(id);
     _ids.clear();
+
+    _componentManager.onGroupDestroyed();
 }
 
 Entity& Group::create() {
