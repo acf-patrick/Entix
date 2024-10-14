@@ -14,8 +14,8 @@ class CustomHook : public ApplicationHook {
         auto& application = Application::Get();
         application.setSerializer<CustomSerializer>();
 
-        auto systemManager = SystemManager::Get();
-        systemManager->add<WorldSystem>();
+        auto systems = SystemManager::Get();
+        systems->add<WorldSystem>();
 
         eventListener.listen(Input::Event::QUIT, [&]() { application.quit(); })
             .listen(

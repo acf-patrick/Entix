@@ -3,6 +3,8 @@
 #include "ecs/system/system.h"
 
 class WorldSystem : public entix::ecs::ISystem {
+    EventListner eventListner;
+
    public:
     WorldSystem() : ISystem("WorldSystem") {}
 

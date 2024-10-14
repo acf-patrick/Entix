@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -11,25 +12,42 @@
 namespace entix {
 
 class ResourceManager : Manager<ResourceManager> {
-    struct Data {
-        std::mutex mutex;
-        void* data;
+    struct IData {
+        virtual ~IData(){};
+    };
 
-        Data(void* data) : data(data) {}
+    template <typename T>
+    struct Data : public IData {
+        std::mutex mutex;
+        T* data;
+
+        Data(T* data) : data(data) {}
         ~Data() { delete data; }
+    };
+
+    template <typename T>
+    class Resource {
+        T* _data;
+
+       public:
+        Resource(T* data) : _data(data) {}
+
+        T* operator->() { return _data; }
+
+        T& operator*() { return *_data; }
     };
 
    public:
     template <typename T>
-    std::optional<std::pair<std::unique_lock<std::mutex>, T&>> get() {
+    std::optional<std::pair<std::unique_lock<std::mutex>, Resource<T>>> get() {
         const std::string resource = typeid(T).name();
 
         if (_datas.find(resource) == _datas.end()) return std::nullopt;
 
-        auto record = _datas[resource];
-        auto data = static_cast<T*>(record->data);
+        auto record = static_cast<Data<T>*>(_datas[resource].get());
 
-        return {std::unique_lock(record->mutex), *data};
+        return std::make_pair(std::unique_lock(record->mutex),
+                              Resource(record->data));
     }
 
     template <typename T>
@@ -38,21 +56,24 @@ class ResourceManager : Manager<ResourceManager> {
 
         if (_datas.find(resource) == _datas.end()) return std::nullopt;
 
-        auto record = _datas[resource];
+        auto record = static_cast<Data<T>*>(_datas[resource].get());
         std::lock_guard lock(record->mutex);
 
-        return *(static_cast<T*>(record->data));
+        return *record->data;
     }
 
     template <typename T, typename... Args>
     ResourceManager& add(Args&&... args) {
         const std::string resource = typeid(T).name();
 
-        auto message = resource + " type has alread been registered";
-        assert(_datas.find(resource) != _datas.end() && message.c_str());
-
-        auto data = new T(std::forward<Args>(args)...);
-        _datas[resource] = std::make_shared<Data>(data);
+        if (_datas.find(resource) != _datas.end()) {
+            Logger::warn("Resource")
+                << resource << " has already been registered";
+            Logger::endline();
+        } else {
+            auto data = new T(std::forward<Args>(args)...);
+            _datas[resource] = std::make_shared<Data<T>>(data);
+        }
 
         return *this;
     }
@@ -60,7 +81,7 @@ class ResourceManager : Manager<ResourceManager> {
     static std::shared_ptr<ResourceManager> Get();
 
    private:
-    std::unordered_map<std::string, std::shared_ptr<Data>> _datas;
+    std::unordered_map<std::string, std::shared_ptr<IData>> _datas;
 
     ~ResourceManager() = default;
 
