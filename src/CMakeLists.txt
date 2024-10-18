@@ -2,7 +2,7 @@ file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
 
 add_library(entix STATIC ${SOURCES})
 
-target_include_directories(entix PRIVATE 
+target_include_directories(entix PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/tileson/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/yaml-cpp/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/termcolor
@@ -12,7 +12,7 @@ target_include_directories(entix PRIVATE
     ${SDL2_MIXER_INCLUDE_DIRS}
 )
 
-target_link_libraries(entix PRIVATE
+target_link_libraries(entix PUBLIC
     yaml-cpp
     SDL2::SDL2
     SDL2_image::SDL2_image
