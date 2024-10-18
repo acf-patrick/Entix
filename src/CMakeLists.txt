@@ -16,6 +16,7 @@ target_include_directories(entix PUBLIC
 
 target_link_libraries(entix PUBLIC
     yaml-cpp
+    SDL2_gfx
     SDL2::SDL2
     SDL2_image::SDL2_image
     SDL2_ttf::SDL2_ttf
