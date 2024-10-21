@@ -131,7 +131,7 @@ class Camera : public ICamera {
     // update the 'clear' property after setting this variable
     Texture backgroundImage;
 
-    enum ClearMode {
+    enum class ClearMode {
         NONE,     // Don't clear the background
         TEXTURE,  // Clear the background with texture set in backgroundImage
                   // property
@@ -143,7 +143,7 @@ class Camera : public ICamera {
 
     // clear mode
     // default : SOLID_COLOR (clear the background with Camera::background)
-    ClearMode clear = SOLID_COLOR;
+    ClearMode clear = ClearMode::SOLID_COLOR;
 
     // flip rendered view
     // default : false, false (no flip)

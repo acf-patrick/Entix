@@ -212,10 +212,11 @@ void Serializer::deserializeEntity(YAML::Node &node, ecs::Entity &entity) {
             c.backgroundImage.load(n["BackgroundImage"].as<std::string>());
         if (n["ClearMode"]) {
             std::map<std::string, ecs::component::Camera::ClearMode> bind = {
-                {"none", c.NONE},
-                {"texture", c.TEXTURE},
-                {"solid color", c.SOLID_COLOR},
-                {"texture and solid color", c.TEXTURE_AND_SOLID_COLOR}};
+                {"none", ecs::component::Camera::ClearMode::NONE},
+                {"texture", ecs::component::Camera::ClearMode::TEXTURE},
+                {"solid color", ecs::component::Camera::ClearMode::SOLID_COLOR},
+                {"texture and solid color",
+                 ecs::component::Camera::ClearMode::TEXTURE_AND_SOLID_COLOR}};
             c.clear = bind[n["ClearMode"].as<std::string>()];
         }
         if (n["Flip"]) c.flip = n["Flip"].as<Vector<bool>>();
@@ -281,7 +282,7 @@ void Serializer::serializeEntity(YAML::Emitter &out, ecs::Entity &entity) {
             << c.backgroundImage.getName();
         std::string bind[] = {"none", "texture", "solid Color",
                               "texture and solid color"};
-        out << YAML::Key << "ClearMode" << YAML::Value << bind[c.clear];
+        out << YAML::Key << "ClearMode" << YAML::Value << bind[(int)c.clear];
         out << YAML::Key << "Flip" << YAML::Value << c.flip;
         out << YAML::Key << "Depth" << YAML::Value << c.depth;
         out << YAML::Key << "Layers" << YAML::Value << YAML::Flow << c.layers;

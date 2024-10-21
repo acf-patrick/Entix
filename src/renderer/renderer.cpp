@@ -30,14 +30,14 @@ void RenderManager::draw() {
         layer();
     }
     SDL_SetRenderTarget(renderer, NULL);
-    for (auto c : Camera::instances) {
-        auto& t = c->entity->get<ecs::component::Transform>();
-        auto scale = t.scale;
-        auto position = t.position;
-        auto rotation = t.rotation;
-        auto viewport = c->destination;
-        auto size = c->size;
-        auto flip = SDL_RendererFlip((c->flip.y << 1) | c->flip.x);
+    for (auto camera : Camera::instances) {
+        auto& transform = camera->entity->get<ecs::component::Transform>();
+        auto scale = transform.scale;
+        auto position = transform.position;
+        auto rotation = transform.rotation;
+        auto viewport = camera->destination;
+        auto size = camera->size;
+        auto flip = SDL_RendererFlip((camera->flip.y << 1) | camera->flip.x);
 
         auto rs = getSize();
         int w = rs.x, h = rs.y;
@@ -47,29 +47,29 @@ void RenderManager::draw() {
         SDL_FRect dest = {viewport.x * w, viewport.y * h, scale.x * rect.w,
                           scale.y * rect.h};
 
-        for (auto index : c->layers) {
-            if (c->clear & c->SOLID_COLOR) {
+        for (auto index : camera->layers) {
+            if ((int)camera->clear & (int)Camera::ClearMode::SOLID_COLOR) {
                 if (rotation == 0.0f) {
                     SDL_Rect dst = {int(dest.x), int(dest.y), int(dest.w),
                                     int(dest.h)};
-                    clear(dst, c->background);
+                    clear(dst, camera->background);
                 } else {
-                    if (!c->_colorTexture) {
-                        auto& t = c->_colorTexture;
-                        t = SDL_CreateTexture(renderer,
-                                              SDL_PIXELFORMAT_RGBA8888,
-                                              SDL_TEXTUREACCESS_TARGET, w, h);
-                        SDL_SetRenderTarget(renderer, t);
-                        clear(c->background);
+                    if (auto& colorTexture = camera->_colorTexture;
+                        !colorTexture) {
+                        colorTexture = SDL_CreateTexture(
+                            renderer, SDL_PIXELFORMAT_RGBA8888,
+                            SDL_TEXTUREACCESS_TARGET, w, h);
+                        SDL_SetRenderTarget(renderer, colorTexture);
+                        clear(camera->background);
                         SDL_SetRenderTarget(renderer, NULL);
                     }
-                    SDL_RenderCopyExF(renderer, c->_colorTexture, NULL, &dest,
-                                      rotation, NULL, SDL_FLIP_NONE);
+                    SDL_RenderCopyExF(renderer, camera->_colorTexture, NULL,
+                                      &dest, rotation, NULL, SDL_FLIP_NONE);
                 }
             }
-            if (c->clear & c->TEXTURE)
-                SDL_RenderCopyExF(renderer, c->backgroundImage.get(), &rect,
-                                  &dest, rotation, NULL, flip);
+            if ((int)camera->clear & (int)Camera::ClearMode::TEXTURE)
+                SDL_RenderCopyExF(renderer, camera->backgroundImage.get(),
+                                  &rect, &dest, rotation, NULL, flip);
 
             SDL_RenderCopyExF(renderer, layers[index].target, &rect, &dest,
                               rotation, NULL, flip);
