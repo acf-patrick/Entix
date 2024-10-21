@@ -7,19 +7,26 @@
 
 namespace entix {
 
-std::map<std::string, SDL_Texture *> Texture::_loadedTextures;
+std::unordered_map<std::string, Texture::TextureAndCounter>
+    Texture::_loadedTextures;
 
 Texture::Texture(const Path &file) { load(file); }
 
 Texture::~Texture() {
-    if (_texture) {
-        _loadedTextures.erase(_file);
-        SDL_DestroyTexture(_texture);
+    if (!_tag.empty()) {
+        auto &counter = _loadedTextures[_tag].refCounter;
+        if (counter == 1) {
+            _loadedTextures.erase(_tag);
+            SDL_DestroyTexture(_loadedTextures[_tag].texture);
+        } else {
+            counter--;
+        }
     }
 }
 
-void Texture::unload() {
-    for (auto &[_, texture] : _loadedTextures) SDL_DestroyTexture(texture);
+void Texture::Clean() {
+    for (auto &[_, texture] : _loadedTextures)
+        SDL_DestroyTexture(texture.texture);
     _loadedTextures.clear();
 }
 
@@ -33,19 +40,19 @@ bool Texture::load(const Path &filePath) {
 
     std::string file(filePath);
 
-    if (_loadedTextures[file]) {
-        _file = file;
-        _texture = _loadedTextures[file];
+    if (_loadedTextures.find(file) != _loadedTextures.end()) {
+        _tag = file;
+        _loadedTextures[_tag].refCounter++;
 
         Logger::info("Texture") << file << " : texture loaded from cache";
         Logger::endline();
     } else {
-        _texture =
+        auto texture =
             IMG_LoadTexture(core::RenderManager::Get()->renderer, file.c_str());
 
-        if (_texture) {
-            _file = file;
-            _loadedTextures[file] = _texture;
+        if (texture) {
+            _tag = file;
+            _loadedTextures[file] = TextureAndCounter(texture);
         } else {
             Logger::error("Texture") << "Failed to load '" << file << "'";
             Logger::endline();
@@ -57,22 +64,23 @@ bool Texture::load(const Path &filePath) {
     return true;
 }
 
-std::string Texture::getName() const { return _file; }
+std::string Texture::getName() const { return _tag; }
 
-SDL_Texture *Texture::get() const { return _texture; }
+SDL_Texture *Texture::get() const {
+    return _tag.empty() ? nullptr : _loadedTextures[_tag].texture;
+}
 
-VectorI Texture::getSize() const {
+std::optional<VectorI> Texture::getSize() const {
+    if (_tag.empty()) return std::nullopt;
+
     VectorI ret;
-    SDL_QueryTexture(_texture, NULL, NULL, &ret.x, &ret.y);
+    SDL_QueryTexture(_loadedTextures[_tag].texture, NULL, NULL, &ret.x, &ret.y);
     return ret;
 }
 
-void Texture::set(SDL_Texture *texture) {
-    _file = "";
-    _texture = texture;
+Texture::operator bool() const {
+    return _tag.empty() ? false : (_loadedTextures[_tag].texture != nullptr);
 }
-
-Texture::operator bool() const { return _texture != NULL; }
 
 void Texture::draw(const VectorI &dst) {
     draw(dst, {false, false}, {1.0f, 1.0f});
@@ -80,14 +88,18 @@ void Texture::draw(const VectorI &dst) {
 
 void Texture::draw(const VectorI &dst, const Vector<bool> &flip,
                    const VectorF &scale) {
+    if (_tag.empty()) return;
+
     auto s = getSize();
-    draw({0, 0, s.x, s.y}, dst, flip, scale);
+    draw({0, 0, s->x, s->y}, dst, flip, scale);
 }
 
 void Texture::draw(const VectorI &dst, const VectorI &center, float rotation,
                    const Vector<bool> &flip, const VectorF &scale) {
+    if (_tag.empty()) return;
+
     auto s = getSize();
-    draw({0, 0, s.x, s.y}, dst, center, rotation, flip, scale);
+    draw({0, 0, s->x, s->y}, dst, center, rotation, flip, scale);
 }
 
 void Texture::draw(const SDL_Rect &src, const VectorI &dst,
@@ -98,10 +110,13 @@ void Texture::draw(const SDL_Rect &src, const VectorI &dst,
 void Texture::draw(const SDL_Rect &src, const VectorI &dst,
                    const VectorI &center, float rotation,
                    const Vector<bool> &flip, const VectorF &scale) {
+    if (_tag.empty()) return;
+
     SDL_Rect d = {dst.x, dst.y, int(src.w * scale.x), int(src.h * scale.y)};
     SDL_Point c = {center.x, center.y};
-    SDL_RenderCopyEx(core::RenderManager::Get()->renderer, _texture, &src, &d,
-                     rotation, &c, SDL_RendererFlip((flip.y << 1) | flip.x));
+    SDL_RenderCopyEx(core::RenderManager::Get()->renderer,
+                     _loadedTextures[_tag].texture, &src, &d, rotation, &c,
+                     SDL_RendererFlip((flip.y << 1) | flip.x));
 }
 
-}
+}  // namespace entix

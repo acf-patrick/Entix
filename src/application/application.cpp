@@ -71,6 +71,7 @@ Application::~Application() {
 
     // Make sure to free memory
     ecs::Entity::Clean();
+    Texture::Clean();
 
     SDL_DestroyWindow(_window);
     _window = nullptr;

@@ -237,9 +237,9 @@ class Tilemap : public Script {
         static std::map<EntityID, Drawer *> instances;
 
        public:
+        Drawer();
         virtual ~Drawer();
 
-        void onAttach() override;
         void onDistach() override;
 
         /**
