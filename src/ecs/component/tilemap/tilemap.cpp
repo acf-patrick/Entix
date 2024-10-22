@@ -10,13 +10,19 @@ namespace component {
 
 tson::Tileson Tilemap::tileson;
 
+namespace fs = std::filesystem;
+
 Tilemap::Tilemap(const Path &path) {
     _map = tileson.parse(path);
-    if (_map->getStatus() == tson::ParseStatus::OK)
+
+    if (_map->getStatus() == tson::ParseStatus::OK) {
+        _source = (fs::path)path;
+        loadTilesets(fs::path(path).parent_path());
         Logger::info("Component", "Tilemap") << path << " loaded";
-    else
+    } else
         Logger::error("Component", "Tilemap")
             << "Tilemap-error : " << _map->getStatusMessage();
+
     Logger::endline();
 }
 
@@ -38,7 +44,7 @@ void Tilemap::Render() {
     }
 
     core::RenderManager::Get()->submit([&](SDL_Renderer *renderer) {
-        eachLayer([&](tson::Layer &layer) { _drawLayer(layer, renderer); });
+        eachLayer([&](tson::Layer &layer) { drawLayer(layer, renderer); });
     });
 }
 
@@ -50,15 +56,43 @@ void Tilemap::eachLayer(const std::function<void(tson::Layer &)> &process,
             process(layer);
 }
 
-void Tilemap::_drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
+void Tilemap::loadTilesets(const fs::path &mapFolder) {
+    for (auto &tileset : _map->getTilesets()) {
+        auto imagePath = tileset.getImagePath();
+        _textures.try_emplace(imagePath.string(), mapFolder / imagePath);
+    }
+}
+
+void Tilemap::drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
     using type = tson::LayerType;
     switch (layer.getType()) {
         case type::Group:
-            for (auto &lay : layer.getLayers()) _drawLayer(lay, renderer);
+            for (auto &lay : layer.getLayers()) drawLayer(lay, renderer);
             break;
 
         case type::ImageLayer:
             _drawer->drawImage(layer.getImage(), layer.getOffset(), renderer);
+            break;
+
+        case type::TileLayer:
+            for (auto &[pos, tile] : layer.getTileData()) {
+                auto tileset = tile->getTileset();
+                auto tileSize = _map->getTileSize();
+                auto &texture = _textures[tileset->getImagePath().string()];
+
+                auto tileId = tile->getId() - tileset->getFirstgid();
+                SDL_Rect src = {int(tileId % (uint32_t)tileset->getColumns() *
+                                    (uint32_t)tileSize.x),
+                                int(tileId / (uint32_t)tileset->getColumns() *
+                                    (uint32_t)tileSize.y),
+                                tileSize.x, tileSize.y};
+
+                VectorI tilePosition(tileSize.x * std::get<0>(pos),
+                                     tileSize.y * std::get<1>(pos));
+
+                texture.draw(src, tilePosition, Vector(false, false),
+                             Vector(1.0, 1.0));
+            }
             break;
 
         case type::ObjectGroup:
@@ -104,7 +138,7 @@ void Tilemap::_drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
     }
 }
 
-std::string Tilemap::getSource() const { return _source; }
+std::string Tilemap::getSource() const { return _source.string(); }
 
 }  // namespace component
 }  // namespace ecs

@@ -328,14 +328,19 @@ class Tilemap : public Script {
     // Map loaded by Tileson
     std::unique_ptr<tson::Map> _map;
 
+    // Tileset images used
+    std::unordered_map<std::string, Texture> _textures;
+
     // Tile scale
     // Default : [1, 1]
     VectorF scale = {1, 1};
 
     // Draw a layer
-    void _drawLayer(tson::Layer &, SDL_Renderer *);
+    void drawLayer(tson::Layer &, SDL_Renderer *);
 
-    std::string _source;
+    std::filesystem::path _source;
+
+    void loadTilesets(const std::filesystem::path& mapFolder);
 
    public:
     // Parameter : file to load
