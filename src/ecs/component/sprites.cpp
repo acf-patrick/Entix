@@ -26,7 +26,7 @@ void SpriteRenderer::Render() {
         auto pos = t.position;
         auto scale = t.scale;
         auto rotation = t.rotation;
-        auto tSize = texture.getSize();
+        auto tSize = *texture.getSize();
         SDL_Rect src;
         VectorI frameSize;
         int w, h;

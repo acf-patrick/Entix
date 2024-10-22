@@ -290,8 +290,8 @@ void Serializer::serializeEntity(YAML::Emitter &out, ecs::Entity &entity) {
     }
 
     if (entity.has<ecs::component::Tilemap>()) {
-        auto &t = entity.get<ecs::component::Tilemap>();
-        out << YAML::Key << "Tilemap" << YAML::Value << t.file;
+        auto &map = entity.get<ecs::component::Tilemap>();
+        out << YAML::Key << "Tilemap" << YAML::Value << map.getSource();
     }
 }
 

@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "../event/event.h"
+#include "../path/path.h"
 #include "../texture/texture.h"
 #include "../util/geometry/vector.h"
 #include "baseCamera.h"
@@ -237,9 +238,9 @@ class Tilemap : public Script {
         static std::map<EntityID, Drawer *> instances;
 
        public:
-        Drawer();
         virtual ~Drawer();
 
+        void onAttach() override;
         void onDistach() override;
 
         /**
@@ -334,14 +335,15 @@ class Tilemap : public Script {
     // Draw a layer
     void _drawLayer(tson::Layer &, SDL_Renderer *);
 
-   public:
-    // File loaded
-    const std::string file;
+    std::string _source;
 
+   public:
     // Parameter : file to load
-    Tilemap(const std::string &);
+    Tilemap(const Path &);
 
     ~Tilemap();
+
+    std::string getSource() const;
 
     // Retrieve map data
     // tson::Map &getMap();

@@ -10,10 +10,10 @@ namespace component {
 
 tson::Tileson Tilemap::tileson;
 
-Tilemap::Tilemap(const std::string &rsc) : file(rsc) {
-    _map = tileson.parse(fs::path(rsc));
+Tilemap::Tilemap(const Path &path) {
+    _map = tileson.parse(path);
     if (_map->getStatus() == tson::ParseStatus::OK)
-        Logger::info("Component", "Tilemap") << rsc << " loaded";
+        Logger::info("Component", "Tilemap") << path << " loaded";
     else
         Logger::error("Component", "Tilemap")
             << "Tilemap-error : " << _map->getStatusMessage();
@@ -21,7 +21,7 @@ Tilemap::Tilemap(const std::string &rsc) : file(rsc) {
 }
 
 Tilemap::~Tilemap() {
-    // if this tilemap use the default drawer,
+    // if this tilemap uses the default drawer,
     // the 'drawer' instance was not registered into component manager
     // hence, must be destroyed manually
     if (_defaultDrawer) delete _drawer;
@@ -104,6 +104,8 @@ void Tilemap::_drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
     }
 }
 
-}   // namespace component
+std::string Tilemap::getSource() const { return _source; }
+
+}  // namespace component
 }  // namespace ecs
 }  // namespace entix

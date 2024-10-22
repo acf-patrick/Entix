@@ -7,9 +7,13 @@ using Drawer = component::Tilemap::Drawer;
 
 std::map<EntityID, Drawer*> Drawer::instances;
 
-Drawer::Drawer() { instances[entity->id()] = this; }
+void Drawer::onAttach() {
+    if (entity) instances[entity->id()] = this;
+}
 
-void Drawer::onDistach() { instances.erase(entity->id()); }
+void Drawer::onDistach() {
+    if (entity) instances.erase(entity->id());
+}
 
 Drawer::~Drawer() { onDistach(); }
 

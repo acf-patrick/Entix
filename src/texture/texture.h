@@ -7,6 +7,7 @@
 #pragma once
 
 #include <SDL.h>
+
 #include <optional>
 #include <unordered_map>
 
@@ -33,6 +34,7 @@ class Texture {
         SDL_Texture* texture;
         size_t refCounter = 1;
 
+        TextureAndCounter() = default;
         TextureAndCounter(SDL_Texture* texture) : texture(texture) {}
     };
 
