@@ -74,26 +74,44 @@ void Tilemap::drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
             _drawer->drawImage(layer.getImage(), layer.getOffset(), renderer);
             break;
 
-        case type::TileLayer:
-            for (auto &[pos, tile] : layer.getTileData()) {
-                auto tileset = tile->getTileset();
-                auto tileSize = _map->getTileSize();
-                auto &texture = _textures[tileset->getImagePath().string()];
+        case type::TileLayer: {
+            auto tileSize = _map->getTileSize();
+            auto mapSize = _map->getSize();
+            auto camera = Camera::MergeBoundingBoxes();
 
-                auto tileId = tile->getId() - tileset->getFirstgid();
-                SDL_Rect src = {int(tileId % (uint32_t)tileset->getColumns() *
-                                    (uint32_t)tileSize.x),
-                                int(tileId / (uint32_t)tileset->getColumns() *
-                                    (uint32_t)tileSize.y),
-                                tileSize.x, tileSize.y};
+            int startCol = std::max(0, (int)std::floor(camera.x / tileSize.x));
+            int endCol =
+                std::min(mapSize.x - 1,
+                         (int)std::ceil((camera.x + camera.w) / tileSize.x));
+            int startRow = std::max(0, (int)std::floor(camera.y / tileSize.y));
+            int endRow =
+                std::min(mapSize.y - 1,
+                         (int)std::ceil((camera.y + camera.h) / tileSize.y));
 
-                VectorI tilePosition(tileSize.x * std::get<0>(pos),
-                                     tileSize.y * std::get<1>(pos));
+            for (int i = startRow; i <= endRow; ++i) {
+                for (int j = startCol; j <= endCol; ++j) {
+                    if (auto tile = layer.getTileData(j, i); tile) {
+                        auto tileset = tile->getTileset();
+                        auto tileSize = _map->getTileSize();
+                        auto &texture =
+                            _textures[tileset->getImagePath().string()];
 
-                texture.draw(src, tilePosition, Vector(false, false),
-                             Vector(1.0, 1.0));
+                        auto tileId = tile->getId() - tileset->getFirstgid();
+                        SDL_Rect src = {
+                            int(tileId % (uint32_t)tileset->getColumns() *
+                                (uint32_t)tileSize.x),
+                            int(tileId / (uint32_t)tileset->getColumns() *
+                                (uint32_t)tileSize.y),
+                            tileSize.x, tileSize.y};
+
+                        VectorI tilePosition(tileSize.x * j - camera.x,
+                                             tileSize.y * i - camera.y);
+                        texture.draw(src, tilePosition, Vector(false, false),
+                                     Vector(1.0, 1.0));
+                    }
+                }
             }
-            break;
+        } break;
 
         case type::ObjectGroup:
             for (auto &object : layer.getObjects()) {

@@ -168,6 +168,8 @@ class Camera : public ICamera {
     // Instances sorted by depth value
     static std::set<Camera *, _compare> instances;
 
+    static SDL_Rect MergeBoundingBoxes();
+
     Camera();
     ~Camera();
 };
