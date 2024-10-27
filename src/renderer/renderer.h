@@ -12,6 +12,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <queue>
 #include <string>
 
@@ -27,11 +28,17 @@ class Application;
 class RenderManager : Manager<RenderManager> {
    public:
     using Camera = ecs::component::Camera;
-    using Process = std::function<void(SDL_Renderer*)>;
+    using ProcessWithCamera = std::function<void(SDL_Renderer*, ecs::Entity*)>;
+    using ProcessWithoutCamera = std::function<void(SDL_Renderer*)>;
 
     struct Drawer {
+        struct Process {
+            std::optional<ProcessWithCamera> withCamera;
+            std::optional<ProcessWithoutCamera> withoutCamera;
+        };
+
         std::shared_ptr<RenderManager> renderManager = RenderManager::Get();
-        std::queue<Process> process;
+        std::queue<Process> processes;
         SDL_Texture* target = nullptr;
 
         SDL_Renderer* renderer = renderManager->renderer;
@@ -50,24 +57,37 @@ class RenderManager : Manager<RenderManager> {
             SDL_DestroyTexture(target);
         }
 
-        void add(const Process& p) { process.push(p); }
+        void add(const ProcessWithoutCamera& operation) {
+            Process process;
+            process.withoutCamera = operation;
+            processes.push(process);
+        }
+
+        void add(const ProcessWithCamera& operation) {
+            Process process;
+            process.withCamera = operation;
+            processes.push(process);
+        }
 
         void clear() {
             std::queue<Process> empty;
-            std::swap(empty, process);
+            std::swap(empty, processes);
         }
 
         void prepare() {
             SDL_SetRenderTarget(renderer, target);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
             SDL_RenderClear(renderer);
-            SDL_SetRenderTarget(renderer, target);
         }
 
-        void operator()() {
-            while (!process.empty()) {
-                process.front()(renderer);
-                process.pop();
+        void operator()(ecs::Entity* camera) {
+            while (!processes.empty()) {
+                auto& process = processes.front();
+                if (process.withCamera)
+                    process.withCamera->operator()(renderer, camera);
+                else
+                    process.withoutCamera->operator()(renderer);
+                processes.pop();
             }
         }
     };
@@ -81,11 +101,15 @@ class RenderManager : Manager<RenderManager> {
     void clear(const SDL_Rect&, const SDL_Color& color = {0, 0, 0, 255});
 
     // perform drawing
-    void draw();
+    void render();
 
     // use n-th layer to perform drawing
     // default : first layer (index 0)
-    void submit(const Process&, std::size_t index = 0);
+    void submit(const ProcessWithCamera&, std::size_t index = 0);
+
+    // use n-th layer to perform drawing
+    // default : first layer (index 0)
+    void submit(const ProcessWithoutCamera&, std::size_t index = 0);
 
     VectorI getSize() const;
 
@@ -103,7 +127,8 @@ class RenderManager : Manager<RenderManager> {
     // SDL_Texture* view;
 
     // There is always one layer remaining
-    std::map<int, Drawer> layers;
+    // [layer_id, drawer]
+    std::map<int, Drawer> drawers;
 
     RenderManager();
     ~RenderManager();

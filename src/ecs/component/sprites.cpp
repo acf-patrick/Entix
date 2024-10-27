@@ -18,15 +18,23 @@ void SpriteRenderer::Render() {
     auto& spriteComponent = get<Sprite>();
     if (!spriteComponent.texture) return;  // no texture to draw
 
-    core::RenderManager::Get()->submit([&](SDL_Renderer* renderer) {
+    core::RenderManager::Get()->submit([&](SDL_Renderer* renderer,
+                                           ecs::Entity* camera) {
         if (!has<Transform>())
-            attach<Transform>();  // default position, rotation and scale factor
-        auto& t = get<Transform>();
+            attach<Transform>();  // using default position, rotation and
+                                  // scale factor
+
+        const auto& cameraPosition = camera->get<Transform>().position;
+        auto& transform = get<Transform>();
+
+        auto pos = transform.position;
+        pos -= cameraPosition;
+
         auto& texture = spriteComponent.texture;
-        auto pos = t.position;
-        auto scale = t.scale;
-        auto rotation = t.rotation;
+        const auto& scale = transform.scale;
+        auto rotation = transform.rotation;
         auto tSize = *texture.getSize();
+
         SDL_Rect src;
         VectorI frameSize;
         int w, h;
