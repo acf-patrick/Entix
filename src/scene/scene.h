@@ -54,6 +54,8 @@ class Scene {
 
     ecs::Group& getEntities();
 
+    ecs::Entity* getEntity(const std::string& tag);
+
    protected:
     Scene(const std::string&);
     virtual ~Scene() = default;

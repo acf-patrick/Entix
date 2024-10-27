@@ -46,6 +46,8 @@ class Application final {
 
     Serializer& getSerializer();
 
+    static void Quit();
+
     static Application& Get();
 
    private:

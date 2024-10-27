@@ -134,5 +134,10 @@ Application& Application::Get() {
     return *instance;
 }
 
+// static
+void Application::Quit() {
+    if (instance) instance->_running = false;
+}
+
 }  // namespace core
 }  // namespace entix

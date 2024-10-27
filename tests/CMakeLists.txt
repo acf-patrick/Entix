@@ -1,1 +1,2 @@
-add_subdirectory(test-application)
+add_subdirectory(mobs)
+add_subdirectory(tilemap)

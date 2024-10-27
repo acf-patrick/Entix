@@ -41,6 +41,8 @@ void Scene::setActive() { SceneManager::Get()->setActive(tag); }
 
 ecs::Group& Scene::getEntities() { return _entities; }
 
+ecs::Entity* Scene::getEntity(const std::string& tag) { return _entities[tag]; }
+
 ecs::Entity& Scene::createEntity() { return _entities.create(); }
 
 }  // namespace core
