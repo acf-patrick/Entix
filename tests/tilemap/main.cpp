@@ -9,7 +9,7 @@ class CustomHook : public entix::core::ApplicationHook {
             .listen(entix::core::Input::Event::QUIT,
                     [&] { entix::core::Application::Quit(); })
             .listen(entix::core::Input::Event::KEY_DOWN, [] {
-                const float speed = 1;
+                const float speed = 2;
                 auto& scene = entix::core::SceneManager::Get()->getActive();
                 if (auto camera = scene.getEntity("main camera"); camera) {
                     auto& cameraPosition =

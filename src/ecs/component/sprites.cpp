@@ -18,15 +18,23 @@ void SpriteRenderer::Render() {
     auto& spriteComponent = get<Sprite>();
     if (!spriteComponent.texture) return;  // no texture to draw
 
-    core::RenderManager::Get()->submit([&](SDL_Renderer* renderer) {
+    core::RenderManager::Get()->submit([&](SDL_Renderer* renderer,
+                                           Entity* camera) {
         if (!has<Transform>())
-            attach<Transform>();  // default position, rotation and scale factor
-        auto& t = get<Transform>();
+            attach<Transform>();  // using default position, rotation and
+                                  // scale factor
+
+        const auto& cameraPosition = camera->get<Transform>().position;
+        auto& transform = get<Transform>();
+
+        auto pos = transform.position;
+        pos -= cameraPosition;
+
         auto& texture = spriteComponent.texture;
-        auto pos = t.position;
-        auto scale = t.scale;
-        auto rotation = t.rotation;
+        const auto& scale = transform.scale;
+        auto rotation = transform.rotation;
         auto tSize = *texture.getSize();
+
         SDL_Rect src;
         VectorI frameSize;
         int w, h;
@@ -44,9 +52,7 @@ void SpriteRenderer::Render() {
             src.y = spriteComponent.region.y;
             w = spriteComponent.region.w;
             h = spriteComponent.region.h;
-        }
-        // use whole texture
-        else {
+        } else {  // use whole texture
             src.x = src.y = 0;
             w = tSize.x;
             h = tSize.y;
@@ -70,9 +76,14 @@ void SpriteRenderer::Render() {
         // center destination
         if (spriteComponent.centered) pos -= {src.w * 0.5, src.h * 0.5};
 
-        // rotate around center for now
-        texture.draw(src, {int(pos.x), int(pos.y)}, {src.w / 2, src.h / 2},
-                     rotation, spriteComponent.flip, scale);
+        SDL_Rect boundingBox = {(int)pos.x, (int)pos.y, int(scale.x * src.w),
+                                int(scale.y * src.h)};
+
+        auto& cameraComponent = camera->get<Camera>();
+
+        if (cameraComponent.contains(boundingBox))
+            texture.draw(src, {int(pos.x), int(pos.y)}, {src.w / 2, src.h / 2},
+                         rotation, spriteComponent.flip, scale);
     });
 }
 

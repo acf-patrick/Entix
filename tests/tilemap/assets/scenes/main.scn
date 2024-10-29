@@ -1,3 +1,18 @@
 Name: main
 Entities:
   - Tilemap: map/terrain.json
+  - TagComponent:
+      Tag: main camera
+    CameraComponent:
+      Size: [0.5, 1]
+      Destination: [0, 0]
+  - TagComponent:
+      Tag: secondary camera
+    CameraComponent:
+      Size: [0.5, 1]
+      Destination: [0.5, 0]
+      ClearMode: solid color
+      BackgroundColor: [0, 0, 255, 255]
+      Layers: [1]
+    TransformComponent:
+      Scale: [1, 1]

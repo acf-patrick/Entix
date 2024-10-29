@@ -98,7 +98,7 @@ void Application::run() {
         else
             sceneManager->render();
 
-        RenderManager::Get()->draw();
+        RenderManager::Get()->render();
         SDL_framerateDelay(&_fpsManager);
     }
 }

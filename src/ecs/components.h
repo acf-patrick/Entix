@@ -165,8 +165,12 @@ class Camera : public ICamera {
         }
     };
 
+    bool contains(const SDL_Rect &rect);
+
+    SDL_Rect getBoundingBox();
+
     // Instances sorted by depth value
-    static std::set<Camera *, _compare> instances;
+    static std::multiset<Camera *, _compare> instances;
 
     static SDL_Rect MergeBoundingBoxes();
 
@@ -253,15 +257,15 @@ class Tilemap : public Script {
          * @param renderer Renderer to be used
          */
         virtual void drawImage(const std::string &, const tson::Vector2f &,
-                               SDL_Renderer *);
+                               SDL_Renderer *, Entity *camera);
 
         /**
          *  Draw an object from a tilemap
          *
          * @param object the object to draw
          * @param renderer Renderer to be used
-         */
-        virtual void drawObject(tson::Object, SDL_Renderer *);
+         , Entity* camera*/
+        virtual void drawObject(tson::Object, SDL_Renderer *, Entity *camera);
 
         /**
          * Draw an ellipse from a tilemap
@@ -269,7 +273,8 @@ class Tilemap : public Script {
          * @param rect bouding rect of the ellipse
          * @param renderer Renderer to be used
          */
-        virtual void drawEllipse(const SDL_Rect &, SDL_Renderer *);
+        virtual void drawEllipse(const SDL_Rect &, SDL_Renderer *,
+                                 Entity *camera);
 
         /**
          * Draw a rectangle from a tilemap
@@ -277,7 +282,8 @@ class Tilemap : public Script {
          * @param rect the rectangle
          * @param renderer Renderer to be used
          */
-        virtual void drawRectangle(const SDL_Rect &, SDL_Renderer *);
+        virtual void drawRectangle(const SDL_Rect &, SDL_Renderer *,
+                                   Entity *camera);
 
         /**
          * Draw a point indicator from a tilemap
@@ -285,7 +291,8 @@ class Tilemap : public Script {
          * @param point position of the point
          * @param renderer Renderer to be used
          */
-        virtual void drawPoint(const tson::Vector2i &, SDL_Renderer *);
+        virtual void drawPoint(const tson::Vector2i &, SDL_Renderer *,
+                               Entity *camera);
 
         /**
          * Draw a polygon from a tilemap
@@ -294,7 +301,7 @@ class Tilemap : public Script {
          * @param renderer Renderer to be used
          */
         virtual void drawPolygon(const std::vector<tson::Vector2i> &,
-                                 SDL_Renderer *);
+                                 SDL_Renderer *, Entity *camera);
 
         /**
          * Draw a polyline from a tilemap
@@ -303,7 +310,7 @@ class Tilemap : public Script {
          * @param renderer Renderer to be used
          */
         virtual void drawPolyline(const std::vector<tson::Vector2i> &,
-                                  SDL_Renderer *);
+                                  SDL_Renderer *, Entity *camera);
 
         /**
          * Draw text from a tilemap
@@ -314,7 +321,7 @@ class Tilemap : public Script {
          * @param renderer Renderer to be used
          */
         virtual void drawText(const tson::Text &, const tson::Vector2i &,
-                              SDL_Renderer *);
+                              SDL_Renderer *, Entity *camera);
 
         friend class Tilemap;
     };
@@ -338,11 +345,11 @@ class Tilemap : public Script {
     VectorF scale = {1, 1};
 
     // Draw a layer
-    void drawLayer(tson::Layer &, SDL_Renderer *);
+    void drawLayer(tson::Layer &, SDL_Renderer *, Entity *);
 
     std::filesystem::path _source;
 
-    void loadTilesets(const std::filesystem::path& mapFolder);
+    void loadTilesets(const std::filesystem::path &mapFolder);
 
    public:
     // Parameter : file to load

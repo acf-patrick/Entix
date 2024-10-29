@@ -43,9 +43,12 @@ void Tilemap::Render() {
         if (!_drawer) _drawer = new Drawer;
     }
 
-    core::RenderManager::Get()->submit([&](SDL_Renderer *renderer) {
-        eachLayer([&](tson::Layer &layer) { drawLayer(layer, renderer); });
-    });
+    core::RenderManager::Get()->submit(
+        [&](SDL_Renderer *renderer, Entity *camera) {
+            eachLayer([&](tson::Layer &layer) {
+                drawLayer(layer, renderer, camera);
+            });
+        });
 }
 
 void Tilemap::eachLayer(const std::function<void(tson::Layer &)> &process,
@@ -63,21 +66,24 @@ void Tilemap::loadTilesets(const fs::path &mapFolder) {
     }
 }
 
-void Tilemap::drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
+void Tilemap::drawLayer(tson::Layer &layer, SDL_Renderer *renderer,
+                        Entity *cameraEntity) {
     using type = tson::LayerType;
     switch (layer.getType()) {
         case type::Group:
-            for (auto &lay : layer.getLayers()) drawLayer(lay, renderer);
+            for (auto &layer : layer.getLayers())
+                drawLayer(layer, renderer, cameraEntity);
             break;
 
         case type::ImageLayer:
-            _drawer->drawImage(layer.getImage(), layer.getOffset(), renderer);
+            _drawer->drawImage(layer.getImage(), layer.getOffset(), renderer,
+                               cameraEntity);
             break;
 
         case type::TileLayer: {
             auto tileSize = _map->getTileSize();
             auto mapSize = _map->getSize();
-            auto camera = Camera::MergeBoundingBoxes();
+            auto camera = cameraEntity->get<Camera>().getBoundingBox();
 
             int startCol = std::max(0, (int)std::floor(camera.x / tileSize.x));
             int endCol =
@@ -122,31 +128,36 @@ void Tilemap::drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
 
                 switch (object.getObjectType()) {
                     case tson::ObjectType::Ellipse:
-                        _drawer->drawEllipse(objBoundingRect, renderer);
+                        _drawer->drawEllipse(objBoundingRect, renderer,
+                                             cameraEntity);
                         break;
 
                     case tson::ObjectType::Point:
-                        _drawer->drawPoint(objPos, renderer);
+                        _drawer->drawPoint(objPos, renderer, cameraEntity);
                         break;
 
                     case tson::ObjectType::Polygon:
-                        _drawer->drawPolygon(object.getPolygons(), renderer);
+                        _drawer->drawPolygon(object.getPolygons(), renderer,
+                                             cameraEntity);
                         break;
 
                     case tson::ObjectType::Polyline:
-                        _drawer->drawPolyline(object.getPolylines(), renderer);
+                        _drawer->drawPolyline(object.getPolylines(), renderer,
+                                              cameraEntity);
                         break;
 
                     case tson::ObjectType::Rectangle:
-                        _drawer->drawRectangle(objBoundingRect, renderer);
+                        _drawer->drawRectangle(objBoundingRect, renderer,
+                                               cameraEntity);
                         break;
 
                     case tson::ObjectType::Text:
-                        _drawer->drawText(object.getText(), objPos, renderer);
+                        _drawer->drawText(object.getText(), objPos, renderer,
+                                          cameraEntity);
                         break;
 
                     default:
-                        _drawer->drawObject(object, renderer);
+                        _drawer->drawObject(object, renderer, cameraEntity);
                         break;
                 }
             }
