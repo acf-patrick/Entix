@@ -19,7 +19,7 @@ void SpriteRenderer::Render() {
     if (!spriteComponent.texture) return;  // no texture to draw
 
     core::RenderManager::Get()->submit([&](SDL_Renderer* renderer,
-                                           ecs::Entity* camera) {
+                                           Entity* camera) {
         if (!has<Transform>())
             attach<Transform>();  // using default position, rotation and
                                   // scale factor
@@ -52,9 +52,7 @@ void SpriteRenderer::Render() {
             src.y = spriteComponent.region.y;
             w = spriteComponent.region.w;
             h = spriteComponent.region.h;
-        }
-        // use whole texture
-        else {
+        } else {  // use whole texture
             src.x = src.y = 0;
             w = tSize.x;
             h = tSize.y;
@@ -78,9 +76,14 @@ void SpriteRenderer::Render() {
         // center destination
         if (spriteComponent.centered) pos -= {src.w * 0.5, src.h * 0.5};
 
-        // rotate around center for now
-        texture.draw(src, {int(pos.x), int(pos.y)}, {src.w / 2, src.h / 2},
-                     rotation, spriteComponent.flip, scale);
+        SDL_Rect boundingBox = {(int)pos.x, (int)pos.y, int(scale.x * src.w),
+                                int(scale.y * src.h)};
+
+        auto& cameraComponent = camera->get<Camera>();
+
+        if (cameraComponent.contains(boundingBox))
+            texture.draw(src, {int(pos.x), int(pos.y)}, {src.w / 2, src.h / 2},
+                         rotation, spriteComponent.flip, scale);
     });
 }
 

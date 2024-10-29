@@ -7,7 +7,7 @@ namespace entix {
 namespace ecs {
 namespace component {
 
-std::set<Camera *, Camera::_compare> Camera::instances;
+std::multiset<Camera*, Camera::_compare> Camera::instances;
 
 Camera::Camera() { instances.emplace(this); }
 
@@ -31,7 +31,7 @@ SDL_Rect Camera::MergeBoundingBoxes() {
     for (auto camera : instances) {
         if (!camera->entity) continue;
 
-        const auto &cameraPosition = camera->entity->get<Transform>().position;
+        const auto& cameraPosition = camera->entity->get<Transform>().position;
         auto rendererSize = core::RenderManager::Get()->getSize();
         VectorI cameraSize(rendererSize.x * camera->size.x,
                            rendererSize.y * camera->size.y);
@@ -48,6 +48,35 @@ SDL_Rect Camera::MergeBoundingBoxes() {
     boundingBox.h -= boundingBox.y;
 
     return boundingBox;
+}
+
+bool Camera::contains(const SDL_Rect& rect) {
+    if (!entity) return false;
+
+    auto rendererManager = core::RenderManager::Get();
+    if (!rendererManager) return false;
+
+    auto rendererSize = rendererManager->getSize();
+
+    auto cameraRect = getBoundingBox();
+
+    SDL_Rect wholeScreen = {0, 0, rendererSize.x, rendererSize.y};
+    SDL_IntersectRect(&cameraRect, &wholeScreen, &cameraRect);
+
+    SDL_Rect visible;
+    SDL_IntersectRect(&cameraRect, &rect, &visible);
+
+    return visible.w > 0 && visible.h > 0;
+}
+
+SDL_Rect Camera::getBoundingBox() {
+    const auto& position = entity->get<Transform>().position;
+    auto rendererSize = core::RenderManager::Get()->getSize();
+
+    SDL_Rect rect = {(int)position.x, (int)position.y,
+                     int(rendererSize.x * size.x),
+                     int(rendererSize.y * size.y)};
+    return rect;
 }
 
 }  // namespace component

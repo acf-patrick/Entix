@@ -10,14 +10,28 @@ namespace core {
 RenderManager::RenderManager() {}
 RenderManager::~RenderManager() { SDL_DestroyRenderer(renderer); }
 
+void RenderManager::submit(const ProcessWithCamera& drawer) {
+    std::vector<size_t> layers;
+    for (auto& [layer, _] : drawers) layers.push_back(layer);
+
+    submit(drawer, layers);
+}
+
+void RenderManager::submit(const ProcessWithoutCamera& drawer) {
+    std::vector<size_t> layers;
+    for (auto& [layer, _] : drawers) layers.push_back(layer);
+
+    submit(drawer, layers);
+}
+
 void RenderManager::submit(const ProcessWithCamera& drawer,
-                           std::size_t layer_n) {
-    drawers[layer_n].add(drawer);
+                           const std::vector<size_t>& layers) {
+    for (auto layer_n : layers) drawers[layer_n].add(drawer);
 }
 
 void RenderManager::submit(const ProcessWithoutCamera& drawer,
-                           std::size_t layer_n) {
-    drawers[layer_n].add(drawer);
+                           const std::vector<size_t>& layers) {
+    for (auto layer_n : layers) drawers[layer_n].add(drawer);
 }
 
 void RenderManager::clear(const SDL_Rect& rect, const SDL_Color& color) {
@@ -32,11 +46,19 @@ void RenderManager::clear(const SDL_Color& color) {
     SDL_RenderClear(renderer);
 }
 
+void RenderManager::verifyLayers() {
+    if (drawers.empty()) {
+        auto& _ = drawers[0];  // create layer 0
+    }
+}
+
 void RenderManager::render() {
+    verifyLayers();
+
     for (auto camera : Camera::instances) {
         auto& transform = camera->entity->get<ecs::component::Transform>();
         const auto& scale = transform.scale;
-        const auto& position = transform.position;
+        // const auto& position = transform.position;
         auto rotation = transform.rotation;
         const auto& viewport = camera->destination;
         auto size = camera->size;
@@ -45,17 +67,14 @@ void RenderManager::render() {
         auto rs = getSize();
         int w = rs.x, h = rs.y;
 
-        if (size.x > w) size.x = w;
-        if (size.y > h) size.y = h;
+        if (size.x > 1) size.x = 1;
+        if (size.y > 1) size.y = 1;
 
-        SDL_Rect rect = {int(position.x), int(position.y), int(size.x * w),
-                         int(size.y * h)};
+        SDL_Rect rect = {0, 0, int(size.x * w), int(size.y * h)};
         SDL_FRect dest = {viewport.x * w, viewport.y * h, scale.x * rect.w,
                           scale.y * rect.h};
 
         for (auto layerIndex : camera->layers) {
-            if (drawers.find(layerIndex) == drawers.end()) continue;
-
             {  // clearing process
                 if ((int)camera->clear & (int)Camera::ClearMode::SOLID_COLOR) {
                     if (rotation == 0.0f) {
@@ -85,10 +104,15 @@ void RenderManager::render() {
             auto& drawer = drawers[layerIndex];
             drawer.prepare();
             drawer(camera->entity);
+
+            SDL_SetRenderTarget(renderer, NULL);
             SDL_RenderCopyExF(renderer, drawer.target, &rect, &dest, rotation,
                               NULL, flip);
         };
     }
+
+    for (auto camera : Camera::instances)
+        for (auto layerIndex : camera->layers) drawers[layerIndex].clear();
 
     SDL_RenderPresent(renderer);
 }

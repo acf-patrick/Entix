@@ -13,8 +13,8 @@
 #include <map>
 #include <memory>
 #include <optional>
-#include <queue>
 #include <string>
+#include <vector>
 
 #include "../ecs/components.h"
 #include "../manager/manager.h"
@@ -38,7 +38,7 @@ class RenderManager : Manager<RenderManager> {
         };
 
         std::shared_ptr<RenderManager> renderManager = RenderManager::Get();
-        std::queue<Process> processes;
+        std::vector<Process> processes;
         SDL_Texture* target = nullptr;
 
         SDL_Renderer* renderer = renderManager->renderer;
@@ -60,19 +60,16 @@ class RenderManager : Manager<RenderManager> {
         void add(const ProcessWithoutCamera& operation) {
             Process process;
             process.withoutCamera = operation;
-            processes.push(process);
+            processes.push_back(process);
         }
 
         void add(const ProcessWithCamera& operation) {
             Process process;
             process.withCamera = operation;
-            processes.push(process);
+            processes.push_back(process);
         }
 
-        void clear() {
-            std::queue<Process> empty;
-            std::swap(empty, processes);
-        }
+        void clear() { processes.clear(); }
 
         void prepare() {
             SDL_SetRenderTarget(renderer, target);
@@ -81,13 +78,11 @@ class RenderManager : Manager<RenderManager> {
         }
 
         void operator()(ecs::Entity* camera) {
-            while (!processes.empty()) {
-                auto& process = processes.front();
+            for (auto& process : processes) {
                 if (process.withCamera)
                     process.withCamera->operator()(renderer, camera);
                 else
                     process.withoutCamera->operator()(renderer);
-                processes.pop();
             }
         }
     };
@@ -103,13 +98,15 @@ class RenderManager : Manager<RenderManager> {
     // perform drawing
     void render();
 
-    // use n-th layer to perform drawing
-    // default : first layer (index 0)
-    void submit(const ProcessWithCamera&, std::size_t index = 0);
+    // submit on all layers
+    void submit(const ProcessWithCamera&);
 
-    // use n-th layer to perform drawing
-    // default : first layer (index 0)
-    void submit(const ProcessWithoutCamera&, std::size_t index = 0);
+    // submit on all layers
+    void submit(const ProcessWithoutCamera&);
+
+    void submit(const ProcessWithCamera&, const std::vector<size_t>& layers);
+
+    void submit(const ProcessWithoutCamera&, const std::vector<size_t>& layers);
 
     VectorI getSize() const;
 
@@ -132,6 +129,8 @@ class RenderManager : Manager<RenderManager> {
 
     RenderManager();
     ~RenderManager();
+
+    void verifyLayers();
 
     friend class Application;
     friend class Manager<RenderManager>;
