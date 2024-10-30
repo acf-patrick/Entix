@@ -295,22 +295,14 @@ class Tilemap : public Script {
                                Entity *camera);
 
         /**
-         * Draw a polygon from a tilemap
+         * Draw a polyline from a tilemap
          *
          * @param vertexes list of the polygon's vertexes
          * @param renderer Renderer to be used
          */
-        virtual void drawPolygon(const std::vector<tson::Vector2i> &,
+        virtual void drawPolyline(const tson::Vector2i &position,
+                                 const std::vector<tson::Vector2i> &,
                                  SDL_Renderer *, Entity *camera);
-
-        /**
-         * Draw a polyline from a tilemap
-         *
-         * @param vertexes list of the polyline vertexes
-         * @param renderer Renderer to be used
-         */
-        virtual void drawPolyline(const std::vector<tson::Vector2i> &,
-                                  SDL_Renderer *, Entity *camera);
 
         /**
          * Draw text from a tilemap

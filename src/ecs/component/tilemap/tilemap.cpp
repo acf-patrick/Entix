@@ -137,13 +137,13 @@ void Tilemap::drawLayer(tson::Layer &layer, SDL_Renderer *renderer,
                         break;
 
                     case tson::ObjectType::Polygon:
-                        _drawer->drawPolygon(object.getPolygons(), renderer,
-                                             cameraEntity);
+                        _drawer->drawPolyline(objPos, object.getPolygons(),
+                                              renderer, cameraEntity);
                         break;
 
                     case tson::ObjectType::Polyline:
-                        _drawer->drawPolyline(object.getPolylines(), renderer,
-                                              cameraEntity);
+                        _drawer->drawPolyline(objPos, object.getPolylines(),
+                                              renderer, cameraEntity);
                         break;
 
                     case tson::ObjectType::Rectangle:
