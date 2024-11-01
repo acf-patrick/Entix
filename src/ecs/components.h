@@ -301,8 +301,8 @@ class Tilemap : public Script {
          * @param renderer Renderer to be used
          */
         virtual void drawPolyline(const tson::Vector2i &position,
-                                 const std::vector<tson::Vector2i> &,
-                                 SDL_Renderer *, Entity *camera);
+                                  const std::vector<tson::Vector2i> &,
+                                  SDL_Renderer *, Entity *camera);
 
         /**
          * Draw text from a tilemap
@@ -368,5 +368,8 @@ class Tilemap : public Script {
 };
 
 }  // namespace component
+
+using Script = component::Script;
+
 }  // namespace ecs
 }  // namespace entix

@@ -25,10 +25,10 @@ void SpriteRenderer::Render() {
                                   // scale factor
 
         const auto& cameraPosition = camera->get<Transform>().position;
-        auto& transform = get<Transform>();
+        const auto& transform = get<Transform>();
 
         auto pos = transform.position;
-        pos -= cameraPosition;
+        pos -= cameraPosition;  // compute positoin relative to camera
 
         auto& texture = spriteComponent.texture;
         const auto& scale = transform.scale;
@@ -76,7 +76,8 @@ void SpriteRenderer::Render() {
         // center destination
         if (spriteComponent.centered) pos -= {src.w * 0.5, src.h * 0.5};
 
-        SDL_Rect boundingBox = {(int)pos.x, (int)pos.y, int(scale.x * src.w),
+        SDL_Rect boundingBox = {(int)transform.position.x,
+                                (int)transform.position.y, int(scale.x * src.w),
                                 int(scale.y * src.h)};
 
         auto& cameraComponent = camera->get<Camera>();
