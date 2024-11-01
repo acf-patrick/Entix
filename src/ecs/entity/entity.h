@@ -9,8 +9,8 @@
 #include <unordered_map>
 
 #include "../../path/path.h"
-#include "../baseCamera.h"
-#include "../baseScript.h"
+#include "../base_camera.h"
+#include "../base_script.h"
 #include "../component/manager.h"
 #include "../defs.h"
 

@@ -17,8 +17,8 @@
 #include "../path/path.h"
 #include "../texture/texture.h"
 #include "../util/geometry/vector.h"
-#include "baseCamera.h"
-#include "baseScript.h"
+#include "base_camera.h"
+#include "base_script.h"
 #include "entity/entity.h"
 
 namespace entix {
