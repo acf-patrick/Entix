@@ -37,7 +37,7 @@ class Mob : public Script {
         body->CreateFixture(&fdef);
     }
 
-    void Update() override {
+    void Update(uint32_t) override {
         auto pos = body->GetPosition();
         auto& t = get<entix::ecs::component::Transform>();
         t.position.x = pos.x * MtoPX;
@@ -157,7 +157,7 @@ class SpriteAnimator : public Script {
         latestTick = SDL_GetTicks();
     }
 
-    void Update() override {
+    void Update(uint32_t) override {
         auto currentTick = SDL_GetTicks();
         if (currentTick - latestTick >= frameDuration) {
             latestTick = currentTick;

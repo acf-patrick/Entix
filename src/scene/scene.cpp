@@ -14,6 +14,8 @@ Scene::Scene(const std::string& _tag) : tag(_tag) {
 }
 
 bool Scene::update() {
+    static Uint32 lastTick(SDL_GetTicks());
+
     if (!_systemsActivated) {
         auto systemManager = ecs::SystemManager::Get();
 
@@ -25,7 +27,12 @@ bool Scene::update() {
         _systemsActivated = true;
     }
 
-    _entities.for_each([](ecs::Entity& entity) { entity.Update(); });
+    auto currentTick = SDL_GetTicks();
+    const auto dt = currentTick - lastTick;
+
+    _entities.for_each([dt](ecs::Entity& entity) { entity.Update(dt); });
+    lastTick = currentTick;
+
     return active;
 }
 

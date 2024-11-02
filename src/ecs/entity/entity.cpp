@@ -101,10 +101,10 @@ bool Entity::operator==(const Entity& entity) const {
     return _id == entity._id;
 }
 
-void Entity::Update() {
+void Entity::Update(uint32_t dt) {
     for (auto& s : _scripts) {
         auto& script = *static_cast<Script*>(s);
-        if (script.isEnabled()) script.Update();
+        if (script.isEnabled()) script.Update(dt);
     }
 }
 

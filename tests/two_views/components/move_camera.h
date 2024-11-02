@@ -5,9 +5,9 @@
 
 class MoveFirstCamera : public entix::ecs::Script {
    public:
-    void Update() override {
+    void Update(uint32_t dt) override {
         using Input = entix::core::Input;
-        const float speed = 2.0;
+        const float speed = 2;
         auto& camera = entix::core::SceneManager::Get()
                            ->getActive()
                            .getEntity("main camera")
@@ -26,9 +26,9 @@ class MoveFirstCamera : public entix::ecs::Script {
 
 class MoveSecondCamera : public entix::ecs::Script {
    public:
-    void Update() override {
+    void Update(uint32_t dt) override {
         using Input = entix::core::Input;
-        const float speed = 2.0;
+        const float speed = 2;
         auto& camera = entix::core::SceneManager::Get()
                            ->getActive()
                            .getEntity("secondary camera")

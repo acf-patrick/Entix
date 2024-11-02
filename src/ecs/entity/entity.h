@@ -150,7 +150,7 @@ class Entity {
 
     static std::string idToString(EntityID);
 
-    void Update();
+    void Update(uint32_t dt);
     void Render();
 
     // all we're doing here is distach all of the scripts from this entity

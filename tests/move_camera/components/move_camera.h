@@ -5,7 +5,7 @@
 
 class MoveCamera : public entix::ecs::Script {
    public:
-    void Update() override {
+    void Update(uint32_t) override {
         using Input = entix::core::Input;
         const float speed = 2.0;
         auto& camera = entix::core::SceneManager::Get()

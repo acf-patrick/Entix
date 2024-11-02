@@ -30,8 +30,9 @@ class BaseScript {
 
     bool isEnabled() { return enabled; }
 
-    // what to do with the entity each frame
-    virtual void Update() {}
+    /// what to do with the entity each frame
+    /// @param dt: elapsed time since last call in milliseconds
+    virtual void Update(uint32_t dt) {}
 
     // draw the entity
     virtual void Render() {}
