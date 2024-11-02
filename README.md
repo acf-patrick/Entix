@@ -1,16 +1,7 @@
+# Entix
 Program core using an entity-component system and SDL2 for rendering.
 
-<!--
-## Dependencies
-```
-sudo apt-get install libxml2-dev zlib1g-dev
-sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev
-```
+🚧 __WORK IN PROGRESS__
 
-## Build
-```
-make
-./bin
-```
-otherwise, open in code::blocks the premade project file and just rebuild it.
--->
+## Examples
+Examples, showing off diverse use-cases and how to setup the framework, can be found [here](https://github.com/acf-patrick/entix-example)
