@@ -54,6 +54,8 @@ Application::Application(const std::string& title, int width, int height,
     SDL_initFramerate(&_fpsManager);
     setFramerate(60);
 
+    _framerates.reserve(_rateSamples);
+
     instance = this;
 
     Logger::info("App") << "Application created";
@@ -88,7 +90,22 @@ void Application::log(const std::string& message) const {
 }
 
 void Application::run() {
+    Uint32 latestTick = SDL_GetTicks();
+
     while (_running) {
+        auto currentTick = SDL_GetTicks();
+        _framerates.push_back(1000.0 / (currentTick - latestTick));
+        latestTick = currentTick;
+
+        if (_framerates.size() == _rateSamples) {
+            auto fps = 0.0f;
+            for (auto rate : _framerates) fps += rate;
+            fps /= _rateSamples;
+
+            _framerate = fps;
+            _framerates.clear();
+        }
+
         EventManager::Get()->handle();
         ecs::SystemManager::Get()->run();
 
@@ -128,7 +145,7 @@ void Application::setFramerate(unsigned int framerate) {
     }
 }
 
-int Application::getFramecount() const { return _fpsManager.framecount; }
+int Application::getFramerate() const { return _framerate; }
 
 // static
 Application& Application::Get() {
