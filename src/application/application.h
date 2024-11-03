@@ -34,6 +34,9 @@ class Application final {
 
     std::filesystem::path getConfigPath();
 
+    // returns FPS
+    int getFramecount() const;
+
     template <typename TSerializer>
     static void setSerializer() {
         _serializer = std::make_shared<TSerializer>();
