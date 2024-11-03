@@ -9,13 +9,20 @@
 #include <unordered_map>
 
 #include "../../path/path.h"
-#include "../baseCamera.h"
-#include "../baseScript.h"
+#include "../base_camera.h"
+#include "../base_script.h"
 #include "../component/manager.h"
 #include "../defs.h"
 
-class Group;
+namespace entix {
+
+namespace core {
 class EventManager;
+}
+
+namespace ecs {
+
+class Group;
 
 /**
  * Create an Entity using Group::create method
@@ -143,7 +150,7 @@ class Entity {
 
     static std::string idToString(EntityID);
 
-    void Update();
+    void Update(uint32_t dt);
     void Render();
 
     // all we're doing here is distach all of the scripts from this entity
@@ -159,7 +166,7 @@ class Entity {
 
    private:
     const EntityID _id;
-    Signature _signature;
+    ComponentSignature _signature;
 
     ComponentManager& _manager;
 
@@ -173,5 +180,8 @@ class Entity {
     static bool _cleanFlag;
 
     friend class Group;
-    friend class EventManager;
+    friend class core::EventManager;
 };
+
+}  // namespace ecs
+}  // namespace entix

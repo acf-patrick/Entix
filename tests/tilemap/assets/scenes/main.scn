@@ -1,0 +1,3 @@
+Name: main
+Entities:
+  - Tilemap: map/terrain.json

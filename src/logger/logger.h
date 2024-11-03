@@ -13,6 +13,8 @@
 
 #include "../path/path.h"
 
+namespace entix {
+
 // Interfaces are designed through static methods
 class Logger {
    public:
@@ -82,3 +84,5 @@ class Logger {
         return log(Status::ERROR, std::forward<TArgs>(contexts)...);
     }
 };
+
+}

@@ -7,14 +7,19 @@
 #pragma once
 
 #include <SDL.h>
+#include <SDL2_framerate.h>
 
 #include <filesystem>
 #include <memory>
 #include <string>
 
+#include "../entry/entry.h"
 #include "../ecs/system/system.h"
 #include "../renderer/renderer.h"
 #include "../serializer/serializer.h"
+
+namespace entix {
+namespace core {
 
 class ApplicationHook;
 
@@ -30,15 +35,20 @@ class Application final {
     std::filesystem::path getConfigPath();
 
     template <typename TSerializer>
-    void setSerializer() {
+    static void setSerializer() {
         _serializer = std::make_shared<TSerializer>();
+    }
+
+    template <typename Hook>
+    static void setup() {
+        _hook = std::make_shared<Hook>();
     }
 
     Serializer& getSerializer();
 
-    static Application& Get();
+    static void Quit();
 
-    static ApplicationHook* hook;
+    static Application& Get();
 
    private:
     Application(const std::string&, int, int,
@@ -46,17 +56,21 @@ class Application final {
 
     void setWindowPosition(int, int);
 
+    void setFramerate(unsigned int);
+
     bool _running = true;
     SDL_Window* _window;
     std::string _configPath;
-    std::shared_ptr<Serializer> _serializer;
+    FPSmanager _fpsManager;
 
+    static std::shared_ptr<Serializer> _serializer;
+
+    static std::shared_ptr<ApplicationHook> _hook;
+    
     static Application* instance;
 
-    friend int main(int, char**);
+    friend int entix::main(int, char**);
 };
 
-#define HOOK_APPLICATION(CustomHook) \
-    ApplicationHook* Application::hook = new CustomHook;
-
-#define RUN_APPLICATION() ApplicationHook* Application::hook = nullptr;
+}   // namespace core
+}   // namespace entix

@@ -4,22 +4,30 @@
 #include "../../../renderer/renderer.h"
 #include "../../components.h"
 
-namespace Component {
+namespace entix {
+namespace ecs {
+namespace component {
 
 tson::Tileson Tilemap::tileson;
 
-Tilemap::Tilemap(const std::string &rsc) : file(rsc) {
-    _map = tileson.parse(fs::path(rsc));
-    if (_map->getStatus() == tson::ParseStatus::OK)
-        Logger::info("Component", "Tilemap") << rsc << " loaded";
-    else
+namespace fs = std::filesystem;
+
+Tilemap::Tilemap(const Path &path) {
+    _map = tileson.parse(path);
+
+    if (_map->getStatus() == tson::ParseStatus::OK) {
+        _source = (fs::path)path;
+        loadTilesets(fs::path(path).parent_path());
+        Logger::info("Component", "Tilemap") << path << " loaded";
+    } else
         Logger::error("Component", "Tilemap")
             << "Tilemap-error : " << _map->getStatusMessage();
+
     Logger::endline();
 }
 
 Tilemap::~Tilemap() {
-    // if this tilemap use the default drawer,
+    // if this tilemap uses the default drawer,
     // the 'drawer' instance was not registered into component manager
     // hence, must be destroyed manually
     if (_defaultDrawer) delete _drawer;
@@ -35,9 +43,12 @@ void Tilemap::Render() {
         if (!_drawer) _drawer = new Drawer;
     }
 
-    RenderManager::Get()->submit([&](SDL_Renderer *renderer) {
-        eachLayer([&](tson::Layer &layer) { _drawLayer(layer, renderer); });
-    });
+    core::RenderManager::Get()->submit(
+        [&](SDL_Renderer *renderer, Entity *camera) {
+            eachLayer([&](tson::Layer &layer) {
+                drawLayer(layer, renderer, camera);
+            });
+        });
 }
 
 void Tilemap::eachLayer(const std::function<void(tson::Layer &)> &process,
@@ -48,16 +59,65 @@ void Tilemap::eachLayer(const std::function<void(tson::Layer &)> &process,
             process(layer);
 }
 
-void Tilemap::_drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
+void Tilemap::loadTilesets(const fs::path &mapFolder) {
+    for (auto &tileset : _map->getTilesets()) {
+        auto imagePath = tileset.getImagePath();
+        _textures.try_emplace(imagePath.string(), mapFolder / imagePath);
+    }
+}
+
+void Tilemap::drawLayer(tson::Layer &layer, SDL_Renderer *renderer,
+                        Entity *cameraEntity) {
     using type = tson::LayerType;
     switch (layer.getType()) {
         case type::Group:
-            for (auto &lay : layer.getLayers()) _drawLayer(lay, renderer);
+            for (auto &layer : layer.getLayers())
+                drawLayer(layer, renderer, cameraEntity);
             break;
 
         case type::ImageLayer:
-            _drawer->drawImage(layer.getImage(), layer.getOffset(), renderer);
+            _drawer->drawImage(layer.getImage(), layer.getOffset(), renderer,
+                               cameraEntity);
             break;
+
+        case type::TileLayer: {
+            auto tileSize = _map->getTileSize();
+            auto mapSize = _map->getSize();
+            auto camera = cameraEntity->get<Camera>().getBoundingBox();
+
+            int startCol = std::max(0, (int)std::floor(camera.x / tileSize.x));
+            int endCol =
+                std::min(mapSize.x - 1,
+                         (int)std::ceil((camera.x + camera.w) / tileSize.x));
+            int startRow = std::max(0, (int)std::floor(camera.y / tileSize.y));
+            int endRow =
+                std::min(mapSize.y - 1,
+                         (int)std::ceil((camera.y + camera.h) / tileSize.y));
+
+            for (int i = startRow; i <= endRow; ++i) {
+                for (int j = startCol; j <= endCol; ++j) {
+                    if (auto tile = layer.getTileData(j, i); tile) {
+                        auto tileset = tile->getTileset();
+                        auto tileSize = _map->getTileSize();
+                        auto &texture =
+                            _textures[tileset->getImagePath().string()];
+
+                        auto tileId = tile->getId() - tileset->getFirstgid();
+                        SDL_Rect src = {
+                            int(tileId % (uint32_t)tileset->getColumns() *
+                                (uint32_t)tileSize.x),
+                            int(tileId / (uint32_t)tileset->getColumns() *
+                                (uint32_t)tileSize.y),
+                            tileSize.x, tileSize.y};
+
+                        VectorI tilePosition(tileSize.x * j - camera.x,
+                                             tileSize.y * i - camera.y);
+                        texture.draw(src, tilePosition, Vector(false, false),
+                                     Vector(1.0, 1.0));
+                    }
+                }
+            }
+        } break;
 
         case type::ObjectGroup:
             for (auto &object : layer.getObjects()) {
@@ -68,31 +128,36 @@ void Tilemap::_drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
 
                 switch (object.getObjectType()) {
                     case tson::ObjectType::Ellipse:
-                        _drawer->drawEllipse(objBoundingRect, renderer);
+                        _drawer->drawEllipse(objBoundingRect, renderer,
+                                             cameraEntity);
                         break;
 
                     case tson::ObjectType::Point:
-                        _drawer->drawPoint(objPos, renderer);
+                        _drawer->drawPoint(objPos, renderer, cameraEntity);
                         break;
 
                     case tson::ObjectType::Polygon:
-                        _drawer->drawPolygon(object.getPolygons(), renderer);
+                        _drawer->drawPolyline(objPos, object.getPolygons(),
+                                              renderer, cameraEntity);
                         break;
 
                     case tson::ObjectType::Polyline:
-                        _drawer->drawPolyline(object.getPolylines(), renderer);
+                        _drawer->drawPolyline(objPos, object.getPolylines(),
+                                              renderer, cameraEntity);
                         break;
 
                     case tson::ObjectType::Rectangle:
-                        _drawer->drawRectangle(objBoundingRect, renderer);
+                        _drawer->drawRectangle(objBoundingRect, renderer,
+                                               cameraEntity);
                         break;
 
                     case tson::ObjectType::Text:
-                        _drawer->drawText(object.getText(), objPos, renderer);
+                        _drawer->drawText(object.getText(), objPos, renderer,
+                                          cameraEntity);
                         break;
 
                     default:
-                        _drawer->drawObject(object, renderer);
+                        _drawer->drawObject(object, renderer, cameraEntity);
                         break;
                 }
             }
@@ -102,4 +167,8 @@ void Tilemap::_drawLayer(tson::Layer &layer, SDL_Renderer *renderer) {
     }
 }
 
-};  // namespace Component
+std::string Tilemap::getSource() const { return _source.string(); }
+
+}  // namespace component
+}  // namespace ecs
+}  // namespace entix

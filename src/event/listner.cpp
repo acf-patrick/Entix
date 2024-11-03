@@ -1,5 +1,8 @@
 #include "event.h"
 
+namespace entix {
+namespace core {
+
 EventListner::EventListner() {
     manager = EventManager::Get();
     manager->newListner(this);
@@ -36,3 +39,6 @@ void EventListner::removeCallbacks() { callbacks.clear(); }
 void EventListner::enable() { enabled = true; }
 
 void EventListner::disable() { enabled = false; }
+
+}  // namespace core
+}  // namespace entix

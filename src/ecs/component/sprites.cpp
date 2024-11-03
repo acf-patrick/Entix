@@ -1,30 +1,40 @@
 #include "../../renderer/renderer.h"
 #include "../components.h"
 
-namespace Component {
+namespace entix {
+namespace ecs {
+namespace component {
 
-void spriteRenderer::Render() {
-    if (!has<sprite>()) {
+void SpriteRenderer::Render() {
+    if (!has<Sprite>()) {
         Logger::warn()
             << "SpriteRenderer-error : Entity must have a sprite component "
                "to render!";
         Logger::endline();
-        
+
         return;
     }
 
-    auto& spriteComponent = get<sprite>();
+    auto& spriteComponent = get<Sprite>();
     if (!spriteComponent.texture) return;  // no texture to draw
 
-    RenderManager::Get()->submit([&](SDL_Renderer* renderer) {
-        if (!has<transform>())
-            attach<transform>();  // default position, rotation and scale factor
-        auto& t = get<transform>();
+    core::RenderManager::Get()->submit([&](SDL_Renderer* renderer,
+                                           Entity* camera) {
+        if (!has<Transform>())
+            attach<Transform>();  // using default position, rotation and
+                                  // scale factor
+
+        const auto& cameraPosition = camera->get<Transform>().position;
+        const auto& transform = get<Transform>();
+
+        auto pos = transform.position;
+        pos -= cameraPosition;  // compute positoin relative to camera
+
         auto& texture = spriteComponent.texture;
-        auto pos = t.position;
-        auto scale = t.scale;
-        auto rotation = t.rotation;
-        auto tSize = texture.getSize();
+        const auto& scale = transform.scale;
+        auto rotation = transform.rotation;
+        auto tSize = *texture.getSize();
+
         SDL_Rect src;
         VectorI frameSize;
         int w, h;
@@ -42,9 +52,7 @@ void spriteRenderer::Render() {
             src.y = spriteComponent.region.y;
             w = spriteComponent.region.w;
             h = spriteComponent.region.h;
-        }
-        // use whole texture
-        else {
+        } else {  // use whole texture
             src.x = src.y = 0;
             w = tSize.x;
             h = tSize.y;
@@ -68,17 +76,25 @@ void spriteRenderer::Render() {
         // center destination
         if (spriteComponent.centered) pos -= {src.w * 0.5, src.h * 0.5};
 
-        // rotate around center for now
-        texture.draw(src, {int(pos.x), int(pos.y)}, {src.w / 2, src.h / 2},
-                     rotation, spriteComponent.flip, scale);
+        SDL_Rect boundingBox = {(int)transform.position.x,
+                                (int)transform.position.y, int(scale.x * src.w),
+                                int(scale.y * src.h)};
+
+        auto& cameraComponent = camera->get<Camera>();
+
+        if (cameraComponent.contains(boundingBox))
+            texture.draw(src, {int(pos.x), int(pos.y)}, {src.w / 2, src.h / 2},
+                         rotation, spriteComponent.flip, scale);
     });
 }
 
-void sprite::setTexture(const std::string& fileName) { texture.load(fileName); }
+void Sprite::setTexture(const std::string& fileName) { texture.load(fileName); }
 
-void sprite::setFrame(int x, int y) {
+void Sprite::setFrame(int x, int y) {
     if (x >= framesNumber.x || y >= framesNumber.y) return;
     frame = x * framesNumber.x + y;
 }
 
-}  // namespace Component
+}  // namespace component
+}  // namespace ecs
+}  // namespace entix

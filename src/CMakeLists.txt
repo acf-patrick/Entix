@@ -1,18 +1,22 @@
 file(GLOB_RECURSE SOURCES "*.cpp" "*.h")
 
-add_library(ECS STATIC ${SOURCES})
+add_library(entix STATIC ${SOURCES})
 
-target_include_directories(ECS PRIVATE 
-    ${CMAKE_SOURCE_DIR}/external/tileson/include
-    ${CMAKE_SOURCE_DIR}/external/yaml-cpp/include
+target_include_directories(entix PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../external/tileson/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../external/yaml-cpp/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../external/termcolor
     ${SDL2_INCLUDE_DIRS}
     ${SDL2_IMAGE_INCLUDE_DIRS}
     ${SDL2_TTF_INCLUDE_DIRS}
     ${SDL2_MIXER_INCLUDE_DIRS}
+    ${SDL2_GFX_INCLUDE_DIRS}
 )
 
-target_link_libraries(ECS PRIVATE
+target_link_libraries(entix PUBLIC
     yaml-cpp
+    SDL2_gfx
     SDL2::SDL2
     SDL2_image::SDL2_image
     SDL2_ttf::SDL2_ttf

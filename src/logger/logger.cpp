@@ -2,6 +2,8 @@
 
 #include <fstream>
 
+namespace entix {    
+
 std::shared_ptr<Logger> Logger::instance;
 
 Logger& Logger::Get() {
@@ -26,6 +28,7 @@ void Logger::endline() {
     auto& self = Get();
     self.stream << std::endl;
 
+#ifndef NDEBUG
     switch (self.curr_line_status) {
         case Status::INFO:
         case Status::WARN:
@@ -36,6 +39,7 @@ void Logger::endline() {
             break;
         default:;
     }
+#endif
 
     self.track << self.stream.str();
 
@@ -76,4 +80,6 @@ bool Logger::dumpStatus(Status status, const Path& path) {
     }
 
     return true;
+}
+
 }

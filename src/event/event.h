@@ -8,11 +8,11 @@
 
 #include <SDL.h>
 
-#include <optional>
 #include <functional>
 #include <list>
 #include <map>
 #include <memory>
+#include <optional>
 #include <queue>
 #include <string>
 #include <unordered_map>
@@ -21,28 +21,35 @@
 #include "../manager/manager.h"
 #include "input.h"
 
+namespace entix {
+
+namespace ecs {
 class Entity;
+}
+
+namespace core {
+
 class EventListner;
 
 class EventManager : Manager<EventManager> {
    public:
-    using Event = Entity*;
+    using Event = ecs::Entity*;
 
     void handle();
 
-    // Emit this message and attach as a tag to an entity
+    // Emit this message and attach as a tag to an Entity
     // Use an EventListner instance to listent to this event anywhere
-    Entity& emit(const std::string&);
+    ecs::Entity& emit(const std::string&);
 
     static std::shared_ptr<EventManager> Get();
 
    private:
-    Entity& _emit(const std::string&);
+    ecs::Entity& _emit(const std::string&);
     void SDLEvents();
 
-    std::queue<Event> events;
-    std::vector<EventListner*> listners;
-    std::unordered_map<std::string, Event> bind;
+    std::queue<Event> _events;
+    std::vector<EventListner*> _listners;
+    std::unordered_map<std::string, Event> _bind;
 
     // std::vector<EventListner*> toAdd;
     // std::vector<EventListner*> toRemove;
@@ -59,7 +66,7 @@ class EventManager : Manager<EventManager> {
 
 // Use this class to handle specific event.
 class EventListner {
-    using WithParameter = std::function<void(Entity&)>;
+    using WithParameter = std::function<void(ecs::Entity&)>;
     using WithoutParameter = std::function<void()>;
 
     struct Callback {
@@ -97,3 +104,6 @@ class EventListner {
 
     friend class EventManager;
 };
+
+}  // namespace core
+}  // namespace entix

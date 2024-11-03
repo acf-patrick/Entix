@@ -8,10 +8,17 @@
 
 #include <SDL.h>
 
-#include <map>
+#include <optional>
+#include <unordered_map>
 
 #include "../path/path.h"
 #include "../util/geometry/vector.h"
+
+namespace entix {
+
+namespace core {
+class Application;
+}
 
 /**
  * Texture
@@ -21,19 +28,26 @@
  */
 class Texture {
    private:
-    std::string _file = "";
-    SDL_Texture* _texture = nullptr;
+    std::string _tag = "";
 
-    static std::map<std::string, SDL_Texture*> _loadedTextures;
+    struct TextureAndCounter {
+        SDL_Texture* texture;
+        size_t refCounter = 1;
+
+        TextureAndCounter() = default;
+        TextureAndCounter(SDL_Texture* texture) : texture(texture) {}
+    };
+
+    static std::unordered_map<std::string, TextureAndCounter> _loadedTextures;
+
+    // Make sure to unload left textures
+    static void Clean();
 
    public:
     Texture() = default;
     Texture(const Path&);
 
     ~Texture();
-
-    // Make sure to unload left textures
-    static void unload();
 
     bool load(const Path&);
 
@@ -44,11 +58,7 @@ class Texture {
     SDL_Texture* get() const;
 
     // Return texture size
-    VectorI getSize() const;
-
-    // Set texture content
-    // This method reset the texture's initial name
-    void set(SDL_Texture*);
+    std::optional<VectorI> getSize() const;
 
     // check if inner SDL Texture is null
     operator bool() const;
@@ -64,4 +74,8 @@ class Texture {
     void draw(const SDL_Rect& src, const VectorI& dst, const VectorI& center,
               float rotation, const Vector<bool>& flip = {false, false},
               const VectorF& scale = {1.0f, 1.0f});
+
+    friend class entix::core::Application;
 };
+
+}  // namespace entix

@@ -14,29 +14,33 @@
 #include <vector>
 
 #include "../event/event.h"
+#include "../path/path.h"
 #include "../texture/texture.h"
 #include "../util/geometry/vector.h"
-#include "baseCamera.h"
-#include "baseScript.h"
+#include "base_camera.h"
+#include "base_script.h"
 #include "entity/entity.h"
+
+namespace entix {
+namespace ecs {
 
 class Group;
 
 // Data structure in this namespace are fully maintained by the library
-namespace Component {
+namespace component {
 
 // Identify entities with tag and IDs
-struct tag {
-    std::string content = "";
-    bool operator==(const std::string &str) const { return content == str; }
+struct Tag {
+    std::string tag = "";
+    bool operator==(const std::string &str) const { return tag == str; }
 
-    tag(const std::string &str) : content(str) {}
+    Tag(const std::string &str) : tag(str) {}
 
-    tag() {}
+    Tag() {}
 };
 
 // Space specs
-struct transform {
+struct Transform {
     // top-left, SDL coordinates system
     Vector<double> position = {0.0f, 0.0f};
 
@@ -47,22 +51,22 @@ struct transform {
     // Rotation angle in degrees
     double rotation = 0.0f;
 
-    transform(const VectorD &_position, const VectorF &_scale, double _rotation)
+    Transform(const VectorD &_position, const VectorF &_scale, double _rotation)
         : position(_position), scale(_scale), rotation(_rotation) {}
 
-    transform() {}
+    Transform() {}
 };
 
 // Entity Container
 // Component containing the group that created the entity
-struct group {
-    Group *content;
+struct Group {
+    ecs::Group *group;
 
-    group(Group *g) : content(g) {}
+    Group(ecs::Group *g) : group(g) {}
 };
 
 // Sprite renderer component
-struct sprite {
+struct Sprite {
     // the texture
     Texture texture;
 
@@ -106,7 +110,7 @@ struct sprite {
     SDL_Rect region = {0, 0, 0, 0};
 };
 
-class camera : public ICamera {
+class Camera : public ICamera {
     void _attachTransform() override;
 
    public:
@@ -128,7 +132,7 @@ class camera : public ICamera {
     // update the 'clear' property after setting this variable
     Texture backgroundImage;
 
-    enum ClearMode {
+    enum class ClearMode {
         NONE,     // Don't clear the background
         TEXTURE,  // Clear the background with texture set in backgroundImage
                   // property
@@ -140,7 +144,7 @@ class camera : public ICamera {
 
     // clear mode
     // default : SOLID_COLOR (clear the background with Camera::background)
-    ClearMode clear = SOLID_COLOR;
+    ClearMode clear = ClearMode::SOLID_COLOR;
 
     // flip rendered view
     // default : false, false (no flip)
@@ -156,22 +160,28 @@ class camera : public ICamera {
     std::vector<int> layers = {0};
 
     struct _compare {
-        bool operator()(camera *c1, camera *c2) const {
+        bool operator()(Camera *c1, Camera *c2) const {
             return c1->depth < c2->depth;
         }
     };
 
-    // Instances sorted by depth value
-    static std::set<camera *, _compare> instances;
+    bool contains(const SDL_Rect &rect);
 
-    camera();
-    ~camera();
+    SDL_Rect getBoundingBox();
+
+    // Instances sorted by depth value
+    static std::multiset<Camera *, _compare> instances;
+
+    static SDL_Rect MergeBoundingBoxes();
+
+    Camera();
+    ~Camera();
 };
 
 // Script Component
-class script : public BaseScript {
+class Script : public BaseScript {
    protected:
-    EventListner event;
+    core::EventListner event;
 
    public:
     template <typename T>
@@ -215,7 +225,7 @@ class script : public BaseScript {
     }
 };
 
-class spriteRenderer : public script {
+class SpriteRenderer : public Script {
    public:
     virtual void Render() override;
 };
@@ -227,10 +237,10 @@ class spriteRenderer : public script {
  * - Make Tilemap use your custom drawer by attaching your Tilemap::Drawer
  *  component to the entity.
  */
-class Tilemap : public script {
+class Tilemap : public Script {
     // Component rendering object in a tilemap
    public:
-    class Drawer : public script {
+    class Drawer : public Script {
         static std::map<EntityID, Drawer *> instances;
 
        public:
@@ -247,15 +257,15 @@ class Tilemap : public script {
          * @param renderer Renderer to be used
          */
         virtual void drawImage(const std::string &, const tson::Vector2f &,
-                               SDL_Renderer *);
+                               SDL_Renderer *, Entity *camera);
 
         /**
          *  Draw an object from a tilemap
          *
          * @param object the object to draw
          * @param renderer Renderer to be used
-         */
-        virtual void drawObject(tson::Object, SDL_Renderer *);
+         , Entity* camera*/
+        virtual void drawObject(tson::Object, SDL_Renderer *, Entity *camera);
 
         /**
          * Draw an ellipse from a tilemap
@@ -263,7 +273,8 @@ class Tilemap : public script {
          * @param rect bouding rect of the ellipse
          * @param renderer Renderer to be used
          */
-        virtual void drawEllipse(const SDL_Rect &, SDL_Renderer *);
+        virtual void drawEllipse(const SDL_Rect &, SDL_Renderer *,
+                                 Entity *camera);
 
         /**
          * Draw a rectangle from a tilemap
@@ -271,7 +282,8 @@ class Tilemap : public script {
          * @param rect the rectangle
          * @param renderer Renderer to be used
          */
-        virtual void drawRectangle(const SDL_Rect &, SDL_Renderer *);
+        virtual void drawRectangle(const SDL_Rect &, SDL_Renderer *,
+                                   Entity *camera);
 
         /**
          * Draw a point indicator from a tilemap
@@ -279,25 +291,18 @@ class Tilemap : public script {
          * @param point position of the point
          * @param renderer Renderer to be used
          */
-        virtual void drawPoint(const tson::Vector2i &, SDL_Renderer *);
-
-        /**
-         * Draw a polygon from a tilemap
-         *
-         * @param vertexes list of the polygon's vertexes
-         * @param renderer Renderer to be used
-         */
-        virtual void drawPolygon(const std::vector<tson::Vector2i> &,
-                                 SDL_Renderer *);
+        virtual void drawPoint(const tson::Vector2i &, SDL_Renderer *,
+                               Entity *camera);
 
         /**
          * Draw a polyline from a tilemap
          *
-         * @param vertexes list of the polyline vertexes
+         * @param vertexes list of the polygon's vertexes
          * @param renderer Renderer to be used
          */
-        virtual void drawPolyline(const std::vector<tson::Vector2i> &,
-                                  SDL_Renderer *);
+        virtual void drawPolyline(const tson::Vector2i &position,
+                                  const std::vector<tson::Vector2i> &,
+                                  SDL_Renderer *, Entity *camera);
 
         /**
          * Draw text from a tilemap
@@ -308,7 +313,7 @@ class Tilemap : public script {
          * @param renderer Renderer to be used
          */
         virtual void drawText(const tson::Text &, const tson::Vector2i &,
-                              SDL_Renderer *);
+                              SDL_Renderer *, Entity *camera);
 
         friend class Tilemap;
     };
@@ -324,21 +329,27 @@ class Tilemap : public script {
     // Map loaded by Tileson
     std::unique_ptr<tson::Map> _map;
 
+    // Tileset images used
+    std::unordered_map<std::string, Texture> _textures;
+
     // Tile scale
     // Default : [1, 1]
     VectorF scale = {1, 1};
 
     // Draw a layer
-    void _drawLayer(tson::Layer &, SDL_Renderer *);
+    void drawLayer(tson::Layer &, SDL_Renderer *, Entity *);
+
+    std::filesystem::path _source;
+
+    void loadTilesets(const std::filesystem::path &mapFolder);
 
    public:
-    // File loaded
-    const std::string file;
-
     // Parameter : file to load
-    Tilemap(const std::string &);
+    Tilemap(const Path &);
 
     ~Tilemap();
+
+    std::string getSource() const;
 
     // Retrieve map data
     // tson::Map &getMap();
@@ -356,4 +367,9 @@ class Tilemap : public script {
     void Render() override;
 };
 
-};  // namespace Component
+}  // namespace component
+
+using Script = component::Script;
+
+}  // namespace ecs
+}  // namespace entix

@@ -6,29 +6,60 @@
 
 #pragma once
 
+#include <functional>
 #include <map>
 #include <memory>
+#include <optional>
+#include <thread>
 #include <vector>
 
 #include "../../logger/logger.h"
 #include "../../manager/manager.h"
 #include "../group/group.h"
 
+namespace entix {
+
+namespace core {
+class SceneManager;
+}
+
+namespace ecs {
+
+class IFilter;
 class SystemManager;
 class Entity;
-class IFilter;
+
+struct SystemName {
+    std::string name;
+
+    SystemName(const std::string& name) : name(name) {}
+};
 
 class ISystem {
+    using EntityPredicate = std::function<bool(const Entity&)>;
+
+    bool _active = true;
+    bool _runOnlyOnce;
+
    protected:
-    IFilter* _filter;
+    IFilter* _filter = nullptr;
     std::string _name;
+    std::optional<EntityPredicate> _entityPredicate;
     std::vector<Entity*> _entities;
 
     bool performOnEntities(Group& entities);
 
    public:
-    ISystem(const std::string& name, IFilter* filter);
+    ISystem(const std::string& name, bool runOnlyOnce = false);
+    ISystem(const std::string& name, IFilter* filter, bool runOnlyOnce = false);
+    ISystem(const std::string& name, EntityPredicate&& predicate,
+            bool runOnlyOnce = false);
+
     virtual ~ISystem();
+
+    void activate();
+    void deactivate();
+
     virtual bool run() = 0;
 
     friend class SystemManager;
@@ -36,6 +67,12 @@ class ISystem {
 
 class SystemManager : Manager<SystemManager> {
     std::map<std::string, std::shared_ptr<ISystem>> _systems;
+
+    // list of group of system names
+    std::vector<std::vector<std::string>> _systemGroups;
+
+    // list of system names to be ran in parallel
+    std::vector<std::string> _parallelSystems;
 
     template <typename TSystem>
     void addSystem() {
@@ -47,18 +84,38 @@ class SystemManager : Manager<SystemManager> {
         _systems[system->_name] = system;
     }
 
+    void runSystem(Group& entities, std::shared_ptr<ISystem> system);
+
+    void setThreadName(std::thread&, const std::string&) const;
+
+    bool isSystemUsed(const std::string&) const;
+
    public:
+    struct Event {
+        static const std::string SYSTEM_DEACTIVATED;
+        static const std::string SYSTEM_ACTIVATED;
+    };
+
+    // Register system types
     template <typename... TSystems>
     void add() {
         (addSystem<TSystems>(), ...);
     }
 
-    // run systems (TODO : in parallel)
+    // Run systems
     void run();
+
+    // Activate systems with given name
+    void useFreeSystem(const std::string&);
+
+    // Activate sequence of systems
+    void useSystemSequence(const std::vector<std::string>&);
 
     static std::shared_ptr<SystemManager> Get();
 
+    friend class core::SceneManager;
     friend class Manager<SystemManager>;
 };
 
-#define USE_SYSTEM(System) SystemManager::Get()->addSystem<System>();
+}  // namespace ecs
+}  // namespace entix

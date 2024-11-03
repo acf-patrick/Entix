@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(ECS)
+project(entix)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-option(ECS_BUILD_TESTS "Build test and test project" ON)
+option(ENTIX_BUILD_TESTS "Build test and test project" ON)
 
 # disable box2d tests build
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Disable Box2D Unit Tests build" FORCE)
@@ -49,6 +49,6 @@ include_directories(
 add_subdirectory(src)
 
 # include tests
-if (ECS_BUILD_TESTS)
+if (ENTIX_BUILD_TESTS)
     add_subdirectory(tests)
 endif()

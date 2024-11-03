@@ -17,5 +17,6 @@
 #include "./serializer/serializer.h"
 #include "./texture/texture.h"
 #include "./util/util.h"
+#include "./resource/resource.h"
 
 #endif

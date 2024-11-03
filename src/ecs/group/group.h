@@ -4,10 +4,18 @@
 #include <list>
 #include <vector>
 
-#include "../filter/filter.h"
+#include "../component/manager.h"
 #include "../defs.h"
 
+namespace entix {
+
+namespace core {
 class Scene;
+}
+
+namespace ecs {
+
+class IFilter;
 class Entity;
 
 // Entity Container
@@ -22,6 +30,9 @@ class Group {
 
     // return a list of entites having required components
     std::vector<Entity*> view(const IFilter& filter);
+
+    // return all entities from this group
+    std::vector<Entity*> getEntities();
 
     // retrieve by tag
     // return null pointer if not found
@@ -56,11 +67,28 @@ class Group {
     // reorder entites according to the comparator passed as argument
     void reorder(_compare);
 
+    template <typename T>
+    std::vector<Entity*> getEntitiesWith();
+
+    template <typename... Components>
+    std::vector<Entity*> getEntitiesWithAnyOf();
+
+    template <typename... Components>
+    std::vector<Entity*> getEntitiesWithAllOf();
+
+    template <typename... Components>
+    std::vector<Entity*> getEntitiesWithNoneOf();
+
    private:
+    Group();
     ~Group();
 
    private:
     std::list<EntityID> _ids;
+    ComponentManager& _componentManager;
 
-    friend class Scene;
+    friend class core::Scene;
 };
+
+}  // namespace ecs
+}  // namespace entix

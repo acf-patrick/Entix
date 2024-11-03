@@ -12,9 +12,12 @@
 #include "../scene/scene.h"
 #include "hook.h"
 
-InputType Input;
+namespace entix {
+namespace core {
 
 Application* Application::instance = nullptr;
+std::shared_ptr<Serializer> Application::_serializer;
+std::shared_ptr<ApplicationHook> Application::_hook;
 
 Application::Application(const std::string& title, int width, int height,
                          SDL_WindowFlags windowFlag)
@@ -48,23 +51,27 @@ Application::Application(const std::string& title, int width, int height,
         exit(EXIT_FAILURE);
     }
 
+    SDL_initFramerate(&_fpsManager);
+    setFramerate(60);
+
     instance = this;
 
     Logger::info("App") << "Application created";
     Logger::endline();
 
     // running hook
-    if (hook) hook->startup();
+    if (_hook) _hook->startup();
 }
 
 Application::~Application() {
     // running hook
-    if (hook) hook->cleanup();
+    if (_hook) _hook->cleanup();
 
     IManager::DestroyInstances();
 
     // Make sure to free memory
-    Entity::Clean();
+    ecs::Entity::Clean();
+    Texture::Clean();
 
     SDL_DestroyWindow(_window);
     _window = nullptr;
@@ -83,7 +90,7 @@ void Application::log(const std::string& message) const {
 void Application::run() {
     while (_running) {
         EventManager::Get()->handle();
-        SystemManager::Get()->run();
+        ecs::SystemManager::Get()->run();
 
         auto sceneManager = SceneManager::Get();
         if (!sceneManager->update())
@@ -91,7 +98,8 @@ void Application::run() {
         else
             sceneManager->render();
 
-        RenderManager::Get()->draw();
+        RenderManager::Get()->render();
+        SDL_framerateDelay(&_fpsManager);
     }
 }
 
@@ -104,9 +112,32 @@ void Application::setWindowPosition(int x, int y) {
 std::filesystem::path Application::getConfigPath() { return _configPath; }
 
 Serializer& Application::getSerializer() {
-    if (!_serializer) _serializer = std::make_shared<Serializer>();
+    if (!_serializer) {
+        Logger::warn() << "No custom serializer set. Using default serializer.";
+        Logger::endline();
+
+        _serializer = std::make_shared<Serializer>();
+    }
     return *_serializer;
 }
 
+void Application::setFramerate(unsigned int framerate) {
+    if (SDL_setFramerate(&_fpsManager, framerate) < 0) {
+        Logger::warn("App") << "Unable to set framerate to " << framerate;
+        Logger::endline();
+    }
+}
+
 // static
-Application& Application::Get() { return *instance; }
+Application& Application::Get() {
+    assert(instance && "Application has not been initialized yet");
+    return *instance;
+}
+
+// static
+void Application::Quit() {
+    if (instance) instance->_running = false;
+}
+
+}  // namespace core
+}  // namespace entix

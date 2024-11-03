@@ -1,0 +1,11 @@
+Name: main
+Entities:
+  - TagComponent:
+      Tag: cat sprite
+    SpriteComponent:
+      Texture: image/cat.png
+    SpriteRendererComponent:
+  - TagComponent:
+      Tag: main camera
+    CameraComponent:
+    MoveCamera:

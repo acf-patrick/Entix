@@ -11,6 +11,8 @@
 
 namespace fs = std::filesystem;
 
+namespace entix {
+
 class Path {
     fs::path _path;
 
@@ -28,4 +30,6 @@ class Path {
     Path operator/(const Path& path) const;
 };
 
-std::ostream& operator<<(std::ostream& out, const Path& path);
+}  // namespace entix
+
+std::ostream& operator<<(std::ostream& out, const entix::Path& path);

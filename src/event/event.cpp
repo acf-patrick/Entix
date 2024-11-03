@@ -5,25 +5,30 @@
 
 #include "../application/application.h"
 #include "../ecs/ecs.h"
-#include "input.h"
+#include "../scene/scene.h"
+#include "./input.h"
+
+namespace entix {
+namespace core {
 
 EventManager::~EventManager() {
-    while (!events.empty()) {
-        delete events.front();
-        events.pop();
+    while (!_events.empty()) {
+        delete _events.front();
+        _events.pop();
     }
-    bind.clear();
-    listners.clear();
+
+    _bind.clear();
+    _listners.clear();
 }
 
 void EventManager::handle() {
     SDLEvents();
-    while (!events.empty()) {
-        Event& event = events.front();
-        auto tag = event->get<Component::tag>().content;
+    while (!_events.empty()) {
+        Event& event = _events.front();
+        auto tag = event->get<ecs::component::Tag>().tag;
 
-        for (int i = 0; i < (int)listners.size(); ++i) {
-            auto& listener = *listners[i];
+        for (int i = 0; i < (int)_listners.size(); ++i) {
+            auto& listener = *_listners[i];
             if (listener.enabled) {
                 auto& callbacks = listener.callbacks;
                 if (callbacks.find(tag) != callbacks.end()) {
@@ -40,40 +45,43 @@ void EventManager::handle() {
         }
 
         delete event;
-        events.pop();
-        bind.erase(tag);
+        _events.pop();
+        _bind.erase(tag);
     }
 }
 
 void EventManager::SDLEvents() {
     SDL_Event event;
+
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
             case SDL_QUIT:
-                _emit(Input.QUIT);
+                _emit(Input::Event::QUIT);
                 break;
             case SDL_KEYDOWN:
-                _emit(Input.KEY_DOWN).attachIf<SDL_KeyboardEvent>(event.key);
-                Input.keys[event.key.keysym.scancode] = true;
+                _emit(Input::Event::KEY_DOWN)
+                    .attachIf<SDL_KeyboardEvent>(event.key);
+                Input::_keys[event.key.keysym.scancode] = true;
                 break;
             case SDL_KEYUP:
-                _emit(Input.KEY_UP).attachIf<SDL_KeyboardEvent>(event.key);
-                Input.keys[event.key.keysym.scancode] = false;
+                _emit(Input::Event::KEY_UP)
+                    .attachIf<SDL_KeyboardEvent>(event.key);
+                Input::_keys[event.key.keysym.scancode] = false;
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                _emit(Input.MOUSE_BUTTON_DOWN)
+                _emit(Input::Event::MOUSE_BUTTON_DOWN)
                     .attachIf<SDL_MouseButtonEvent>(event.button);
                 break;
             case SDL_MOUSEBUTTONUP:
-                _emit(Input.MOUSE_BUTTON_UP)
+                _emit(Input::Event::MOUSE_BUTTON_UP)
                     .attachIf<SDL_MouseButtonEvent>(event.button);
                 break;
             case SDL_MOUSEMOTION:
-                _emit(Input.MOUSE_MOTION)
+                _emit(Input::Event::MOUSE_MOTION)
                     .attachIf<SDL_MouseMotionEvent>(event.motion);
                 break;
             case SDL_MOUSEWHEEL:
-                _emit(Input.MOUSE_WHEEL)
+                _emit(Input::Event::MOUSE_WHEEL)
                     .attachIf<SDL_MouseWheelEvent>(event.wheel);
                 break;
             default:;
@@ -81,16 +89,20 @@ void EventManager::SDLEvents() {
     }
 }
 
-Entity& EventManager::emit(const std::string& event_name) {
-    std::vector<std::string> reserved = {Input.QUIT,
-                                         Input.KEY_DOWN,
-                                         Input.KEY_UP,
-                                         Input.MOUSE_BUTTON_DOWN,
-                                         Input.MOUSE_BUTTON_UP,
-                                         Input.MOUSE_WHEEL,
-                                         Input.MOUSE_MOTION,
-                                         Input.SCENE_LOADED,
-                                         Input.SCENE_CHANGED};
+ecs::Entity& EventManager::emit(const std::string& event_name) {
+    std::vector<std::string> reserved = {
+        Input::Event::QUIT,
+        Input::Event::KEY_DOWN,
+        Input::Event::KEY_UP,
+        Input::Event::MOUSE_BUTTON_DOWN,
+        Input::Event::MOUSE_BUTTON_UP,
+        Input::Event::MOUSE_WHEEL,
+        Input::Event::MOUSE_MOTION,
+        Scene::Event::LOADED,
+        Scene::Event::CHANGED,
+        ecs::SystemManager::Event::SYSTEM_ACTIVATED,
+        ecs::SystemManager::Event::SYSTEM_DEACTIVATED,
+    };
 
     auto invalidEvent = std::find(reserved.begin(), reserved.end(),
                                   event_name) != reserved.end();
@@ -100,25 +112,44 @@ Entity& EventManager::emit(const std::string& event_name) {
     return _emit(event_name);
 }
 
-Entity& EventManager::_emit(const std::string& event_name) {
-    if (bind.find(event_name) != bind.end()) return *bind[event_name];
+ecs::Entity& EventManager::_emit(const std::string& event_name) {
+    if (_bind.find(event_name) != _bind.end()) return *_bind[event_name];
 
-    Event event = new Entity;
-    event->attach<Component::tag>(event_name);
+    Event event = new ecs::Entity;
+    event->attach<ecs::component::Tag>(event_name);
 
-    bind[event_name] = event;
-    events.push(event);
+    _bind[event_name] = event;
+    _events.push(event);
+
+    std::vector<std::string> ignored = {
+        Input::Event::QUIT,
+        Input::Event::KEY_DOWN,
+        Input::Event::KEY_UP,
+        Input::Event::MOUSE_BUTTON_DOWN,
+        Input::Event::MOUSE_BUTTON_UP,
+        Input::Event::MOUSE_WHEEL,
+        Input::Event::MOUSE_MOTION,
+    };
+
+    if (std::find(ignored.begin(), ignored.end(), event_name) ==
+        ignored.end()) {
+        Logger::info("Event") << event_name;
+        Logger::endline();
+    }
 
     return *event;
 }
 
 void EventManager::newListner(EventListner* listner) {
-    listners.push_back(listner);
+    _listners.push_back(listner);
 }
 
 void EventManager::listnerDestroyed(EventListner* listner) {
-    listners.erase(std::remove(listners.begin(), listners.end(), listner));
+    _listners.erase(std::remove(_listners.begin(), _listners.end(), listner));
 }
 
 // static
 std::shared_ptr<EventManager> EventManager::Get() { return createInstance(); }
+
+}  // namespace core
+}  // namespace entix

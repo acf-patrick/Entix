@@ -9,6 +9,8 @@
 #include "../application/application.h"
 #include "../logger/logger.h"
 
+namespace entix {
+
 int main(int argc, char** argv) {
     Logger::info() << "Creating main application";
     Logger::endline();
@@ -51,20 +53,21 @@ int main(int argc, char** argv) {
         for (auto f : node["Flags"]) flag |= bind[f.as<std::string>()];
     }
 
-    auto application =
-        new Application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
+    core::Application application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
 
     auto configPath = std::filesystem::path(configFile).parent_path();
-    application->_configPath = configPath.string();
-    auto& serializer = application->getSerializer();
+    application._configPath = configPath.string();
+    auto& serializer = application.getSerializer();
 
     if (node["Position"]) {
         auto n = node["Position"];
         if (n.IsSequence()) {
             auto pos = n.as<VectorI>();
-            application->setWindowPosition(pos.x, pos.y);
+            application.setWindowPosition(pos.x, pos.y);
         }
     }
+
+    if (node["FPS"]) application.setFramerate(node["FPS"].as<int>());
 
     auto scenesPath = configPath / "scenes";
     if (!std::filesystem::exists(scenesPath) && !usingDefaultConfig) {
@@ -85,16 +88,15 @@ int main(int argc, char** argv) {
         Logger::error() << "No scene to run";
         Logger::endline();
 
-        delete application;
-
         return 1;
     }
 
-    application->run();
+    application.run();
 
     Logger::info() << "Exiting application";
     Logger::endline();
 
-    delete application;
     return 0;
 }
+
+}  // namespace entix
