@@ -67,8 +67,6 @@ Application::~Application() {
     // running hook
     if (_hook) _hook->cleanup();
 
-    IManager::DestroyInstances();
-
     // Make sure to free memory
     ecs::Entity::Clean();
     Texture::Clean();
@@ -78,6 +76,8 @@ Application::~Application() {
 
     TTF_Quit();
     SDL_Quit();
+
+    IManager::DestroyInstances();
 
     Logger::dumpStatus(Logger::Status::ERROR, "error.log");
 }
