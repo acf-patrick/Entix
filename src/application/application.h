@@ -34,8 +34,11 @@ class Application final {
 
     std::filesystem::path getConfigPath();
 
-    // returns FPS
+    // returns realtime FPS
     int getFramerate() const;
+
+    // returns FPS from configurations
+    int getPreferredFramerate() const;
 
     template <typename TSerializer>
     static void setSerializer() {
@@ -65,9 +68,7 @@ class Application final {
     SDL_Window* _window;
     std::string _configPath;
     FPSmanager _fpsManager;
-    std::vector<int> _framerates;
     int _framerate = 0;
-    const int _rateSamples = 10;
 
     static std::shared_ptr<Serializer> _serializer;
 
