@@ -6,6 +6,7 @@
 
 #include "../ecs/entity/entity.h"
 #include "../ecs/system/system.h"
+#include "../ecs/system/systems/systems.h"
 #include "../event/event.h"
 #include "../event/input.h"
 #include "../logger/logger.h"
@@ -45,6 +46,8 @@ Application::Application(const std::string& title, int width, int height,
 
     RenderManager::Get()->renderer = r;
     auto renderer = RenderManager::Get()->renderer;
+
+    initializeSystems();
 
     if (TTF_Init() < 0) {
         log("SDL Error : unable to initialize TTF library");
@@ -143,6 +146,11 @@ void Application::setFramerate(unsigned int framerate) {
 int Application::getFramerate() const { return _framerate; }
 
 int Application::getPreferredFramerate() const { return _fpsManager.rate; }
+
+void Application::initializeSystems() {
+    auto systems = ecs::SystemManager::Get();
+    systems->add<ecs::system::PhysicSystem>();
+}
 
 // static
 Application& Application::Get() {

@@ -18,5 +18,6 @@
 #include "./texture/texture.h"
 #include "./util/util.h"
 #include "./resource/resource.h"
+#include "./resource/resources/resources.h"
 
 #endif

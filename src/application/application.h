@@ -64,6 +64,8 @@ class Application final {
 
     void setFramerate(unsigned int);
 
+    void initializeSystems();
+
     bool _running = true;
     SDL_Window* _window;
     std::string _configPath;
