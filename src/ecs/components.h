@@ -367,6 +367,41 @@ class Tilemap : public Script {
     void Render() override;
 };
 
+namespace animation {
+
+class SpriteAnimator : public Script {
+    // frame duration in milliseconds
+    Uint32 _frameDuration;
+
+    uint32_t _elapsedTime = 0;
+
+   public:
+    SpriteAnimator(Uint32 frameDuration) : _frameDuration(frameDuration) {}
+
+    int getFrameDuration() const { return _frameDuration; }
+
+    void Update(uint32_t dt) override {
+        if (!has<Sprite>()) return;
+
+        _elapsedTime += dt;
+
+        if (_elapsedTime >= _frameDuration) {
+            _elapsedTime = 0;
+
+            auto &sprite = get<Sprite>();
+            sprite.frame++;
+            sprite.frame %= sprite.framesNumber.x;
+
+            // skip first frame
+            if (sprite.frame == 0) {
+                sprite.frame = 1;
+            }
+        }
+    }
+};
+
+}  // namespace animation
+
 }  // namespace component
 
 using Script = component::Script;
