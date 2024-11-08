@@ -6,6 +6,7 @@
 
 #include "../ecs/entity/entity.h"
 #include "../ecs/system/system.h"
+#include "../ecs/system/systems/systems.h"
 #include "../event/event.h"
 #include "../event/input.h"
 #include "../logger/logger.h"
@@ -45,6 +46,8 @@ Application::Application(const std::string& title, int width, int height,
 
     RenderManager::Get()->renderer = r;
     auto renderer = RenderManager::Get()->renderer;
+
+    initializeSystems();
 
     if (TTF_Init() < 0) {
         log("SDL Error : unable to initialize TTF library");
@@ -88,7 +91,19 @@ void Application::log(const std::string& message) const {
 }
 
 void Application::run() {
+    Uint32 latestTick = SDL_GetTicks();
+    int frameCount = 0;
+
     while (_running) {
+        auto currentTick = SDL_GetTicks();
+        frameCount++;
+
+        if (currentTick - latestTick >= 500) {
+            _framerate = 1000 * frameCount / 500.0;
+            frameCount = 0;
+            latestTick = currentTick;
+        }
+
         EventManager::Get()->handle();
         ecs::SystemManager::Get()->run();
 
@@ -126,6 +141,15 @@ void Application::setFramerate(unsigned int framerate) {
         Logger::warn("App") << "Unable to set framerate to " << framerate;
         Logger::endline();
     }
+}
+
+int Application::getFramerate() const { return _framerate; }
+
+int Application::getPreferredFramerate() const { return _fpsManager.rate; }
+
+void Application::initializeSystems() {
+    auto systems = ecs::SystemManager::Get();
+    systems->add<ecs::system::PhysicSystem>();
 }
 
 // static

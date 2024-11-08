@@ -8,7 +8,10 @@ EventListner::EventListner() {
     manager->newListner(this);
 }
 
-EventListner::~EventListner() { manager->listnerDestroyed(this); }
+EventListner::~EventListner() {
+    if (auto manager = EventManager::Get(); manager)
+        manager->listnerDestroyed(this);
+}
 
 EventListner& EventListner::listen(const std::string& event,
                                    const WithParameter& callback) {

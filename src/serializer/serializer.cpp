@@ -225,9 +225,12 @@ void Serializer::deserializeEntity(YAML::Node &node, ecs::Entity &entity) {
     }
 
     n = node["Tilemap"];
-    if (n) {
-        entity.attach<ecs::component::Tilemap>(n.as<std::string>());
-    }
+    if (n) entity.attach<ecs::component::Tilemap>(n.as<std::string>());
+
+    n = node["SpriteAnimatorComponent"];
+    if (n)
+        entity.attach<ecs::component::animation::SpriteAnimator>(
+            n["FrameDuration"].as<int>());
 }
 
 void Serializer::serializeEntity(YAML::Emitter &out, ecs::Entity &entity) {
@@ -292,6 +295,15 @@ void Serializer::serializeEntity(YAML::Emitter &out, ecs::Entity &entity) {
     if (entity.has<ecs::component::Tilemap>()) {
         auto &map = entity.get<ecs::component::Tilemap>();
         out << YAML::Key << "Tilemap" << YAML::Value << map.getSource();
+    }
+
+    if (entity.has<ecs::component::animation::SpriteAnimator>()) {
+        out << YAML::Key << "SpriteAnimatorComponent" << YAML::Value;
+        out << YAML::BeginMap;
+        out << YAML::Key << "FrameDuration" << YAML::Value
+            << entity.get<ecs::component::animation::SpriteAnimator>()
+                   .getFrameDuration();
+        out << YAML::EndMap;
     }
 }
 

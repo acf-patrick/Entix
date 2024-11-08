@@ -12,7 +12,9 @@ namespace ecs {
 Group::Group() : _componentManager(ComponentManager::Get()) {}
 
 Group::~Group() {
-    for (auto id : _ids) delete Entity::Get(id);
+    for (auto id : _ids) {
+        if (auto entity = Entity::Get(id); entity) delete entity;
+    }
     _ids.clear();
 
     _componentManager.onGroupDestroyed();

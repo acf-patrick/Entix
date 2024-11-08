@@ -5,6 +5,7 @@ add_library(entix STATIC ${SOURCES})
 target_include_directories(entix PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/tileson/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/../external/box2d/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/yaml-cpp/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../external/termcolor
     ${SDL2_INCLUDE_DIRS}
@@ -16,6 +17,7 @@ target_include_directories(entix PUBLIC
 
 target_link_libraries(entix PUBLIC
     yaml-cpp
+    box2d
     SDL2_gfx
     SDL2::SDL2
     SDL2_image::SDL2_image
