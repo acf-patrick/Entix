@@ -25,28 +25,31 @@ void EventManager::handle() {
     SDLEvents();
     while (!_events.empty()) {
         Event& event = _events.front();
-        auto tag = event->get<ecs::component::Tag>().tag;
+        if (event->has<ecs::component::Tag>()) { // TODO : why event does not have a tag
+            auto tag = event->get<ecs::component::Tag>().tag;
 
-        for (int i = 0; i < (int)_listners.size(); ++i) {
-            auto& listener = *_listners[i];
-            if (listener.enabled) {
-                auto& callbacks = listener.callbacks;
-                if (callbacks.find(tag) != callbacks.end()) {
-                    auto& callback = callbacks[tag];
-                    if (callback.withParameter) {
-                        auto& function = *callback.function;
-                        function(*event);
-                    } else {
-                        auto& function = *callback.noParamFunction;
-                        function();
+            for (int i = 0; i < (int)_listners.size(); ++i) {
+                auto& listener = *_listners[i];
+                if (listener.enabled) {
+                    auto& callbacks = listener.callbacks;
+                    if (callbacks.find(tag) != callbacks.end()) {
+                        auto& callback = callbacks[tag];
+                        if (callback.withParameter) {
+                            auto& function = *callback.function;
+                            function(*event);
+                        } else {
+                            auto& function = *callback.noParamFunction;
+                            function();
+                        }
                     }
                 }
             }
+
+            delete event;
+            _bind.erase(tag);
         }
 
-        delete event;
         _events.pop();
-        _bind.erase(tag);
     }
 }
 

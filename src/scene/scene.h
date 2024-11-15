@@ -33,6 +33,12 @@ struct SceneChange {
         : from(from), to(to) {}
 };
 
+struct SceneLoad {
+    std::string name;
+
+    SceneLoad(const std::string& sceneName) : name(sceneName) {}
+};
+
 // Scene Interface
 class Scene {
    public:
@@ -55,6 +61,9 @@ class Scene {
     ecs::Group& getEntities();
 
     ecs::Entity* getEntity(const std::string& tag);
+
+    static const std::string FOLDER;
+    static const std::string FILE_EXTENSION;
 
    protected:
     Scene(const std::string&);
@@ -88,17 +97,19 @@ class EmptyScene : public Scene {
 
 class SceneManager : Manager<SceneManager> {
    public:
-    // Load Scene from file
-    void load(const std::string&);
+    // Load a scene
+    std::shared_ptr<Scene> load(const std::string& sceneName);
 
     // Return active scene
     Scene& getActive();
 
+    bool activateOrLoad(const std::string& sceneName);
+
     // Set scene at index to be active
-    void setActive(std::size_t);
+    bool setActive(size_t);
 
     // Set scene with the given name to be active
-    void setActive(const std::string&);
+    bool setActive(const std::string&);
 
     // Remove scene at index
     void remove(std::size_t);
@@ -115,15 +126,18 @@ class SceneManager : Manager<SceneManager> {
     // Render active scene
     void render();
 
+    void setListOfScenes(const std::vector<std::string>& sceneNames);
+
     static std::shared_ptr<SceneManager> Get();
 
    private:
-    std::deque<Scene*> scenes;
+    std::shared_ptr<Scene> _currentScene;
+    std::deque<std::string> _sceneNames;
 
     SceneManager() = default;
-    ~SceneManager();
+    ~SceneManager() = default;
 
-    void push(Scene*);
+    bool loadCurrentScene();
 
     friend class Application;
     friend class Manager<SceneManager>;

@@ -7,11 +7,12 @@
 #include "../application/application.h"
 #include "../ecs/components.h"
 #include "../logger/logger.h"
+#include "../path/path.h"
 
 namespace entix {
 namespace core {
 
-Scene *Serializer::deserialize(const std::string &source) try {
+Scene *Serializer::deserialize(const std::string &sceneName) try {
     auto error = [](const std::string &message) -> Scene * {
         Logger::error("Deserializer")
             << "Invalid file format! Cause: " << message;
@@ -20,7 +21,11 @@ Scene *Serializer::deserialize(const std::string &source) try {
         return nullptr;
     };
 
+    Path source;
+    source = source / (Scene::FOLDER + "/" + sceneName + Scene::FILE_EXTENSION);
+
     std::ifstream file(source);
+
     if (!file) {
         Logger::error("Deserializer")
             << "Scene file : " << source << " doesn't exist!";

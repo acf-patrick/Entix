@@ -53,7 +53,8 @@ int main(int argc, char** argv) {
         for (auto f : node["Flags"]) flag |= bind[f.as<std::string>()];
     }
 
-    core::Application application(title, wSize.x, wSize.y, SDL_WindowFlags(flag));
+    core::Application application(title, wSize.x, wSize.y,
+                                  SDL_WindowFlags(flag));
 
     auto configPath = std::filesystem::path(configFile).parent_path();
     application._configPath = configPath.string();
@@ -69,7 +70,7 @@ int main(int argc, char** argv) {
 
     if (node["FPS"]) application.setFramerate(node["FPS"].as<int>());
 
-    auto scenesPath = configPath / "scenes";
+    auto scenesPath = configPath / core::Scene::FOLDER;
     if (!std::filesystem::exists(scenesPath) && !usingDefaultConfig) {
         Logger::warn() << "'scenes' folder not found in '" << configPath;
         Logger::endline();
@@ -77,10 +78,10 @@ int main(int argc, char** argv) {
 
     auto oneSceneDeserialized = false;
     if (node["Scenes"]) {
-        for (auto scene : node["Scenes"]) {
-            auto scenePath = scenesPath / (scene.as<std::string>() + ".scn");
-            if (serializer.deserialize(scenePath.string()))
-                oneSceneDeserialized = true;
+        auto scenes = node["Scenes"].as<std::vector<std::string>>();
+        if (!scenes.empty()) {
+            core::SceneManager::Get()->setListOfScenes(scenes);
+            oneSceneDeserialized = true;
         }
     }
 

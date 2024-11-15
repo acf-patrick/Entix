@@ -8,10 +8,10 @@ namespace core {
 
 const std::string Scene::Event::LOADED = "scene loaded";
 const std::string Scene::Event::CHANGED = "scene changed";
+const std::string Scene::FOLDER = "scenes";
+const std::string Scene::FILE_EXTENSION = ".scn";
 
-Scene::Scene(const std::string& _tag) : tag(_tag) {
-    SceneManager::Get()->push(this);
-}
+Scene::Scene(const std::string& _tag) : tag(_tag) {}
 
 bool Scene::update() {
     static Uint32 lastTick(SDL_GetTicks());

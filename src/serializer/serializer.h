@@ -8,9 +8,9 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include "specializations.h"
 #include "../ecs/entity/entity.h"
 #include "../scene/scene.h"
+#include "specializations.h"
 
 namespace entix {
 namespace core {
@@ -31,7 +31,7 @@ class Serializer {
     virtual ~Serializer() = default;
 
     virtual void serialize(Scene*, const std::string& fileName = "");
-    virtual Scene* deserialize(const std::string&);
+    virtual Scene* deserialize(const std::string& sceneName);
 
     // Serialize entity
     virtual void serializeEntity(YAML::Emitter&, ecs::Entity&);
