@@ -74,9 +74,11 @@ void SpriteRenderer::Render() {
         // apply offset
         clampedPosition += spriteComponent.offset;
 
+        VectorI scaledSize(src.w * scale.x, src.h * scale.y);
+
         // center destination
         if (spriteComponent.centered)
-            clampedPosition -= {src.w * 0.5, src.h * 0.5};
+            clampedPosition -= {scaledSize.x * 0.5, scaledSize.y * 0.5};
 
         SDL_Rect boundingBox = {(int)transform.position.x,
                                 (int)transform.position.y, int(scale.x * src.w),
@@ -86,8 +88,8 @@ void SpriteRenderer::Render() {
 
         if (cameraComponent.contains(boundingBox))
             texture.draw(src, {int(clampedPosition.x), int(clampedPosition.y)},
-                         {src.w / 2, src.h / 2}, rotation, spriteComponent.flip,
-                         scale);
+                         {scaledSize.x / 2, scaledSize.y / 2}, rotation,
+                         spriteComponent.flip, scale);
     });
 }
 
