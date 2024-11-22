@@ -20,13 +20,13 @@ std::set<EntityID> Entity::takenID;
 std::unordered_map<EntityID, Entity*> Entity::instances;
 bool Entity::_cleanFlag = false;
 
-Entity::Entity()
-    : _id(_generateID(0, true)), _manager(ComponentManager::Get()) {
+Entity::Entity(ComponentManager& componentManager)
+    : _id(_generateID(0, true)), _manager(componentManager) {
     _init();
 }
 
-Entity::Entity(EntityID id)
-    : _id(_generateID(id)), _manager(ComponentManager::Get()) {
+Entity::Entity(EntityID id, ComponentManager& componentManager)
+    : _id(_generateID(id)), _manager(componentManager) {
     _init();
 }
 
@@ -67,9 +67,6 @@ void Entity::Clean() {
     _cleanFlag = true;
     for (auto& [_, entity] : instances) delete entity;
     instances.clear();
-
-    delete ComponentManager::instance;
-    ComponentManager::instance = nullptr;
 }
 
 // static

@@ -44,8 +44,6 @@ void Scene::save(const std::string& fileName) {
     Application::Get().getSerializer().serialize(this, fileName);
 }
 
-void Scene::setActive() { SceneManager::Get()->setActive(tag); }
-
 ecs::Group& Scene::getEntities() { return _entities; }
 
 ecs::Entity* Scene::getEntity(const std::string& tag) { return _entities[tag]; }

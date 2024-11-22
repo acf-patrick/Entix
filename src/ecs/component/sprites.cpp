@@ -100,8 +100,8 @@ std::optional<SDL_Rect> Sprite::getBoundingBox() const {
 
 std::optional<SDL_Rect> Sprite::getBoundingBox(
     const Transform& entityTransform) const {
-    SDL_Rect boundingBox = {.x = entityTransform.position.x,
-                            .y = entityTransform.position.y,
+    SDL_Rect boundingBox = {.x = (int)entityTransform.position.x,
+                            .y = (int)entityTransform.position.y,
                             .w = 0,
                             .h = 0};
 
