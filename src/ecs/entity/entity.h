@@ -157,8 +157,8 @@ class Entity {
     void onDestroy();
 
    private:
-    Entity();
-    Entity(EntityID);
+    Entity(ComponentManager&);
+    Entity(EntityID, ComponentManager&);
     ~Entity();
 
     void _init();

@@ -9,26 +9,22 @@
 namespace entix {
 namespace ecs {
 
-Group::Group() : _componentManager(ComponentManager::Get()) {}
-
 Group::~Group() {
     for (auto id : _ids) {
         if (auto entity = Entity::Get(id); entity) delete entity;
     }
     _ids.clear();
-
-    _componentManager.onGroupDestroyed();
 }
 
 Entity& Group::create() {
-    auto ret = new Entity;
+    auto ret = new Entity(_componentManager);
     _ids.push_back(*ret);
     ret->attach<component::Group>(this);
     return *ret;
 }
 
 Entity& Group::create(EntityID ID) {
-    auto ret = new Entity(ID);
+    auto ret = new Entity(ID, _componentManager);
     _ids.push_back(ID);
     ret->attach<component::Group>(this);
     return *ret;

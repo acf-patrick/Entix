@@ -16,8 +16,8 @@ Texture::~Texture() {
     if (!_tag.empty()) {
         auto &counter = _loadedTextures[_tag].refCounter;
         if (counter == 1) {
-            _loadedTextures.erase(_tag);
             SDL_DestroyTexture(_loadedTextures[_tag].texture);
+            _loadedTextures.erase(_tag);
         } else {
             counter--;
         }

@@ -53,9 +53,6 @@ class Scene {
     // Merge given scene into this scene
     void merge(const Scene&);
 
-    // Set this scene to be active
-    void setActive();
-
     ecs::Entity& createEntity();
 
     ecs::Group& getEntities();
@@ -103,13 +100,7 @@ class SceneManager : Manager<SceneManager> {
     // Return active scene
     Scene& getActive();
 
-    bool activateOrLoad(const std::string& sceneName);
-
-    // Set scene at index to be active
-    bool setActive(size_t);
-
-    // Set scene with the given name to be active
-    bool setActive(const std::string&);
+    bool activate(const std::string& sceneName);
 
     // Remove scene at index
     void remove(std::size_t);

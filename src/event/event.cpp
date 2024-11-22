@@ -118,7 +118,7 @@ ecs::Entity& EventManager::emit(const std::string& event_name) {
 ecs::Entity& EventManager::_emit(const std::string& event_name) {
     if (_bind.find(event_name) != _bind.end()) return *_bind[event_name];
 
-    Event event = new ecs::Entity;
+    Event event = new ecs::Entity(_componentManager);
     event->attach<ecs::component::Tag>(event_name);
 
     _bind[event_name] = event;

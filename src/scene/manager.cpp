@@ -22,26 +22,7 @@ std::shared_ptr<Scene> SceneManager::load(const std::string& sceneName) {
 
 Scene& SceneManager::getActive() { return *_currentScene; }
 
-bool SceneManager::activateOrLoad(const std::string& tag) {
-    if (!setActive(tag)) {
-        Logger::info("SceneManager") << "Loading " << tag;
-        Logger::endline();
-
-        _sceneNames.push_front(tag);
-
-        if (!loadCurrentScene()) {
-            Logger::error("SceneManager") << "Unable to load" << tag;
-            Logger::endline();
-
-            _sceneNames.pop_front();
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool SceneManager::setActive(const std::string& tag) {
+bool SceneManager::activate(const std::string& tag) {
     const auto& prevSceneName = _sceneNames[0];
     if (tag == prevSceneName) {
         Logger::warn("SceneManager") << "Scene '" << tag << "' already active";
@@ -50,22 +31,20 @@ bool SceneManager::setActive(const std::string& tag) {
         return true;
     }
 
-    auto it = std::find_if(
-        _sceneNames.begin(), _sceneNames.end(),
-        [&](const std::string& sceneName) { return sceneName == tag; });
-
-    // there is no scene with such tag
-    if (it == _sceneNames.end()) {
+    if (auto it = std::find_if(
+            _sceneNames.begin(), _sceneNames.end(),
+            [&](const std::string& sceneName) { return sceneName == tag; });
+        it == _sceneNames.end()) {
         Logger::warn("SceneManager")
             << "Unable to find scene '" << tag << "' in the stack";
         Logger::endline();
-
-        return false;
     }
 
-    auto sceneName = *it;
-    _sceneNames.erase(it);
-    _sceneNames.push_front(sceneName);
+    // put new scene at second position
+    // mark current scene as inactive (will be popped out the stack)
+
+    _sceneNames.insert(_sceneNames.begin() + 1, tag);
+    _currentScene->active = false;
 
     EventManager::Get()
         ->emit(Scene::Event::CHANGED)
@@ -74,37 +53,10 @@ bool SceneManager::setActive(const std::string& tag) {
     return true;
 }
 
-bool SceneManager::setActive(size_t index) {
-    if (index == 0) {
-        Logger::warn("SceneManager")
-            << "Scene ontop of the stack is always active";
-        Logger::endline();
-
-        return true;
-    }
-
-    if (index >= _sceneNames.size()) return false;
-
-    auto prevScene = _sceneNames.front();
-
-    auto scene = _sceneNames[index];
-    _sceneNames.erase(_sceneNames.begin() + index);
-    _sceneNames.push_front(scene);
-
-    loadCurrentScene();
-
-    EventManager::Get()
-        ->emit(Scene::Event::CHANGED)
-        .attach<SceneChange>(prevScene, scene);
-
-    return true;
-}
-
 void SceneManager::remove(const std::string& tag) {
     auto removingCurrentScene = tag == _sceneNames.front();
     if (tag == _sceneNames.front()) {
-        _sceneNames.pop_front();
-        loadCurrentScene();
+        _currentScene->active = false;
     } else
         _sceneNames.erase(
             std::remove(_sceneNames.begin(), _sceneNames.end(), tag));
@@ -114,8 +66,7 @@ void SceneManager::remove(std::size_t index) {
     if (index >= _sceneNames.size()) return;
 
     if (index == 0) {
-        _sceneNames.pop_front();
-        loadCurrentScene();
+        _currentScene->active = false;
     } else {
         auto it = _sceneNames.begin() + index;
         _sceneNames.erase(it);
@@ -132,12 +83,12 @@ void SceneManager::render() {
 }
 
 bool SceneManager::update() {
-    static bool lastUpdateForCurrentScene(true);
-    if (!lastUpdateForCurrentScene) next();
+    static bool lastUpdateForCurrentScene(false);
+    if (lastUpdateForCurrentScene) next();
 
     if (_sceneNames.empty()) return false;
 
-    lastUpdateForCurrentScene = _currentScene->update();
+    lastUpdateForCurrentScene = !_currentScene->update();
 
     return true;
 }
@@ -149,10 +100,14 @@ void SceneManager::next() {
     _sceneNames.pop_front();
 
     if (!_sceneNames.empty()) {
-        loadCurrentScene();
-        EventManager::Get()
-            ->emit(Scene::Event::CHANGED)
-            .attach<SceneChange>(prevScene, _sceneNames.front());
+        if (!loadCurrentScene()) {
+            Logger::error("SceneManager")
+                << "Unable to load " << _sceneNames.front();
+            Logger::endline();
+        } else
+            EventManager::Get()
+                ->emit(Scene::Event::CHANGED)
+                .attach<SceneChange>(prevScene, _sceneNames.front());
     }
 }
 

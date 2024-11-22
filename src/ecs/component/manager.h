@@ -18,13 +18,8 @@
 namespace entix {
 namespace ecs {
 
-class Entity;
-class Group;
-
 class ComponentManager {
-   private:
-    static ComponentManager& Get();
-
+   public:
     void entityDestroyed(EntityID);
 
     template <typename T>
@@ -120,20 +115,13 @@ class ComponentManager {
                      });
     }
 
+    ComponentManager() : _nextComponentTypeID(0) {}
+
    private:
-    ComponentManager() : _nextComponentTypeID(0) { instance = this; }
-
-    void onGroupDestroyed();
-
-    static ComponentManager* instance;
-
     std::unordered_map<const char*, ComponentTypeID> _componentTypeID;
     std::unordered_map<const char*, std::shared_ptr<IComponentArray>>
         _componentArrays;
     ComponentTypeID _nextComponentTypeID;
-
-    friend class Entity;
-    friend class Group;
 };
 
 }  // namespace ecs
