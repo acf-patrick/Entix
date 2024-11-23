@@ -12,12 +12,21 @@ tson::Tileson Tilemap::tileson;
 
 namespace fs = std::filesystem;
 
-Tilemap::Tilemap(const Path &path) {
+Tilemap::Tilemap(const Path& path) {
+    setSource(path);
+}
+
+void Tilemap::setSource(const Path &path) {
     _map = tileson.parse(path);
 
     if (_map->getStatus() == tson::ParseStatus::OK) {
+        _drawer = nullptr;
+        _defaultDrawer = false;
+        _textures.clear();
+
         _source = (fs::path)path;
         loadTilesets(fs::path(path).parent_path());
+
         Logger::info("Component", "Tilemap") << path << " loaded";
     } else
         Logger::error("Component", "Tilemap")

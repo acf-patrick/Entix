@@ -353,6 +353,8 @@ class Tilemap : public Script {
 
     ~Tilemap();
 
+    void setSource(const Path&);
+
     std::string getSource() const;
 
     // Retrieve map data

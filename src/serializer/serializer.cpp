@@ -180,41 +180,48 @@ void Serializer::deserializeEntity(YAML::Node &node, ecs::Entity &entity) {
     }
 
     n = node["TagComponent"];
-    if (n) entity.attach<ecs::component::Tag>(n["Tag"].as<std::string>());
+    if (n)
+        entity.attachOrAssign<ecs::component::Tag>(n["Tag"].as<std::string>());
 
     n = node["TransformComponent"];
     if (n) {
-        auto &t = entity.attach<ecs::component::Transform>();
-        if (n["Position"]) t.position = n["Position"].as<VectorD>();
-        if (n["Scale"]) t.scale = n["Scale"].as<VectorF>();
-        if (n["Rotation"]) t.rotation = n["Rotation"].as<double>();
+        auto& transform = entity.attachIf<ecs::component::Transform>();
+
+        if (n["Position"]) transform.position = n["Position"].as<VectorD>();
+        if (n["Scale"]) transform.scale = n["Scale"].as<VectorF>();
+        if (n["Rotation"]) transform.rotation = n["Rotation"].as<double>();
     }
 
     n = node["SpriteComponent"];
     if (n) {
-        auto &s = entity.attach<ecs::component::Sprite>();
-        if (n["Texture"]) s.texture.load(n["Texture"].as<std::string>());
-        if (n["Centered"]) s.centered = n["Centered"].as<bool>();
-        if (n["Offset"]) s.offset = n["Offset"].as<VectorI>();
-        if (n["Flip"]) s.flip = n["Flip"].as<Vector<bool>>();
-        if (n["FramesNumber"]) s.framesNumber = n["FramesNumber"].as<VectorI>();
-        if (n["Frame"]) s.frame = n["Frame"].as<int>();
-        if (n["RegionEnabled"]) s.regionEnabled = n["RegionEnabled"].as<bool>();
-        if (n["Region"]) s.region = n["Region"].as<SDL_Rect>();
+        auto& sprite = entity.attachIf<ecs::component::Sprite>();
+
+        if (n["Texture"]) sprite.texture.load(n["Texture"].as<std::string>());
+        if (n["Centered"]) sprite.centered = n["Centered"].as<bool>();
+        if (n["Offset"]) sprite.offset = n["Offset"].as<VectorI>();
+        if (n["Flip"]) sprite.flip = n["Flip"].as<Vector<bool>>();
+        if (n["FramesNumber"])
+            sprite.framesNumber = n["FramesNumber"].as<VectorI>();
+        if (n["Frame"]) sprite.frame = n["Frame"].as<int>();
+        if (n["RegionEnabled"])
+            sprite.regionEnabled = n["RegionEnabled"].as<bool>();
+        if (n["Region"]) sprite.region = n["Region"].as<SDL_Rect>();
     }
 
     n = node["SpriteRendererComponent"];
-    if (n) entity.attach<ecs::component::SpriteRenderer>();
+    if (n) entity.attachIf<ecs::component::SpriteRenderer>();
 
     n = node["CameraComponent"];
     if (n) {
-        auto &c = entity.attach<ecs::component::Camera>();
-        if (n["Size"]) c.size = n["Size"].as<VectorF>();
-        if (n["Destination"]) c.destination = n["Destination"].as<VectorF>();
+        auto& camera = entity.attachIf<ecs::component::Camera>();
+
+        if (n["Size"]) camera.size = n["Size"].as<VectorF>();
+        if (n["Destination"])
+            camera.destination = n["Destination"].as<VectorF>();
         if (n["BackgroundColor"])
-            c.background = n["BackgroundColor"].as<SDL_Color>();
+            camera.background = n["BackgroundColor"].as<SDL_Color>();
         if (n["BackgroundImage"])
-            c.backgroundImage.load(n["BackgroundImage"].as<std::string>());
+            camera.backgroundImage.load(n["BackgroundImage"].as<std::string>());
         if (n["ClearMode"]) {
             std::map<std::string, ecs::component::Camera::ClearMode> bind = {
                 {"none", ecs::component::Camera::ClearMode::NONE},
@@ -222,19 +229,28 @@ void Serializer::deserializeEntity(YAML::Node &node, ecs::Entity &entity) {
                 {"solid color", ecs::component::Camera::ClearMode::SOLID_COLOR},
                 {"texture and solid color",
                  ecs::component::Camera::ClearMode::TEXTURE_AND_SOLID_COLOR}};
-            c.clear = bind[n["ClearMode"].as<std::string>()];
+            camera.clear = bind[n["ClearMode"].as<std::string>()];
         }
-        if (n["Flip"]) c.flip = n["Flip"].as<Vector<bool>>();
-        if (n["Depth"]) c.depth = n["Depth"].as<int>();
-        if (n["Layers"]) c.layers = n["Layers"].as<std::vector<int>>();
+        if (n["Flip"]) camera.flip = n["Flip"].as<Vector<bool>>();
+        if (n["Depth"]) camera.depth = n["Depth"].as<int>();
+        if (n["Layers"]) camera.layers = n["Layers"].as<std::vector<int>>();
     }
 
     n = node["Tilemap"];
-    if (n) entity.attach<ecs::component::Tilemap>(n.as<std::string>());
+    if (n) {
+        using Tilemap = ecs::component::Tilemap;
+        const auto source = n.as<std::string>();
+
+        if (entity.has<Tilemap>()) {
+            auto &tilemap = entity.get<Tilemap>();
+            tilemap.setSource(source);
+        } else
+            entity.attach<Tilemap>(source);
+    }
 
     n = node["SpriteAnimatorComponent"];
     if (n)
-        entity.attach<ecs::component::animation::SpriteAnimator>(
+        entity.attachOrAssign<ecs::component::animation::SpriteAnimator>(
             n["FrameDuration"].as<int>());
 }
 
