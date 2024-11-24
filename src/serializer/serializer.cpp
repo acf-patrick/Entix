@@ -154,27 +154,27 @@ bool Serializer::_deserializeTask(std::shared_ptr<task::ITask> &task,
         return false;
     }
 
+    auto displayErrorAt = [](const YAML::Node &node) {
+        auto mark = node.Mark();
+        Logger::error("Deserializer")
+            << "Unable to deserialize task at [" << mark.line << ", "
+            << mark.column << "]";
+        Logger::endline();
+    };
+
     for (auto node : nodes) {
         if (node.IsScalar()) {
-            auto taskName = node.as<std::string>();
-            if (auto customTask = deserializeTask(taskName, entity); customTask)
+            if (auto customTask = deserializeTask(node, entity); customTask)
                 task->push(customTask);
             else {
-                Logger::warn("Deserializer")
-                    << "You might want to implement "
-                       "'Serializer::deserializerTask' yourself for task '"
-                    << taskName << "'";
-                Logger::endline();
-
-                Logger::error("Deserializer")
-                    << "Unable to deserialize task '" << taskName << "'";
-                Logger::endline();
+                displayErrorAt(node);
                 return false;
             }
 
         } else if (node.IsMap()) {
             auto asyncNode = node["Asynchronous"];
             auto seqNode = node["Sequential"];
+            auto isCustomTask = false;
 
             if (asyncNode && seqNode) {
                 Logger::error("Deserializer")
@@ -184,21 +184,25 @@ bool Serializer::_deserializeTask(std::shared_ptr<task::ITask> &task,
                 return false;
             }
 
-            if (!asyncNode && !seqNode) {
-                Logger::error("Deserializer")
-                    << "Task must be either asynchronous or sequential";
-                Logger::endline();
-                return false;
-            }
-
             std::shared_ptr<task::ITask> newTask;
             if (asyncNode)
                 newTask = std::make_shared<task::AsynchronousTask>();
-            else
+            else if (seqNode)
                 newTask = std::make_shared<task::SequentialTask>();
+            else if (auto customTask = deserializeTask(node, entity);
+                     customTask) {
+                newTask = customTask;
+                isCustomTask = true;
+            } else {
+                displayErrorAt(node);
+                return false;
+            }
 
-            if (_deserializeTask(newTask, asyncNode ? asyncNode : seqNode,
-                                 entity))
+            if (isCustomTask)
+                task->push(newTask);
+            else if (_deserializeTask(newTask, asyncNode ? asyncNode : seqNode,
+                                      entity))  // has encountered either async
+                                                // or sequential task
                 task->push(newTask);
             else
                 return false;
@@ -215,8 +219,8 @@ bool Serializer::_deserializeTask(std::shared_ptr<task::ITask> &task,
     return true;
 }
 
-std::shared_ptr<task::ITask> Serializer::deserializeTask(
-    const std::string &taskName, ecs::Entity &entity) {
+std::shared_ptr<task::ITask> Serializer::deserializeTask(const YAML::Node &node,
+                                                         ecs::Entity &entity) {
     return nullptr;
 }
 
@@ -227,7 +231,7 @@ bool Serializer::deserializeTasks(YAML::Node &node, ecs::Entity &entity) {
         return false;
     }
 
-    auto asyncNode = node["Asnchronous"];
+    auto asyncNode = node["Asynchronous"];
     auto seqNode = node["Sequential"];
 
     if (asyncNode && seqNode) {

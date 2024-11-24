@@ -26,6 +26,14 @@ class Timer {
         return _delay - elapsedTime;
     }
 
+    /**
+     * returns progress as a number between 0 and 1
+     */
+    float getProgress() const {
+        if (_delay == 0.0) return 0.0;
+        return getElapsedTime() / (float)_delay;
+    }
+
     bool isDone() const { return getRemainingTime() == 0; }
 
     bool isRunning() const { return _running; }

@@ -44,11 +44,11 @@ class Serializer {
 
     /**
      * Deserialize with your own task type
-     * @param taskName task identifier
+     * @param node task node
      * @param entity entity the task pool will be attached to
      */
     virtual std::shared_ptr<task::ITask> deserializeTask(
-        const std::string& taskName, ecs::Entity& entity);
+        const YAML::Node& node, ecs::Entity& entity);
 
     bool deserializeTasks(YAML::Node&, ecs::Entity&);
 
