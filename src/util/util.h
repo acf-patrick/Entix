@@ -11,3 +11,5 @@
 #include "./geometry/vector.h"
 #include "./geometry/visibility.h"
 #include "./observable/observable.h"
+#include "./lerp/lerp.h"
+#include "./timer/timer.h"

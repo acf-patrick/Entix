@@ -11,6 +11,7 @@
 
 #include "../../application/application.h"
 #include "../../logger/logger.h"
+#include "../../task/task_pool.h"
 #include "../components.h"
 
 namespace entix {
@@ -99,6 +100,11 @@ bool Entity::operator==(const Entity& entity) const {
 }
 
 void Entity::Update(uint32_t dt) {
+    if (has<task::TaskPool>()) {
+        auto& taskPool = get<task::TaskPool>();
+        taskPool.run(dt);
+    }
+
     for (auto& s : _scripts) {
         auto& script = *static_cast<Script*>(s);
         if (script.isEnabled()) script.Update(dt);
