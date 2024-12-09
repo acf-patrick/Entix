@@ -102,6 +102,8 @@ class SceneManager : Manager<SceneManager> {
 
     bool activate(const std::string& sceneName);
 
+    void restartCurrentScene();
+
     // Remove scene at index
     void remove(std::size_t);
 

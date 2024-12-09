@@ -8,8 +8,11 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <memory>
+
 #include "../ecs/entity/entity.h"
 #include "../scene/scene.h"
+#include "../task/task.h"
 #include "specializations.h"
 
 namespace entix {
@@ -25,6 +28,9 @@ class Application;
 class Serializer {
     static int _cnt;
 
+    bool _deserializeTask(std::shared_ptr<task::ITask>& task, YAML::Node&,
+                          ecs::Entity&);
+
    public:
     Serializer();
 
@@ -35,6 +41,16 @@ class Serializer {
 
     // Serialize entity
     virtual void serializeEntity(YAML::Emitter&, ecs::Entity&);
+
+    /**
+     * Deserialize with your own task type
+     * @param node task node
+     * @param entity entity the task pool will be attached to
+     */
+    virtual std::shared_ptr<task::ITask> deserializeTask(
+        const YAML::Node& node, ecs::Entity& entity);
+
+    bool deserializeTasks(YAML::Node&, ecs::Entity&);
 
     // Fetch system names
     bool deserializeSystems(YAML::Node&, Scene&);

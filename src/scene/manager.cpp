@@ -73,6 +73,8 @@ void SceneManager::remove(std::size_t index) {
     }
 }
 
+void SceneManager::restartCurrentScene() { loadCurrentScene(); }
+
 void SceneManager::setListOfScenes(const std::vector<std::string>& sceneNames) {
     for (auto& sceneName : sceneNames) _sceneNames.push_back(sceneName);
     loadCurrentScene();
