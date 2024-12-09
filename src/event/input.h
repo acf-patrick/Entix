@@ -53,7 +53,18 @@ class Input {
 
     static VectorI getMousePosition();
 
-    static bool isKeyPressed(SDL_Scancode);
+    template <typename... SDL_Scancodes>
+    static bool isKeyPressed(SDL_Scancodes&&... scanCodes) {
+        auto&& _isKeyPressed = [&](SDL_Scancode scanCode) {
+            auto it = _keys.find(scanCode);
+            if (it == _keys.end()) return false;
+
+            auto& [_, pressed] = *it;
+            return pressed;
+        };
+
+        return (_isKeyPressed(scanCodes) && ...);
+    }
 
     friend class EventManager;
 };

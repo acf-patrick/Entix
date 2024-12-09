@@ -16,14 +16,6 @@ EVENT_PROP(MOUSE_BUTTON_DOWN) = "SDL mouse button down";
 Input::Mouse Input::_mouse;
 std::map<SDL_Scancode, bool> Input::_keys;
 
-bool Input::isKeyPressed(SDL_Scancode scanCode) {
-    auto it = _keys.find(scanCode);
-    if (it == _keys.end()) return false;
-
-    auto& [_, pressed] = *it;
-    return pressed;
-}
-
 bool Input::isMousePressed(const std::string& button) {
     return _mouse.isPressed(button);
 }
