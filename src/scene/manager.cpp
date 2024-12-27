@@ -88,7 +88,7 @@ bool SceneManager::update() {
     static bool lastUpdateForCurrentScene(false);
     if (lastUpdateForCurrentScene) next();
 
-    if (_sceneNames.empty()) return false;
+    if (_sceneNames.empty() || !_currentScene) return false;
 
     lastUpdateForCurrentScene = !_currentScene->update();
 
