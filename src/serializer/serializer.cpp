@@ -15,17 +15,12 @@
 namespace entix {
 namespace core {
 
-Scene *Serializer::deserialize(const std::string &sceneName) try {
-    auto error = [](const std::string &message) -> Scene * {
-        Logger::error("Deserializer")
-            << "Invalid file format! Cause: " << message;
-        Logger::endline();
-
-        return nullptr;
-    };
-
+Scene *Serializer::deserialize(const std::string &sceneName) {
     Path source;
-    source = source / (Scene::FOLDER + "/" + sceneName + Scene::FILE_EXTENSION);
+    source =
+        source / (Scene::FOLDER +
+                  std::string(1, std::filesystem::path::preferred_separator) +
+                  sceneName + Scene::FILE_EXTENSION);
 
     std::ifstream file(source);
 
@@ -39,12 +34,24 @@ Scene *Serializer::deserialize(const std::string &sceneName) try {
 
     std::stringstream ss;
     ss << file.rdbuf();
-    YAML::Node node = YAML::Load(ss.str());
+    return deserializeRaw(ss.str());
+}
 
-    auto name = node["Name"];
-    if (!name) return error("'Name' node was not found");
+Scene *Serializer::deserializeRaw(const std::string &yaml) try {
+    auto error = [](const std::string &message) -> Scene * {
+        Logger::error("Deserializer")
+            << "Invalid file format! Cause: " << message;
+        Logger::endline();
 
-    Scene *scene = new Scene(name.as<std::string>());
+        return nullptr;
+    };
+
+    YAML::Node node = YAML::Load(yaml);
+
+    if (!node["Name"]) return error("'Name' node was not found");
+
+    const auto sceneName = node["Name"].as<std::string>();
+    Scene *scene = new Scene(sceneName);
 
     auto entities = node["Entities"];
     if (!entities) return error("'Entities' node was not found");
@@ -77,9 +84,10 @@ Scene *Serializer::deserialize(const std::string &sceneName) try {
     }
 
     if (scene)
-        Logger::info("Deserializer") << source << " loaded";
+        Logger::info("Deserializer") << sceneName << " loaded";
     else
-        Logger::error("Deserializer") << "Failed to load " << source;
+        Logger::error("Deserializer")
+            << "Failed to load scene '" << sceneName << "'";
     Logger::endline();
 
     return scene;
