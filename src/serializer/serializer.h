@@ -30,7 +30,6 @@ class Serializer {
 
     bool _deserializeTask(std::shared_ptr<task::ITask>& task, YAML::Node&,
                           ecs::Entity&);
-
    public:
     Serializer();
 

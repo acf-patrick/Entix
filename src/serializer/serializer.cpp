@@ -12,10 +12,44 @@
 #include "../task/sequential.h"
 #include "../task/task_pool.h"
 
+#if true || defined(NDEBUG)
+#include <scenes.h>
+#endif
+
 namespace entix {
 namespace core {
 
 Scene *Serializer::deserialize(const std::string &sceneName) {
+#if true || defined(NDEBUG)
+    if (g_scenes_len == 0) {
+        Logger::warn("Deserializer") << "No scene found";
+        Logger::endline();
+
+        return nullptr;
+    }
+
+    for (unsigned int i = 0; i < g_scenes_len; ++i) {
+        const std::string yaml = g_scenes[i];
+        const auto node = YAML::Load(yaml);
+
+        if (node["Name"]) {
+            if (node["Name"].as<std::string>() == sceneName) {
+                return deserializeRaw(yaml);
+            }
+        } else {
+            Logger::error("Deserializer")
+                << "Invalid compiled scene file does not contain 'Name' "
+                   "property";
+            Logger::endline();
+        }
+    }
+
+    Logger::error("Deserializer")
+        << "Scene '" << sceneName << "' was not found";
+    Logger::endline();
+
+    return nullptr;
+#else
     Path source;
     source =
         source / (Scene::FOLDER +
@@ -35,6 +69,7 @@ Scene *Serializer::deserialize(const std::string &sceneName) {
     std::stringstream ss;
     ss << file.rdbuf();
     return deserializeRaw(ss.str());
+#endif
 }
 
 Scene *Serializer::deserializeRaw(const std::string &yaml) try {

@@ -6,7 +6,7 @@
 #include <map>
 #include <sstream>
 
-#ifdef NDEBUG
+#if true || defined(NDEBUG)
 #include <app_config.h>
 #endif
 
@@ -21,8 +21,15 @@ int main(int argc, char** argv) {
 
     auto usingDefaultConfig = false;
 
-#ifdef NDEBUG
-    const std::string yaml(app_config);
+#if true || defined(NDEBUG)
+    if (g_app_config_len == 0) {
+        Logger::error() << "Application config not found";
+        Logger::endline();
+
+        return -1;
+    }
+
+    const std::string yaml(g_app_config[0]);
     const auto execPath = std::filesystem::canonical(argv[0]);
     const auto configPath = execPath.parent_path();
 #else
@@ -35,7 +42,9 @@ int main(int argc, char** argv) {
         } else {
             usingDefaultConfig = true;
 
-            Logger::error() << "Executable running in debug mode : " << configFile << " was not found";
+            Logger::error()
+                << "Executable running in debug mode : " << configFile
+                << " was not found";
             Logger::endline();
 
             Logger::info() << "Default configuration used";
@@ -83,11 +92,13 @@ int main(int argc, char** argv) {
 
     if (node["FPS"]) application.setFramerate(node["FPS"].as<int>());
 
+#if false && !defined(NDEBUG)
     auto scenesPath = configPath / core::Scene::FOLDER;
     if (!std::filesystem::exists(scenesPath) && !usingDefaultConfig) {
         Logger::warn() << "'scenes' folder not found in '" << configPath;
         Logger::endline();
     }
+#endif
 
     auto oneSceneDeserialized = false;
     if (node["Scenes"]) {
