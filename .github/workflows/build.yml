@@ -35,6 +35,7 @@ jobs:
             libtiff-dev \
             libwebp-dev \
             zlib1g-dev \
+            fluidsynth \
             file \
             fonts-dejavu-core \
             libfreetype-dev \
