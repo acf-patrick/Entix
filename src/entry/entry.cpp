@@ -6,6 +6,10 @@
 #include <map>
 #include <sstream>
 
+#if defined(NDEBUG)
+#include <app_config.h>
+#endif
+
 #include "../application/application.h"
 #include "../logger/logger.h"
 
@@ -15,8 +19,21 @@ int main(int argc, char** argv) {
     Logger::info() << "Creating main application";
     Logger::endline();
 
-    std::string configFile((argc > 1) ? argv[1] : "app.cfg");
     auto usingDefaultConfig = false;
+
+#if defined(NDEBUG)
+    if (g_app_config_len == 0) {
+        Logger::error() << "Application config not found";
+        Logger::endline();
+
+        return -1;
+    }
+
+    const std::string yaml(g_app_config[0]);
+    const auto execPath = std::filesystem::canonical(argv[0]);
+    const auto configPath = execPath.parent_path();
+#else
+    std::string configFile((argc > 1) ? argv[1] : "app.cfg");
     std::ostringstream ss;
     {
         std::ifstream cfg(configFile);
@@ -25,7 +42,9 @@ int main(int argc, char** argv) {
         } else {
             usingDefaultConfig = true;
 
-            Logger::error() << configFile << " was not found";
+            Logger::error()
+                << "Executable running in debug mode : " << configFile
+                << " was not found";
             Logger::endline();
 
             Logger::info() << "Default configuration used";
@@ -33,7 +52,11 @@ int main(int argc, char** argv) {
         }
     }
 
-    YAML::Node node = YAML::Load(ss.str());
+    const auto yaml = ss.str();
+    const auto configPath = std::filesystem::path(configFile).parent_path();
+#endif
+
+    YAML::Node node = YAML::Load(yaml);
     std::string title = "Untitled";
     if (node["Title"]) title = node["Title"].as<std::string>();
 
@@ -58,9 +81,9 @@ int main(int argc, char** argv) {
     }
 
     core::Application application(title, wSize.x, wSize.y, windowFlags);
-
-    auto configPath = std::filesystem::path(configFile).parent_path();
+    
     application._configPath = configPath.string();
+
     auto& serializer = application.getSerializer();
 
     if (node["Position"]) {
@@ -76,11 +99,13 @@ int main(int argc, char** argv) {
 
     if (node["FPS"]) application.setFramerate(node["FPS"].as<int>());
 
+#if !defined(NDEBUG)
     auto scenesPath = configPath / core::Scene::FOLDER;
     if (!std::filesystem::exists(scenesPath) && !usingDefaultConfig) {
         Logger::warn() << "'scenes' folder not found in '" << configPath;
         Logger::endline();
     }
+#endif
 
     auto oneSceneDeserialized = false;
     if (node["Scenes"]) {

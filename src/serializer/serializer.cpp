@@ -15,20 +15,49 @@
 #include "../task/task_pool.h"
 #include "../util/exprtk/exprtk.hpp"
 
+#if defined(NDEBUG)
+#include <scenes.h>
+#endif
+
 namespace entix {
 namespace core {
 
-Scene *Serializer::deserialize(const std::string &sceneName) try {
-    auto error = [](const std::string &message) -> Scene * {
-        Logger::error("Deserializer")
-            << "Invalid file format! Cause: " << message;
+Scene *Serializer::deserialize(const std::string &sceneName) {
+#if defined(NDEBUG)
+    if (g_scenes_len == 0) {
+        Logger::warn("Deserializer") << "No scene found";
         Logger::endline();
 
         return nullptr;
-    };
+    }
 
+    for (unsigned int i = 0; i < g_scenes_len; ++i) {
+        const std::string yaml = g_scenes[i];
+        const auto node = YAML::Load(yaml);
+
+        if (node["Name"]) {
+            if (node["Name"].as<std::string>() == sceneName) {
+                return deserializeRaw(yaml);
+            }
+        } else {
+            Logger::error("Deserializer")
+                << "Invalid compiled scene file does not contain 'Name' "
+                   "property";
+            Logger::endline();
+        }
+    }
+
+    Logger::error("Deserializer")
+        << "Scene '" << sceneName << "' was not found";
+    Logger::endline();
+
+    return nullptr;
+#else
     Path source;
-    source = source / (Scene::FOLDER + "/" + sceneName + Scene::FILE_EXTENSION);
+    source =
+        source / (Scene::FOLDER +
+                  std::string(1, std::filesystem::path::preferred_separator) +
+                  sceneName + Scene::FILE_EXTENSION);
 
     std::ifstream file(source);
 
@@ -42,12 +71,25 @@ Scene *Serializer::deserialize(const std::string &sceneName) try {
 
     std::stringstream ss;
     ss << file.rdbuf();
-    YAML::Node node = YAML::Load(ss.str());
+    return deserializeRaw(ss.str());
+#endif
+}
 
-    auto name = node["Name"];
-    if (!name) return error("'Name' node was not found");
+Scene *Serializer::deserializeRaw(const std::string &yaml) try {
+    auto error = [](const std::string &message) -> Scene * {
+        Logger::error("Deserializer")
+            << "Invalid file format! Cause: " << message;
+        Logger::endline();
 
-    Scene *scene = new Scene(name.as<std::string>());
+        return nullptr;
+    };
+
+    YAML::Node node = YAML::Load(yaml);
+
+    if (!node["Name"]) return error("'Name' node was not found");
+
+    const auto sceneName = node["Name"].as<std::string>();
+    Scene *scene = new Scene(sceneName);
 
     auto entities = node["Entities"];
     if (!entities) return error("'Entities' node was not found");
@@ -80,9 +122,10 @@ Scene *Serializer::deserialize(const std::string &sceneName) try {
     }
 
     if (scene)
-        Logger::info("Deserializer") << source << " loaded";
+        Logger::info("Deserializer") << sceneName << " loaded";
     else
-        Logger::error("Deserializer") << "Failed to load " << source;
+        Logger::error("Deserializer")
+            << "Failed to load scene '" << sceneName << "'";
     Logger::endline();
 
     return scene;

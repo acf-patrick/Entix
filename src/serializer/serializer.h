@@ -56,6 +56,8 @@ class Serializer {
     virtual ~Serializer() = default;
 
     virtual void serialize(Scene*, const std::string& fileName = "");
+
+    virtual Scene* deserializeRaw(const std::string& yaml);
     virtual Scene* deserialize(const std::string& sceneName);
 
     // Serialize entity
