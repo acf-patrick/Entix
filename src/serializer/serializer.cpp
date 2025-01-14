@@ -12,7 +12,7 @@
 #include "../task/sequential.h"
 #include "../task/task_pool.h"
 
-#if true || defined(NDEBUG)
+#if defined(NDEBUG)
 #include <scenes.h>
 #endif
 
@@ -20,7 +20,7 @@ namespace entix {
 namespace core {
 
 Scene *Serializer::deserialize(const std::string &sceneName) {
-#if true || defined(NDEBUG)
+#if defined(NDEBUG)
     if (g_scenes_len == 0) {
         Logger::warn("Deserializer") << "No scene found";
         Logger::endline();
