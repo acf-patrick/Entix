@@ -4,6 +4,8 @@
 
 namespace entix {
 
+Path::Path() { _path = core::Application::Get().getConfigPath(); }
+
 Path::Path(const char* path) {
     if (path) {
         _path = core::Application::Get().getConfigPath() / std::string(path);

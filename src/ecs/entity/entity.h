@@ -122,6 +122,16 @@ class Entity {
         return attach<T>(args...);
     }
 
+    template <typename T, typename... TArgs>
+    void attachOrAssign(TArgs&&... args) {
+        if (has<T>()) {
+            auto& component = get<T>();
+            component = T(std::forward<TArgs>(args)...);
+        } else {
+            attach<T>(std::forward<TArgs>(args)...);
+        }
+    }
+
     template <typename T>
     void distach() {
         if (!has<T>()) return;
@@ -157,8 +167,8 @@ class Entity {
     void onDestroy();
 
    private:
-    Entity();
-    Entity(EntityID);
+    Entity(ComponentManager&);
+    Entity(EntityID, ComponentManager&);
     ~Entity();
 
     void _init();

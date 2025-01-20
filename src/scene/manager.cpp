@@ -8,107 +8,119 @@
 namespace entix {
 namespace core {
 
-using SceneRef = std::shared_ptr<Scene>;
-using Couple = std::pair<Scene*, Scene*>;
-
-void SceneManager::load(const std::string& fileName) {
-    auto scene = Application::Get().getSerializer().deserialize(fileName);
-    EventManager::Get()
-        ->emit(Scene::Event::LOADED)
-        .attach<ecs::component::Tag>(scene->tag);
+std::shared_ptr<Scene> SceneManager::load(const std::string& sceneName) {
+    if (auto scene = Application::Get().getSerializer().deserialize(sceneName);
+        scene) {
+        EventManager::Get()
+            ->emit(Scene::Event::LOADED)
+            .attach<SceneLoad>(scene->tag);
+        return std::shared_ptr<Scene>(scene,
+                                      [](Scene* scene) { delete scene; });
+    }
+    return nullptr;
 }
 
-Scene& SceneManager::getActive() { return *scenes[0]; }
+Scene& SceneManager::getActive() { return *_currentScene; }
 
-void SceneManager::setActive(const std::string& tag) {
-    auto prev = scenes[0];
-    auto it = std::find_if(scenes.begin(), scenes.end(),
-                           [&](Scene* s) { return s->tag == tag; });
+bool SceneManager::activate(const std::string& tag) {
+    const auto& prevSceneName = _sceneNames[0];
+    if (tag == prevSceneName) {
+        Logger::warn("SceneManager") << "Scene '" << tag << "' already active";
+        Logger::endline();
 
-    // there is no scene with such tag
-    if (it == scenes.end()) return;
+        return true;
+    }
 
-    // remove and stack elements together
-    scenes.erase(it);
+    if (auto it = std::find_if(
+            _sceneNames.begin(), _sceneNames.end(),
+            [&](const std::string& sceneName) { return sceneName == tag; });
+        it == _sceneNames.end()) {
+        Logger::warn("SceneManager")
+            << "Unable to find scene '" << tag << "' in the stack";
+        Logger::endline();
+    }
 
-    auto scene = *it;
+    // put new scene at second position
+    // mark current scene as inactive (will be popped out the stack)
 
-    // puts the element at ontop of the queue
-    auto prevScene = scenes.front();
-    scenes.push_front(scene);
+    _sceneNames.insert(_sceneNames.begin() + 1, tag);
+    _currentScene->active = false;
 
     EventManager::Get()
         ->emit(Scene::Event::CHANGED)
-        .attach<SceneChange>(prevScene->tag, scene->tag);
-}
+        .attach<SceneChange>(prevSceneName, tag);
 
-void SceneManager::setActive(std::size_t index) {
-    auto prev = scenes[0];
-    if (index >= scenes.size()) return;
-
-    auto scene = scenes[index];
-    scenes.erase(scenes.begin() + index);
-
-    auto prevScene = scenes.front();
-    scenes.push_front(scene);
-
-    EventManager::Get()
-        ->emit(Scene::Event::CHANGED)
-        .attach<SceneChange>(prevScene->tag, scene->tag);
+    return true;
 }
 
 void SceneManager::remove(const std::string& tag) {
-    auto it = std::find_if(scenes.begin(), scenes.end(),
-                           [&](Scene* scene) { return scene->tag == tag; });
-    delete *it;
-    scenes.erase(it);
+    auto removingCurrentScene = tag == _sceneNames.front();
+    if (tag == _sceneNames.front()) {
+        _currentScene->active = false;
+    } else
+        _sceneNames.erase(
+            std::remove(_sceneNames.begin(), _sceneNames.end(), tag));
 }
 
 void SceneManager::remove(std::size_t index) {
-    if (index >= scenes.size()) return;
+    if (index >= _sceneNames.size()) return;
 
-    auto it = scenes.begin() + index;
-    delete *it;
-    scenes.erase(it);
+    if (index == 0) {
+        _currentScene->active = false;
+    } else {
+        auto it = _sceneNames.begin() + index;
+        _sceneNames.erase(it);
+    }
 }
 
-void SceneManager::push(Scene* scene) {
-    if (std::find(scenes.begin(), scenes.end(), scene) == scenes.end())
-        scenes.push_back(scene);
+void SceneManager::restartCurrentScene() { loadCurrentScene(); }
+
+void SceneManager::setListOfScenes(const std::vector<std::string>& sceneNames) {
+    for (auto& sceneName : sceneNames) _sceneNames.push_back(sceneName);
+    loadCurrentScene();
 }
 
 void SceneManager::render() {
-    if (!scenes.empty()) scenes[0]->render();
+    if (_currentScene) _currentScene->render();
 }
 
 bool SceneManager::update() {
-    static bool lastUpdateForCurrentScene(true);
-    if (!lastUpdateForCurrentScene) next();
+    static bool lastUpdateForCurrentScene(false);
+    if (lastUpdateForCurrentScene) next();
 
-    if (scenes.empty()) return false;
+    if (_sceneNames.empty() || !_currentScene) return false;
 
-    lastUpdateForCurrentScene = scenes[0]->update();
+    lastUpdateForCurrentScene = !_currentScene->update();
 
     return true;
 }
 
 void SceneManager::next() {
-    if (scenes.empty()) return;
-    auto scene = scenes[0];
+    if (_sceneNames.empty()) return;
+    auto prevScene = _sceneNames[0];
 
-    auto prevScene = scene->tag;
-    delete scene;
-    scenes.pop_front();
+    _sceneNames.pop_front();
 
-    if (!scenes.empty())
-        EventManager::Get()
-            ->emit(Scene::Event::CHANGED)
-            .attach<SceneChange>(prevScene, scenes.front()->tag);
+    if (!_sceneNames.empty()) {
+        if (!loadCurrentScene()) {
+            Logger::error("SceneManager")
+                << "Unable to load " << _sceneNames.front();
+            Logger::endline();
+        } else
+            EventManager::Get()
+                ->emit(Scene::Event::CHANGED)
+                .attach<SceneChange>(prevScene, _sceneNames.front());
+    }
 }
 
-SceneManager::~SceneManager() {
-    for (auto scene : scenes) delete scene;
-    scenes.clear();
+bool SceneManager::loadCurrentScene() {
+    if (_sceneNames.size() > 0) {
+        if (auto scene = load(_sceneNames.front()); scene) {
+            _currentScene = scene;
+            return true;
+        }
+    }
+    return false;
 }
 
 // static

@@ -15,11 +15,11 @@ void SpriteRenderer::Render() {
         return;
     }
 
-    auto& spriteComponent = get<Sprite>();
-    if (!spriteComponent.texture) return;  // no texture to draw
-
     core::RenderManager::Get()->submit([&](SDL_Renderer* renderer,
                                            Entity* camera) {
+        auto& spriteComponent = get<Sprite>();
+        if (!spriteComponent.texture) return;  // no texture to draw
+
         if (!has<Transform>())
             attach<Transform>();  // using default position, rotation and
                                   // scale factor
@@ -27,8 +27,9 @@ void SpriteRenderer::Render() {
         const auto& cameraPosition = camera->get<Transform>().position;
         const auto& transform = get<Transform>();
 
-        auto pos = transform.position;
-        pos -= cameraPosition;  // compute positoin relative to camera
+        auto clampedPosition = transform.position;
+        clampedPosition -=
+            cameraPosition;  // compute position relative to camera
 
         auto& texture = spriteComponent.texture;
         const auto& scale = transform.scale;
@@ -59,8 +60,8 @@ void SpriteRenderer::Render() {
         }
 
         // compute frame size
-        frameSize.x = w / spriteComponent.framesNumber.x;
-        frameSize.y = h / spriteComponent.framesNumber.y;
+        frameSize.y = h / (float)spriteComponent.framesNumber.y;
+        frameSize.x = w / (float)spriteComponent.framesNumber.x;
 
         // compute source rect
         src.x += (spriteComponent.frame % spriteComponent.framesNumber.x) *
@@ -70,11 +71,14 @@ void SpriteRenderer::Render() {
         src.w = frameSize.x;
         src.h = frameSize.y;
 
-        // destination
-        pos += spriteComponent.offset;
+        // apply offset
+        clampedPosition += spriteComponent.offset;
+
+        VectorI scaledSize(src.w * scale.x, src.h * scale.y);
 
         // center destination
-        if (spriteComponent.centered) pos -= {src.w * 0.5, src.h * 0.5};
+        if (spriteComponent.centered)
+            clampedPosition -= {scaledSize.x * 0.5, scaledSize.y * 0.5};
 
         SDL_Rect boundingBox = {(int)transform.position.x,
                                 (int)transform.position.y, int(scale.x * src.w),
@@ -83,12 +87,53 @@ void SpriteRenderer::Render() {
         auto& cameraComponent = camera->get<Camera>();
 
         if (cameraComponent.contains(boundingBox))
-            texture.draw(src, {int(pos.x), int(pos.y)}, {src.w / 2, src.h / 2},
-                         rotation, spriteComponent.flip, scale);
+            texture.draw(src, {int(clampedPosition.x), int(clampedPosition.y)},
+                         {scaledSize.x / 2, scaledSize.y / 2}, rotation,
+                         spriteComponent.flip, scale);
     });
 }
 
 void Sprite::setTexture(const std::string& fileName) { texture.load(fileName); }
+
+std::optional<SDL_Rect> Sprite::getBoundingBox() const {
+    Transform mockTransform;
+    return getBoundingBox(mockTransform);
+}
+
+std::optional<SDL_Rect> Sprite::getBoundingBox(
+    const Transform& entityTransform) const {
+    SDL_Rect boundingBox = {.x = (int)entityTransform.position.x,
+                            .y = (int)entityTransform.position.y,
+                            .w = 0,
+                            .h = 0};
+
+    VectorI textureSize;
+    if (regionEnabled)
+        textureSize.set(region.w, region.h);
+    else if (auto sizeOrNull = texture.getSize(); sizeOrNull)
+        textureSize = *sizeOrNull;
+    else
+        return std::nullopt;
+
+    // slice tiles
+    textureSize.x /= (float)framesNumber.x;
+    textureSize.y /= (float)framesNumber.y;
+
+    // apply scale and setup size
+    boundingBox.w = textureSize.x * entityTransform.scale.x;
+    boundingBox.h = textureSize.y * entityTransform.scale.y;
+
+    if (centered) {
+        boundingBox.x -= boundingBox.w * 0.5;
+        boundingBox.y -= boundingBox.h * 0.5;
+    }
+
+    // apply offset
+    boundingBox.x -= offset.x;
+    boundingBox.y -= offset.y;
+
+    return boundingBox;
+}
 
 void Sprite::setFrame(int x, int y) {
     if (x >= framesNumber.x || y >= framesNumber.y) return;

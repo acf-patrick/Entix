@@ -96,6 +96,10 @@ struct Sprite {
     // matrix coordinates system
     void setFrame(int, int);
 
+    std::optional<SDL_Rect> getBoundingBox(const Transform& entityTransform) const;
+
+    std::optional<SDL_Rect> getBoundingBox() const;
+
     // shortcut to :
     // sprite.texture.load(fileName);
     void setTexture(const std::string &);
@@ -348,6 +352,8 @@ class Tilemap : public Script {
     Tilemap(const Path &);
 
     ~Tilemap();
+
+    void setSource(const Path&);
 
     std::string getSource() const;
 

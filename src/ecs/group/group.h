@@ -80,12 +80,12 @@ class Group {
     std::vector<Entity*> getEntitiesWithNoneOf();
 
    private:
-    Group();
+    Group() = default;
     ~Group();
 
    private:
     std::list<EntityID> _ids;
-    ComponentManager& _componentManager;
+    ComponentManager _componentManager;
 
     friend class core::Scene;
 };

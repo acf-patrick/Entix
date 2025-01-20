@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "../manager/manager.h"
+#include "../ecs/component/manager.h"
 #include "input.h"
 
 namespace entix {
@@ -50,6 +51,7 @@ class EventManager : Manager<EventManager> {
     std::queue<Event> _events;
     std::vector<EventListner*> _listners;
     std::unordered_map<std::string, Event> _bind;
+    ecs::ComponentManager _componentManager;
 
     // std::vector<EventListner*> toAdd;
     // std::vector<EventListner*> toRemove;

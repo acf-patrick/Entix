@@ -12,7 +12,14 @@ std::multiset<Camera*, Camera::_compare> Camera::instances;
 Camera::Camera() { instances.emplace(this); }
 
 Camera::~Camera() {
-    instances.erase(this);
+    for (auto it = instances.begin(); it != instances.end();) {
+        if (*it == this) {
+            it = instances.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
     SDL_DestroyTexture(_colorTexture);
     _colorTexture = nullptr;
 }

@@ -2,25 +2,65 @@
 
 #include <cstdlib>
 #include <fstream>
+#include <regex>
 #include <sstream>
 
 #include "../application/application.h"
 #include "../ecs/components.h"
 #include "../logger/logger.h"
+#include "../path/path.h"
+#include "../renderer/renderer.h"
+#include "../task/asynchronous.h"
+#include "../task/sequential.h"
+#include "../task/task_pool.h"
+#include "../util/exprtk/exprtk.hpp"
+
+#if defined(NDEBUG)
+#include <scenes.h>
+#endif
 
 namespace entix {
 namespace core {
 
-Scene *Serializer::deserialize(const std::string &source) try {
-    auto error = [](const std::string &message) -> Scene * {
-        Logger::error("Deserializer")
-            << "Invalid file format! Cause: " << message;
+Scene *Serializer::deserialize(const std::string &sceneName) {
+#if defined(NDEBUG)
+    if (g_scenes_len == 0) {
+        Logger::warn("Deserializer") << "No scene found";
         Logger::endline();
 
         return nullptr;
-    };
+    }
+
+    for (unsigned int i = 0; i < g_scenes_len; ++i) {
+        const std::string yaml = g_scenes[i];
+        const auto node = YAML::Load(yaml);
+
+        if (node["Name"]) {
+            if (node["Name"].as<std::string>() == sceneName) {
+                return deserializeRaw(yaml);
+            }
+        } else {
+            Logger::error("Deserializer")
+                << "Invalid compiled scene file does not contain 'Name' "
+                   "property";
+            Logger::endline();
+        }
+    }
+
+    Logger::error("Deserializer")
+        << "Scene '" << sceneName << "' was not found";
+    Logger::endline();
+
+    return nullptr;
+#else
+    Path source;
+    source =
+        source / (Scene::FOLDER +
+                  std::string(1, std::filesystem::path::preferred_separator) +
+                  sceneName + Scene::FILE_EXTENSION);
 
     std::ifstream file(source);
+
     if (!file) {
         Logger::error("Deserializer")
             << "Scene file : " << source << " doesn't exist!";
@@ -31,12 +71,25 @@ Scene *Serializer::deserialize(const std::string &source) try {
 
     std::stringstream ss;
     ss << file.rdbuf();
-    YAML::Node node = YAML::Load(ss.str());
+    return deserializeRaw(ss.str());
+#endif
+}
 
-    auto name = node["Name"];
-    if (!name) return error("'Name' node was not found");
+Scene *Serializer::deserializeRaw(const std::string &yaml) try {
+    auto error = [](const std::string &message) -> Scene * {
+        Logger::error("Deserializer")
+            << "Invalid file format! Cause: " << message;
+        Logger::endline();
 
-    Scene *scene = new Scene(name.as<std::string>());
+        return nullptr;
+    };
+
+    YAML::Node node = YAML::Load(yaml);
+
+    if (!node["Name"]) return error("'Name' node was not found");
+
+    const auto sceneName = node["Name"].as<std::string>();
+    Scene *scene = new Scene(sceneName);
 
     auto entities = node["Entities"];
     if (!entities) return error("'Entities' node was not found");
@@ -69,9 +122,10 @@ Scene *Serializer::deserialize(const std::string &source) try {
     }
 
     if (scene)
-        Logger::info("Deserializer") << source << " loaded";
+        Logger::info("Deserializer") << sceneName << " loaded";
     else
-        Logger::error("Deserializer") << "Failed to load " << source;
+        Logger::error("Deserializer")
+            << "Failed to load scene '" << sceneName << "'";
     Logger::endline();
 
     return scene;
@@ -136,6 +190,123 @@ void Serializer::serialize(Scene *scene, const std::string &fileName) {
     }
 }
 
+bool Serializer::_deserializeTask(std::shared_ptr<task::ITask> &task,
+                                  YAML::Node &nodes, ecs::Entity &entity) {
+    if (!nodes.IsSequence()) {
+        Logger::error("Deserializer")
+            << "Task node must be a sequence of task name or another node of "
+               "async/seq task";
+        Logger::endline();
+        return false;
+    }
+
+    auto displayErrorAt = [](const YAML::Node &node) {
+        auto mark = node.Mark();
+        Logger::error("Deserializer")
+            << "Unable to deserialize task at [" << mark.line << ", "
+            << mark.column << "]";
+        Logger::endline();
+    };
+
+    for (auto node : nodes) {
+        if (node.IsScalar()) {
+            if (auto customTask = deserializeTask(node, entity); customTask)
+                task->push(customTask);
+            else {
+                displayErrorAt(node);
+                return false;
+            }
+
+        } else if (node.IsMap()) {
+            auto asyncNode = node["Asynchronous"];
+            auto seqNode = node["Sequential"];
+            auto isCustomTask = false;
+
+            if (asyncNode && seqNode) {
+                Logger::error("Deserializer")
+                    << "Task can not be asynchronous and sequential at the "
+                       "same time";
+                Logger::endline();
+                return false;
+            }
+
+            std::shared_ptr<task::ITask> newTask;
+            if (asyncNode)
+                newTask = std::make_shared<task::AsynchronousTask>();
+            else if (seqNode)
+                newTask = std::make_shared<task::SequentialTask>();
+            else if (auto customTask = deserializeTask(node, entity);
+                     customTask) {
+                newTask = customTask;
+                isCustomTask = true;
+            } else {
+                displayErrorAt(node);
+                return false;
+            }
+
+            if (isCustomTask)
+                task->push(newTask);
+            else if (_deserializeTask(newTask, asyncNode ? asyncNode : seqNode,
+                                      entity))  // has encountered either async
+                                                // or sequential task
+                task->push(newTask);
+            else
+                return false;
+
+        } else {
+            Logger::error("Deserializer")
+                << "Task item must be either a user defined task-name or "
+                   "another node of async/seq task";
+            Logger::endline();
+            return false;
+        }
+    }
+
+    return true;
+}
+
+std::shared_ptr<task::ITask> Serializer::deserializeTask(const YAML::Node &node,
+                                                         ecs::Entity &entity) {
+    return nullptr;
+}
+
+bool Serializer::deserializeTasks(YAML::Node &node, ecs::Entity &entity) {
+    if (!node.IsMap()) {
+        Logger::error("Deserializer") << "Root task must be a mapping.";
+        Logger::endline();
+        return false;
+    }
+
+    auto asyncNode = node["Asynchronous"];
+    auto seqNode = node["Sequential"];
+
+    if (asyncNode && seqNode) {
+        Logger::error("Deserializer") << "'Tasks' can only have one root node.";
+        Logger::endline();
+        return false;
+    }
+
+    if (!asyncNode && !seqNode) {
+        Logger::error("Deserializer") << "Invalid Task. Root task should be "
+                                         "either Asynchronous or Sequential";
+        Logger::endline();
+        return false;
+    }
+
+    std::shared_ptr<task::ITask> rootTask;
+    if (asyncNode)
+        rootTask = std::make_shared<task::AsynchronousTask>();
+    else
+        rootTask = std::make_shared<task::SequentialTask>();
+
+    if (_deserializeTask(rootTask, asyncNode ? asyncNode : seqNode, entity)) {
+        entity.attach<task::TaskPool>(rootTask);
+        return true;
+    }
+
+    return false;
+}
+
 bool Serializer::deserializeSystems(YAML::Node &node, Scene &scene) {
     if (!node.IsSequence()) {
         Logger::error("Deserializer")
@@ -174,63 +345,81 @@ void Serializer::deserializeEntity(YAML::Node &node, ecs::Entity &entity) {
             entity.useTemplate(n.as<std::string>());
     }
 
-    n = node["TagComponent"];
-    if (n) entity.attach<ecs::component::Tag>(n["Tag"].as<std::string>());
-
-    n = node["TransformComponent"];
+    n = node["Tasks"];
     if (n) {
-        auto &t = entity.attach<ecs::component::Transform>();
-        if (n["Position"]) t.position = n["Position"].as<VectorD>();
-        if (n["Scale"]) t.scale = n["Scale"].as<VectorF>();
-        if (n["Rotation"]) t.rotation = n["Rotation"].as<double>();
-    }
-
-    n = node["SpriteComponent"];
-    if (n) {
-        auto &s = entity.attach<ecs::component::Sprite>();
-        if (n["Texture"]) s.texture.load(n["Texture"].as<std::string>());
-        if (n["Centered"]) s.centered = n["Centered"].as<bool>();
-        if (n["Offset"]) s.offset = n["Offset"].as<VectorI>();
-        if (n["Flip"]) s.flip = n["Flip"].as<Vector<bool>>();
-        if (n["FramesNumber"]) s.framesNumber = n["FramesNumber"].as<VectorI>();
-        if (n["Frame"]) s.frame = n["Frame"].as<int>();
-        if (n["RegionEnabled"]) s.regionEnabled = n["RegionEnabled"].as<bool>();
-        if (n["Region"]) s.region = n["Region"].as<SDL_Rect>();
-    }
-
-    n = node["SpriteRendererComponent"];
-    if (n) entity.attach<ecs::component::SpriteRenderer>();
-
-    n = node["CameraComponent"];
-    if (n) {
-        auto &c = entity.attach<ecs::component::Camera>();
-        if (n["Size"]) c.size = n["Size"].as<VectorF>();
-        if (n["Destination"]) c.destination = n["Destination"].as<VectorF>();
-        if (n["BackgroundColor"])
-            c.background = n["BackgroundColor"].as<SDL_Color>();
-        if (n["BackgroundImage"])
-            c.backgroundImage.load(n["BackgroundImage"].as<std::string>());
-        if (n["ClearMode"]) {
-            std::map<std::string, ecs::component::Camera::ClearMode> bind = {
-                {"none", ecs::component::Camera::ClearMode::NONE},
-                {"texture", ecs::component::Camera::ClearMode::TEXTURE},
-                {"solid color", ecs::component::Camera::ClearMode::SOLID_COLOR},
-                {"texture and solid color",
-                 ecs::component::Camera::ClearMode::TEXTURE_AND_SOLID_COLOR}};
-            c.clear = bind[n["ClearMode"].as<std::string>()];
+        if (!deserializeTasks(n, entity)) {
+            Logger::error("Deserializer")
+                << "Unable to deserialize tasks correctly please ensure you "
+                   "have overriden Serializer::deseriliazeTask for your own "
+                   "specific task";
+            Logger::endline();
         }
-        if (n["Flip"]) c.flip = n["Flip"].as<Vector<bool>>();
-        if (n["Depth"]) c.depth = n["Depth"].as<int>();
-        if (n["Layers"]) c.layers = n["Layers"].as<std::vector<int>>();
     }
 
-    n = node["Tilemap"];
-    if (n) entity.attach<ecs::component::Tilemap>(n.as<std::string>());
+    {  // deserializing components
+        n = node["TagComponent"];
+        if (n) entity.attach<ecs::component::Tag>(n["Tag"].as<std::string>());
 
-    n = node["SpriteAnimatorComponent"];
-    if (n)
-        entity.attach<ecs::component::animation::SpriteAnimator>(
-            n["FrameDuration"].as<int>());
+        n = node["TransformComponent"];
+        if (n) {
+            auto &t = entity.attach<ecs::component::Transform>();
+            if (n["Position"]) t.position = parseVector<double>(n["Position"]);
+            if (n["Scale"]) t.scale = n["Scale"].as<VectorF>();
+            if (n["Rotation"]) t.rotation = n["Rotation"].as<double>();
+        }
+
+        n = node["SpriteComponent"];
+        if (n) {
+            auto &s = entity.attach<ecs::component::Sprite>();
+            if (n["Texture"]) s.texture.load(n["Texture"].as<std::string>());
+            if (n["Centered"]) s.centered = n["Centered"].as<bool>();
+            if (n["Offset"]) s.offset = n["Offset"].as<VectorI>();
+            if (n["Flip"]) s.flip = n["Flip"].as<Vector<bool>>();
+            if (n["FramesNumber"])
+                s.framesNumber = n["FramesNumber"].as<VectorI>();
+            if (n["Frame"]) s.frame = n["Frame"].as<int>();
+            if (n["RegionEnabled"])
+                s.regionEnabled = n["RegionEnabled"].as<bool>();
+            if (n["Region"]) s.region = n["Region"].as<SDL_Rect>();
+        }
+
+        n = node["SpriteRendererComponent"];
+        if (n) entity.attach<ecs::component::SpriteRenderer>();
+
+        n = node["CameraComponent"];
+        if (n) {
+            auto &c = entity.attach<ecs::component::Camera>();
+            if (n["Size"]) c.size = n["Size"].as<VectorF>();
+            if (n["Destination"])
+                c.destination = n["Destination"].as<VectorF>();
+            if (n["BackgroundColor"])
+                c.background = n["BackgroundColor"].as<SDL_Color>();
+            if (n["BackgroundImage"])
+                c.backgroundImage.load(n["BackgroundImage"].as<std::string>());
+            if (n["ClearMode"]) {
+                std::map<std::string, ecs::component::Camera::ClearMode> bind =
+                    {{"none", ecs::component::Camera::ClearMode::NONE},
+                     {"texture", ecs::component::Camera::ClearMode::TEXTURE},
+                     {"solid color",
+                      ecs::component::Camera::ClearMode::SOLID_COLOR},
+                     {"texture and solid color",
+                      ecs::component::Camera::ClearMode::
+                          TEXTURE_AND_SOLID_COLOR}};
+                c.clear = bind[n["ClearMode"].as<std::string>()];
+            }
+            if (n["Flip"]) c.flip = n["Flip"].as<Vector<bool>>();
+            if (n["Depth"]) c.depth = n["Depth"].as<int>();
+            if (n["Layers"]) c.layers = n["Layers"].as<std::vector<int>>();
+        }
+
+        n = node["Tilemap"];
+        if (n) entity.attach<ecs::component::Tilemap>(n.as<std::string>());
+
+        n = node["SpriteAnimatorComponent"];
+        if (n)
+            entity.attach<ecs::component::animation::SpriteAnimator>(
+                n["FrameDuration"].as<int>());
+    }
 }
 
 void Serializer::serializeEntity(YAML::Emitter &out, ecs::Entity &entity) {
@@ -305,6 +494,71 @@ void Serializer::serializeEntity(YAML::Emitter &out, ecs::Entity &entity) {
                    .getFrameDuration();
         out << YAML::EndMap;
     }
+}
+
+template <typename T>
+Vector<T> Serializer::parseVector(const YAML::Node &node) const {
+    if (node.IsScalar()) {
+        const auto value = node.as<std::string>();
+        std::regex functionRegex(
+            R"(normalizedWindowCoords\(([-+]?[0-9]*\.?[0-9]+)\s*,\s*([-+]?[0-9]*\.?[0-9]+)\))");
+
+        std::smatch match;
+        if (std::regex_match(value, match, functionRegex)) {
+            const auto x = std::stof(match[1].str());
+            const auto y = std::stof(match[2].str());
+            return unormalizeWindowCoordinates<T>(x, y);
+        }
+    } else if (node.IsSequence() && node.size() == 2) {
+        auto isNodeANumber = [](const YAML::Node &node) {
+            try {
+                auto _ = node.as<double>();
+                return true;
+            } catch (...) {
+                return false;
+            }
+        };
+
+        if (isNodeANumber(node[0]) && isNodeANumber(node[1]))
+            return node.as<Vector<T>>();
+
+        const auto variables = getDefinedVariables();
+        return {evaluateExpression(node[0].as<std::string>(), variables),
+                evaluateExpression(node[1].as<std::string>(), variables)};
+    }
+
+    std::stringstream ss;
+    const auto nodeMark = node.Mark();
+    ss << "Invalid Position format at [" << nodeMark.line << ", "
+       << nodeMark.column << ']';
+
+    throw std::runtime_error(ss.str());
+}
+
+template <typename T>
+T Serializer::evaluateExpression(
+    const std::string &expr,
+    const std::unordered_map<std::string, T> &variables) const {
+    exprtk::symbol_table<T> symbolTable;
+    for (auto &[key, value] : variables) {
+        symbolTable.add_constant(key, value);
+    }
+
+    exprtk::parser<T> parser;
+    const auto expression = parser.compile(expr, symbolTable);
+    return expression.value();
+}
+
+template <typename T>
+Vector<T> Serializer::unormalizeWindowCoordinates(float x, float y) const {
+    const auto windowSize = RenderManager::Get()->getSize();
+    return {windowSize.x * x, windowSize.y * y};
+}
+
+std::unordered_map<std::string, double> Serializer::getDefinedVariables()
+    const {
+    const auto windowSize = RenderManager::Get()->getSize();
+    return {{"WINDOW_WIDTH", windowSize.x}, {"WINDOW_HEIGHT", windowSize.y}};
 }
 
 int Serializer::_cnt = 0;

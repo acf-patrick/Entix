@@ -17,6 +17,7 @@ class Path {
     fs::path _path;
 
    public:
+    Path();
     Path(const char*);
     Path(const std::string&);
     Path(const fs::path&);
