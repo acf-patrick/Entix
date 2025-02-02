@@ -9,6 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # use physic system
 option(USE_PHYSIC_SYSTEM "Enable physics simulation and physic system" OFF)
 
+# must be ON if this library is being consumed
+option(USE_AS_STANDALONE "Build this as a standalone library and ignore pre-compiled configuration files" OFF)
+
 # disable box2d tests build
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Disable Box2D Unit Tests build" FORCE)
 set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "Disable Box2D Testbed build" FORCE)
@@ -18,7 +21,7 @@ set(BUILD_TESTS OFF CACHE BOOL "Disable Tileson tests build" FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "Disable Tileson examples build" FORCE)
 
 # build SDL libraries as shared-object
-set(SDL_STATIC OFF CACHE BOOL "Disble SDL static library bulid" FORCE)
+set(SDL_STATIC OFF CACHE BOOL "Disable SDL static library build" FORCE)
 set(SDL_SHARED ON CACHE BOOL "Build SDL as shared object" FORCE)
 
 set(SDL_TEST OFF CACHE BOOL "Disable SDL tests build" FORCE)

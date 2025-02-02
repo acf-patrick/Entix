@@ -28,3 +28,7 @@ if(USE_PHYSIC_SYSTEM)
     target_link_libraries(entix PUBLIC box2d)
     target_compile_definitions(entix PUBLIC USE_PHYSIC_SYSTEM=1)
 endif()
+
+if (USE_AS_STANDALONE)
+    target_compile_definitions(entix PUBLIC USE_AS_STANDALONE=1)
+endif()
