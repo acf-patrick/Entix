@@ -81,8 +81,12 @@ int main(int argc, char** argv) {
     }
 
     core::Application application(title, wSize.x, wSize.y, windowFlags);
-    
-    application._configPath = configPath.string();
+
+    application._configPath =
+        (node["AssetsFolder"]
+             ? (configPath / node["AssetsFolder"].as<std::string>())
+             : (configPath / "assets"))
+            .string();
 
     auto& serializer = application.getSerializer();
 
