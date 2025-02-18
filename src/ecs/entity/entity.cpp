@@ -1,9 +1,5 @@
 #include "entity.h"
 
-#if defined(NDEBUG) && !defined(USE_LIBRARY_AS_STANDALONE)
-#define RELEASE
-#endif
-
 #include <yaml-cpp/yaml.h>
 
 #include <cassert>
@@ -13,7 +9,7 @@
 #include <set>
 #include <sstream>
 
-#ifdef RELEASE
+#if defined(NDEBUG) && !defined(USE_LIBRARY_AS_STANDALONE)
 #include <prefabs.h>
 #endif
 
@@ -147,7 +143,7 @@ void Entity::setIndex(unsigned int i) {
 void Entity::useTemplate(const std::string& templateName) {
     auto& serializer = core::Application::Get().getSerializer();
 
-#ifndef RELEASE
+#ifndef NDEBUG
     Path path(PREFABS_FOLDER);
     path = path / (templateName + FILE_EXTENSION);
 
@@ -164,7 +160,7 @@ void Entity::useTemplate(const std::string& templateName) {
     std::ostringstream ss;
     ss << file.rdbuf();
     auto yaml = YAML::Load(ss.str());
-#else
+#elif !defined(USE_LIBRARY_AS_STANDALONE)
     if (g_prefabs.find(templateName) == g_prefabs.end()) {
         Logger::error("Entity")
             << "Failed to load template : '" << templateName << "' not found";

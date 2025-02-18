@@ -15,11 +15,7 @@
 #include "../task/task_pool.h"
 #include "../util/exprtk/exprtk.hpp"
 
-#if defined(NDEBUG) && defined(USE_AS_STANDALONE)
-#define RELEASE
-#endif
-
-#ifdef RELEASE
+#if defined(NDEBUG) && !defined(USE_LIBRARY_AS_STANDALONE)
 #include <scenes.h>
 #endif
 
@@ -27,7 +23,27 @@ namespace entix {
 namespace core {
 
 Scene *Serializer::deserialize(const std::string &sceneName) {
-#ifdef RELEASE
+#ifndef NDEBUG
+    Path source;
+    source =
+        source / (Scene::FOLDER +
+                  std::string(1, std::filesystem::path::preferred_separator) +
+                  sceneName + Scene::FILE_EXTENSION);
+
+    std::ifstream file(source);
+
+    if (!file) {
+        Logger::error("Deserializer")
+            << "Scene file : " << source << " doesn't exist!";
+        Logger::endline();
+
+        return nullptr;
+    }
+
+    std::stringstream ss;
+    ss << file.rdbuf();
+    return deserializeRaw(ss.str());
+#elif !defined(USE_LIBRARY_AS_STANDALONE)
     if (g_scenes_len == 0) {
         Logger::warn("Deserializer") << "No scene found";
         Logger::endline();
@@ -56,26 +72,6 @@ Scene *Serializer::deserialize(const std::string &sceneName) {
     Logger::endline();
 
     return nullptr;
-#else
-    Path source;
-    source =
-        source / (Scene::FOLDER +
-                  std::string(1, std::filesystem::path::preferred_separator) +
-                  sceneName + Scene::FILE_EXTENSION);
-
-    std::ifstream file(source);
-
-    if (!file) {
-        Logger::error("Deserializer")
-            << "Scene file : " << source << " doesn't exist!";
-        Logger::endline();
-
-        return nullptr;
-    }
-
-    std::stringstream ss;
-    ss << file.rdbuf();
-    return deserializeRaw(ss.str());
 #endif
 }
 

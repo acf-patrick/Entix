@@ -6,12 +6,8 @@
 #include <map>
 #include <sstream>
 
-#if defined(NDEBUG) && defined(USE_AS_STANDALONE)
-#define RELEASE
-#endif
-
-#ifdef RELEASE
-#include <app_config.h>
+#if defined(NDEBUG) && !defined(USE_LIBRARY_AS_STANDALONE)
+    #include <app_config.h>
 #endif
 
 #include "../application/application.h"
@@ -25,18 +21,7 @@ int main(int argc, char** argv) {
 
     auto usingDefaultConfig = false;
 
-#ifdef RELEASE
-    if (g_app_config_len == 0) {
-        Logger::error() << "Application config not found";
-        Logger::endline();
-
-        return -1;
-    }
-
-    const std::string yaml(g_app_config[0]);
-    const auto execPath = std::filesystem::canonical(argv[0]);
-    const auto configPath = execPath.parent_path();
-#else
+#ifndef NDEBUG
     std::string configFile((argc > 1) ? argv[1] : "app.cfg");
     std::ostringstream ss;
     {
@@ -58,6 +43,17 @@ int main(int argc, char** argv) {
 
     const auto yaml = ss.str();
     const auto configPath = std::filesystem::path(configFile).parent_path();
+#elif !defined(USE_LIBRARY_AS_STANDALONE)
+    if (g_app_config_len == 0) {
+        Logger::error() << "Application config not found";
+        Logger::endline();
+
+        return -1;
+    }
+
+    const std::string yaml(g_app_config[0]);
+    const auto execPath = std::filesystem::canonical(argv[0]);
+    const auto configPath = execPath.parent_path();
 #endif
 
     YAML::Node node = YAML::Load(yaml);
@@ -107,7 +103,7 @@ int main(int argc, char** argv) {
 
     if (node["FPS"]) application.setFramerate(node["FPS"].as<int>());
 
-#ifndef RELEASE
+#ifndef NDEBUG
     auto scenesPath = configPath / core::Scene::FOLDER;
     if (!std::filesystem::exists(scenesPath) && !usingDefaultConfig) {
         Logger::warn() << "'scenes' folder not found in '" << configPath;

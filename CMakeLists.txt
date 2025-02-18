@@ -10,7 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 option(USE_PHYSIC_SYSTEM "Enable physics simulation and physic system" OFF)
 
 # must be ON if this library is being consumed
-option(USE_AS_STANDALONE "Build this as a standalone library and ignore pre-compiled configuration files" OFF)
+option(USE_LIBRARY_AS_STANDALONE "Build this as a standalone library and ignore pre-compiled configuration files" ON)
 
 # disable box2d tests build
 set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "Disable Box2D Unit Tests build" FORCE)
