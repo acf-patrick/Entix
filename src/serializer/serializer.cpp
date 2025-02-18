@@ -15,7 +15,11 @@
 #include "../task/task_pool.h"
 #include "../util/exprtk/exprtk.hpp"
 
-#if defined(NDEBUG)
+#if defined(NDEBUG) && defined(USE_AS_STANDALONE)
+#define RELEASE
+#endif
+
+#ifdef RELEASE
 #include <scenes.h>
 #endif
 
@@ -23,7 +27,7 @@ namespace entix {
 namespace core {
 
 Scene *Serializer::deserialize(const std::string &sceneName) {
-#if defined(NDEBUG)
+#ifdef RELEASE
     if (g_scenes_len == 0) {
         Logger::warn("Deserializer") << "No scene found";
         Logger::endline();
