@@ -55,6 +55,7 @@ int main(int argc, char** argv) {
     const auto execPath = std::filesystem::canonical(argv[0]);
     const auto configPath = execPath.parent_path();
 #else
+    const std::string yaml;
     std::filesystem::path configPath; // fallback for compilation error
 #endif
 
