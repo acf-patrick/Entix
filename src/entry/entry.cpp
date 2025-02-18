@@ -54,6 +54,8 @@ int main(int argc, char** argv) {
     const std::string yaml(g_app_config[0]);
     const auto execPath = std::filesystem::canonical(argv[0]);
     const auto configPath = execPath.parent_path();
+#else
+    std::filesystem::path configPath; // fallback for compilation error
 #endif
 
     YAML::Node node = YAML::Load(yaml);

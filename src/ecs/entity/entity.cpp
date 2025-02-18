@@ -170,6 +170,8 @@ void Entity::useTemplate(const std::string& templateName) {
     }
 
     auto yaml = YAML::Load(g_prefabs.at(templateName));
+#else
+    YAML::Node yaml; // fallback for compilation error
 #endif
 
     serializer.deserializeEntity(yaml, *this);
