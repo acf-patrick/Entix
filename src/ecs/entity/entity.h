@@ -29,6 +29,9 @@ class Group;
  */
 class Entity {
    public:
+    static const std::string PREFABS_FOLDER;
+    static const std::string FILE_EXTENSION;
+
     using Script = BaseScript;
     using Camera = ICamera;
 
@@ -39,9 +42,9 @@ class Entity {
     static Entity* Get(EntityID);
 
     /** construct entity using a template
-     * @param fileName
+     * @param templateName
      */
-    void useTemplate(const Path&);
+    void useTemplate(const std::string&);
 
     // getter for index property
     int getIndex() const;

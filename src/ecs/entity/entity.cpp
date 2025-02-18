@@ -9,6 +9,10 @@
 #include <set>
 #include <sstream>
 
+#if defined(NDEBUG) && !defined(USE_LIBRARY_AS_STANDALONE)
+#include <prefabs.h>
+#endif
+
 #include "../../application/application.h"
 #include "../../logger/logger.h"
 #include "../../task/task_pool.h"
@@ -16,6 +20,9 @@
 
 namespace entix {
 namespace ecs {
+
+const std::string Entity::PREFABS_FOLDER = "prefabs";
+const std::string Entity::FILE_EXTENSION = ".entt";
 
 std::set<EntityID> Entity::takenID;
 std::unordered_map<EntityID, Entity*> Entity::instances;
@@ -133,8 +140,13 @@ void Entity::setIndex(unsigned int i) {
     if (has<component::Group>()) get<component::Group>().group->reorder();
 }
 
-void Entity::useTemplate(const Path& path) {
+void Entity::useTemplate(const std::string& templateName) {
     auto& serializer = core::Application::Get().getSerializer();
+
+#ifndef NDEBUG
+    Path path(PREFABS_FOLDER);
+    path = path / (templateName + FILE_EXTENSION);
+
     std::ifstream file(path);
 
     if (!file) {
@@ -147,10 +159,24 @@ void Entity::useTemplate(const Path& path) {
 
     std::ostringstream ss;
     ss << file.rdbuf();
-    auto n = YAML::Load(ss.str());
-    serializer.deserializeEntity(n, *this);
+    auto yaml = YAML::Load(ss.str());
+#elif !defined(USE_LIBRARY_AS_STANDALONE)
+    if (g_prefabs.find(templateName) == g_prefabs.end()) {
+        Logger::error("Entity")
+            << "Failed to load template : '" << templateName << "' not found";
+        Logger::endline();
 
-    Logger::info("Entity") << path << " : Template loaded";
+        return;
+    }
+
+    auto yaml = YAML::Load(g_prefabs.at(templateName));
+#else
+    YAML::Node yaml; // fallback for compilation error
+#endif
+
+    serializer.deserializeEntity(yaml, *this);
+
+    Logger::info("Entity") << templateName << " : Template loaded";
     Logger::endline();
 }
 

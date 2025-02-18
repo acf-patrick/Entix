@@ -28,7 +28,7 @@ void Logger::endline() {
     auto& self = Get();
     self.stream << std::endl;
 
-#if !defined(NDEBUG) || !defined(USE_AS_STANDALONE)
+#ifndef NDEBUG
     switch (self.curr_line_status) {
         case Status::INFO:
         case Status::WARN:

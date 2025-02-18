@@ -29,6 +29,6 @@ if(USE_PHYSIC_SYSTEM)
     target_compile_definitions(entix PUBLIC USE_PHYSIC_SYSTEM=1)
 endif()
 
-if (USE_AS_STANDALONE)
-    target_compile_definitions(entix PUBLIC USE_AS_STANDALONE=1)
+if (USE_LIBRARY_AS_STANDALONE)
+    target_compile_definitions(entix PUBLIC USE_LIBRARY_AS_STANDALONE=1)
 endif()
