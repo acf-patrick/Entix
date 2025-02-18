@@ -6,7 +6,11 @@
 #include <map>
 #include <sstream>
 
-#if defined(NDEBUG)
+#if defined(NDEBUG) && defined(USE_AS_STANDALONE)
+#define RELEASE
+#endif
+
+#ifdef RELEASE
 #include <app_config.h>
 #endif
 
@@ -21,7 +25,7 @@ int main(int argc, char** argv) {
 
     auto usingDefaultConfig = false;
 
-#if defined(NDEBUG)
+#ifdef RELEASE
     if (g_app_config_len == 0) {
         Logger::error() << "Application config not found";
         Logger::endline();
@@ -103,7 +107,7 @@ int main(int argc, char** argv) {
 
     if (node["FPS"]) application.setFramerate(node["FPS"].as<int>());
 
-#if !defined(NDEBUG)
+#ifndef RELEASE
     auto scenesPath = configPath / core::Scene::FOLDER;
     if (!std::filesystem::exists(scenesPath) && !usingDefaultConfig) {
         Logger::warn() << "'scenes' folder not found in '" << configPath;

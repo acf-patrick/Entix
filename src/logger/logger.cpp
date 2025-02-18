@@ -2,7 +2,7 @@
 
 #include <fstream>
 
-namespace entix {    
+namespace entix {
 
 std::shared_ptr<Logger> Logger::instance;
 
@@ -28,7 +28,7 @@ void Logger::endline() {
     auto& self = Get();
     self.stream << std::endl;
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) || !defined(USE_AS_STANDALONE)
     switch (self.curr_line_status) {
         case Status::INFO:
         case Status::WARN:
@@ -82,4 +82,4 @@ bool Logger::dumpStatus(Status status, const Path& path) {
     return true;
 }
 
-}
+}  // namespace entix
